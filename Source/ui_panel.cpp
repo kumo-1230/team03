@@ -40,9 +40,9 @@ UiButton* UiPanel::AddButton(std::unique_ptr<UiButton> button) {
 }
 
 void UiPanel::InsertButtonSorted(std::unique_ptr<UiButton> button) {
-    const int layer = button->GetLayer();
+    const int layer = button->GetRenderLayer();
     auto insert_position = std::ranges::find_if(buttons_, [layer](const auto& btn) {
-        return layer < btn->GetLayer();
+        return layer < btn->GetRenderLayer();
         });
     buttons_.insert(insert_position, std::move(button));
 }
@@ -56,7 +56,7 @@ UiElement* UiPanel::AddSprite(const char* file_name, DirectX::XMFLOAT2 position,
     UiElement* sprite_ptr = new_sprite.get();
 
     auto insert_position = std::ranges::find_if(sprites_, [layer](const auto& spr) {
-        return layer < spr->GetLayer();
+        return layer < spr->GetRenderLayer();
         });
 
     sprites_.insert(insert_position, std::move(new_sprite));

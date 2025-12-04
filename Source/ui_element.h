@@ -29,7 +29,7 @@ public:
     DirectX::XMFLOAT2 GetSize() const { return size_; }
     DirectX::XMFLOAT2 GetSpritePosition() const { return sprite_position_; }
     DirectX::XMFLOAT2 GetSpriteSize() const { return sprite_size_; }
-    int GetLayer() const { return layer_; }
+    int GetRenderLayer() const { return layer_; }
     bool IsValid() const { return is_valid_; }
     DirectX::XMFLOAT4 GetColor() const { return color_; }
     UiRenderMode GetRenderMode() const { return render_mode_; }
