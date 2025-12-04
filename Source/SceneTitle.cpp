@@ -19,8 +19,7 @@ void SceneTitle::Initialize() {
     sprButtonBack = std::make_unique<Sprite>("Data/Sprite/title_square.png");
     sprFadeLoad = std::make_unique<Sprite>("Data/Sprite/load_background.png");
 
-    titleStartMenu = std::make_unique<UiPanel>("");
-
+    titleStartMenu = std::make_unique<UiPanel>();
     titleStartMenu->AddButton(std::make_unique<UiButton>(
         "Data/Sprite/gamestart_text_new.png",
         DirectX::XMFLOAT2{ SCREEN_W * 0.2f - 351 * 0.5f - 100,
@@ -52,6 +51,8 @@ void SceneTitle::Initialize() {
         },
         true
     ));
+
+    //titleStartMenu->SetPosition({ 200, 200 });
 
     clickSE = Audio::Instance().LoadAudioSource("Data/Sound/title/SE_title_click.wav");
     onCursorSE = Audio::Instance().LoadAudioSource("Data/Sound/title/SE_title_cursor.wav");

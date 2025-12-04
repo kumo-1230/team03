@@ -1,4 +1,5 @@
 #include "ui_element.h"
+#include <render_layer.h>
 
 UiElement::UiElement(const char* file_name, DirectX::XMFLOAT2 position,
     DirectX::XMFLOAT2 size, DirectX::XMFLOAT2 sprite_position,

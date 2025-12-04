@@ -3,6 +3,7 @@
 #include <memory>
 #include <DirectXMath.h>
 #include <System/Sprite.h>
+#include "render_layer.h"
 
 enum class UiRenderMode {
     kNormal,           // í èÌï\é¶
@@ -78,7 +79,7 @@ protected:
     DirectX::XMFLOAT2 sprite_position_;
     DirectX::XMFLOAT2 sprite_size_;
     DirectX::XMFLOAT4 color_ = { 1.0f, 1.0f, 1.0f, 1.0f };
-    int layer_ = 0;
+    int layer_ = RenderLayer::kDefault;
     bool is_valid_ = true;
     UiRenderMode render_mode_ = UiRenderMode::kNormal;
     float size_offset_ = 0.0f;

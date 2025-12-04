@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <ranges>
 #include <KeyInput.h>
+#include <render_layer.h>
 
 UiPanel::UiPanel()
     : UiElement("", DirectX::XMFLOAT2{ 0.0f, 0.0f }, DirectX::XMFLOAT2{ 0.0f, 0.0f },
@@ -17,14 +18,13 @@ UiPanel::UiPanel(const char* background_file_name)
         DirectX::XMFLOAT2{ 0.0f, 0.0f }, DirectX::XMFLOAT2{ 0.0f, 0.0f }, 0, true),
     has_background_(true),
     background_size_{ SCREEN_W - 20.0f, SCREEN_H - 20.0f } {
-    // background_sprite_の代わりにbackground_element_を作成
     background_element_ = std::make_unique<UiElement>(
         background_file_name,
         DirectX::XMFLOAT2{ 0.0f, 0.0f },  // position
         background_size_,                // size
         DirectX::XMFLOAT2{ 0.0f, 0.0f },  // sprite_position
         DirectX::XMFLOAT2{ 1.0f, 1.0f },  // sprite_size (normalized)
-        -1,                              // layer (背景なので最下層)
+        RenderLayer::kBackGround,                              // layer (背景なので最下層)
         true);                           // is_valid
 }
 
@@ -167,11 +167,10 @@ void UiPanel::Render(const RenderContext& rc, int background_mode,
 
     const float panel_alpha = CalculateAlpha();
 
-    // background_element_を使用してレンダリング
     if (has_background_ && background_element_ &&
         background_mode == MenuBackgroundMode::kBackgroundVisible) {
         DirectX::XMFLOAT4 bg_color = background_color_;
-        bg_color.w *= panel_alpha;  // パネル全体のアルファを適用
+        bg_color.w *= panel_alpha; 
 
         if (!freeze_effects) {
             background_element_->SetAlphaTransition(enable_alpha_transition_);
@@ -187,7 +186,6 @@ void UiPanel::Render(const RenderContext& rc, int background_mode,
             continue;
         }
 
-        // パネルのアルファ設定を子要素に適用
         if (!freeze_effects) {
             sprite->SetAlphaTransition(enable_alpha_transition_);
             sprite->SetTargetAlpha(target_alpha_);
@@ -201,7 +199,6 @@ void UiPanel::Render(const RenderContext& rc, int background_mode,
             continue;
         }
 
-        // パネルのアルファ設定を子要素に適用
         if (!freeze_effects) {
             button->SetAlphaTransition(enable_alpha_transition_);
             button->SetTargetAlpha(target_alpha_);

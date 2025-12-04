@@ -261,6 +261,9 @@
     <ClInclude Include="Source\ui_element.h">
       <Filter>Source\MySystem\menu</Filter>
     </ClInclude>
+    <ClInclude Include="Source\render_layer.h">
+      <Filter>Source\MySystem\menu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui-docking\imgui.cpp">
