@@ -9,309 +9,408 @@
 #include "SceneTutorial.h"
 #include "System/Graphics.h"
 
-Pose::Pose()
-{
-	Initializer();
+Pose::Pose() {
+    Initializer();
 }
 
-Pose::~Pose()
-{
-	delete setPause;
-	delete pauseBackSE;
-	delete pauseSelectSE;
+Pose::~Pose() {
+    delete setPause;
+    delete pauseBackSE;
+    delete pauseSelectSE;
 }
 
-void Pose::Initializer()
-{
-	sprSettingBack = std::make_unique<Sprite>("./Data/Sprite/setting_default.png");
-	sprPoseBack = std::make_unique<Sprite>("./Data/Sprite/pause_default.png");
+void Pose::Initializer() {
+    sprSettingBack = std::make_unique<Sprite>("./Data/Sprite/setting_default.png");
+    sprPoseBack = std::make_unique<Sprite>("./Data/Sprite/pause_default.png");
 
-	setPause = Audio::Instance().LoadAudioSource("Data/Sound/Game/SE_game_pause.wav");
-	setPause->SetVolume(1.0f);
-	pauseBackSE = Audio::Instance().LoadAudioSource("Data/Sound/Pause/SE_setting_back.wav");
-	pauseSelectSE = Audio::Instance().LoadAudioSource("Data/Sound/Pause/SE_setting_select.wav");
+    setPause = Audio::Instance().LoadAudioSource("Data/Sound/Game/SE_game_pause.wav");
+    setPause->SetVolume(1.0f);
+    pauseBackSE = Audio::Instance().LoadAudioSource("Data/Sound/Pause/SE_setting_back.wav");
+    pauseSelectSE = Audio::Instance().LoadAudioSource("Data/Sound/Pause/SE_setting_select.wav");
 
-	poseMenu = std::make_unique<Menu>();
-	poseMenu->SetButton("./Data/Sprite/pause_button.png", { SCREEN_W_CENTER - 417 / 2,50 }, { 417,476 }, { 0,0 }, {417,476}, 0, 0, true);
-	poseMenu->SetButton("./Data/Sprite/pause_button.png", { SCREEN_W_CENTER - 417 / 2,SCREEN_H_CENTER }, { 417,476 }, { 0,476 }, { 417,476 }, 0, 1, true);
-	poseMenu->SetButton("./Data/Sprite/pause_button.png", { SCREEN_W_CENTER + 417,0 }, { 417,476 }, { 0,476 * 2 }, { 417,476 }, 0, 2, true);
-	poseMenu->SetButton("./Data/Sprite/pause_button.png", { SCREEN_W_CENTER + 417,SCREEN_H_CENTER }, { 417,476 }, { 0,476 * 3 }, { 417,476 }, 0, 3, true);
-	poseMenu->SetMenuStart(false);
+    poseMenu = std::make_unique<UiPanel>();
 
-	settingMenu = std::make_unique<Menu>();
-	settingMenu->SetButton("./Data/Sprite/empty.png", { 900,145  }, { 110,64 }, { 0,0 }, { 0,0 }, 0, 0, true);
-	settingMenu->SetButton("./Data/Sprite/empty.png", { 1150,145 }, { 110,64 }, { 0,0 }, { 0,0 }, 0, 1, true);
-	settingMenu->SetButton("./Data/Sprite/empty.png", { 1425,145 }, { 110,64 }, { 0,0 }, { 0,0 }, 0, 2, true);
-	settingMenu->SetButton("./Data/Sprite/empty.png", { 960,390  }, { 165,64 }, { 0,0 }, { 0,0 }, 0, 3, true);
-	settingMenu->SetButton("./Data/Sprite/empty.png", { 1290,390 }, { 220,64 }, { 0,0 }, { 0,0 }, 0, 4, true);
-	settingMenu->SetButton("./Data/Sprite/empty.png", { 960,640  }, { 165,64 }, { 0,0 }, { 0,0 }, 0, 5, true);
-	settingMenu->SetButton("./Data/Sprite/empty.png", { 1320,640 }, { 165,64 }, { 0,0 }, { 0,0 }, 0, 6, true);
-	settingMenu->SetButton("./Data/Sprite/empty.png", { 840, 940 }, { 165,64 }, { 0,0 }, { 0,0 }, 0, 7, true);
-	settingMenu->SetButton("./Data/Sprite/empty.png", { 1120,940 }, { 165,64 }, { 0,0 }, { 0,0 }, 0, 8, true);
-	settingMenu->SetButton("./Data/Sprite/empty.png", { 1400,940 }, { 165,64 }, { 0,0 }, { 0,0 }, 0, 9, true);
-	settingMenu->SetButton("./Data/Sprite/setting_back.png", { SCREEN_W - 246.0f,0 }, { 246,105 }, { 0,0 }, { 246,105 }, 0, 10, true);
-	settingMenu->SetMenuStart(false);
+    poseButtons[0] = poseMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/pause_button.png",
+        DirectX::XMFLOAT2{ SCREEN_W_CENTER - 417.0f / 2.0f, 50 },
+        DirectX::XMFLOAT2{ 417, 476 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 417, 476 },
+        0, 0,
+        [this]() {
+            poseMenu->SetActive(false);
+            settingMenu->SetActive(true);
+            numBank = -1;
+        },
+        true
+    ));
 
-	//for (int i = 0; i < settingMenu->GetButtonManager()->GetButtonSize(); i++)
-	//{
-	//	settingMenu->GetButton(i)->SetRenderMode(BUTTON_R_MODE::INVISIBLE);
-	//}
+    poseButtons[1] = poseMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/pause_button.png",
+        DirectX::XMFLOAT2{ SCREEN_W_CENTER - 417.0f / 2.0f, SCREEN_H_CENTER },
+        DirectX::XMFLOAT2{ 417, 476 },
+        DirectX::XMFLOAT2{ 0, 476 },
+        DirectX::XMFLOAT2{ 417, 476 },
+        0, 1,
+        [this]() {
+            PoseOff();
+            fadeIn = false;
+        },
+        true
+    ));
 
-	sensitivity       = static_cast<int>(SENSITIVITY_TYPE::NORMALE);
-	fov               = static_cast<int>(FOV_TYPE::NORMALE);
-	shake             = static_cast<int>(SHAKE_TYPE::ON);
-	drunkenness       = static_cast<int>(DRUNKENNESS_TYPE::NONE);
+    poseButtons[2] = poseMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/pause_button.png",
+        DirectX::XMFLOAT2{ SCREEN_W_CENTER + 417, 0 },
+        DirectX::XMFLOAT2{ 417, 476 },
+        DirectX::XMFLOAT2{ 0, 476 * 2 },
+        DirectX::XMFLOAT2{ 417, 476 },
+        0, 2,
+        [this]() {
+            if (PoseOff()) {
+                SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle()));
+            }
+            fadeIn = false;
+        },
+        true
+    ));
 
+    poseButtons[3] = poseMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/pause_button.png",
+        DirectX::XMFLOAT2{ SCREEN_W_CENTER + 417, SCREEN_H_CENTER },
+        DirectX::XMFLOAT2{ 417, 476 },
+        DirectX::XMFLOAT2{ 0, 476 * 3 },
+        DirectX::XMFLOAT2{ 417, 476 },
+        0, 3,
+        [this]() {
+            if (PoseOff()) {
+                if (tutorial)
+                    SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial()));
+                else
+                    SceneManager::Instance().ChangeScene(new SceneLoading(new SceneGame()));
+            }
+            fadeIn = false;
+        },
+        true
+    ));
 
-	buttonSensitivity = 1;
-	buttonFov         = 4;
-	buttonShake       = 5;
-	buttonDrunkenness = 9;
+    poseMenu->SetActive(false);
 
-	sprSetting        = std::make_unique<Sprite>("Data/Sprite/setting_switch.png");
+    settingMenu = std::make_unique<UiPanel>();
 
-	lerp = std::make_unique<Lerp>(0.1f);
-	lerpButton = std::make_unique<Lerp>(0.1f);
+    settingButtons[0] = settingMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/empty.png",
+        DirectX::XMFLOAT2{ 900, 145 },
+        DirectX::XMFLOAT2{ 110, 64 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        0, 0,
+        [this]() {
+            sensitivity = static_cast<int>(SENSITIVITY_TYPE::HIGH);
+            buttonSensitivity = 0;
+        },
+        true
+    ));
+
+    settingButtons[1] = settingMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/empty.png",
+        DirectX::XMFLOAT2{ 1150, 145 },
+        DirectX::XMFLOAT2{ 110, 64 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        0, 1,
+        [this]() {
+            sensitivity = static_cast<int>(SENSITIVITY_TYPE::NORMALE);
+            buttonSensitivity = 1;
+        },
+        true
+    ));
+
+    settingButtons[2] = settingMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/empty.png",
+        DirectX::XMFLOAT2{ 1425, 145 },
+        DirectX::XMFLOAT2{ 110, 64 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        0, 2,
+        [this]() {
+            sensitivity = static_cast<int>(SENSITIVITY_TYPE::LOW);
+            buttonSensitivity = 2;
+        },
+        true
+    ));
+
+    settingButtons[3] = settingMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/empty.png",
+        DirectX::XMFLOAT2{ 960, 390 },
+        DirectX::XMFLOAT2{ 165, 64 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        0, 3,
+        [this]() {
+            fov = static_cast<int>(FOV_TYPE::HIGH);
+            buttonFov = 3;
+        },
+        true
+    ));
+
+    settingButtons[4] = settingMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/empty.png",
+        DirectX::XMFLOAT2{ 1290, 390 },
+        DirectX::XMFLOAT2{ 220, 64 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        0, 4,
+        [this]() {
+            fov = static_cast<int>(FOV_TYPE::NORMALE);
+            buttonFov = 4;
+        },
+        true
+    ));
+
+    settingButtons[5] = settingMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/empty.png",
+        DirectX::XMFLOAT2{ 960, 640 },
+        DirectX::XMFLOAT2{ 165, 64 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        0, 5,
+        [this]() {
+            shake = static_cast<int>(SHAKE_TYPE::ON);
+            buttonShake = 5;
+        },
+        true
+    ));
+
+    settingButtons[6] = settingMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/empty.png",
+        DirectX::XMFLOAT2{ 1320, 640 },
+        DirectX::XMFLOAT2{ 165, 64 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        0, 6,
+        [this]() {
+            shake = static_cast<int>(SHAKE_TYPE::OFF);
+            buttonShake = 6;
+        },
+        true
+    ));
+
+    settingButtons[7] = settingMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/empty.png",
+        DirectX::XMFLOAT2{ 840, 940 },
+        DirectX::XMFLOAT2{ 165, 64 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        0, 7,
+        [this]() {
+            drunkenness = static_cast<int>(DRUNKENNESS_TYPE::HIGH);
+            buttonDrunkenness = 7;
+            shake = static_cast<int>(SHAKE_TYPE::OFF);
+            buttonShake = 6;
+        },
+        true
+    ));
+
+    settingButtons[8] = settingMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/empty.png",
+        DirectX::XMFLOAT2{ 1120, 940 },
+        DirectX::XMFLOAT2{ 165, 64 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        0, 8,
+        [this]() {
+            drunkenness = static_cast<int>(DRUNKENNESS_TYPE::LOW);
+            buttonDrunkenness = 8;
+        },
+        true
+    ));
+
+    settingButtons[9] = settingMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/empty.png",
+        DirectX::XMFLOAT2{ 1400, 940 },
+        DirectX::XMFLOAT2{ 165, 64 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        0, 9,
+        [this]() {
+            drunkenness = static_cast<int>(DRUNKENNESS_TYPE::NONE);
+            buttonDrunkenness = 9;
+        },
+        true
+    ));
+
+    settingButtons[10] = settingMenu->AddButton(std::make_unique<UiButton>(
+        "./Data/Sprite/setting_back.png",
+        DirectX::XMFLOAT2{ SCREEN_W - 246.0f, 0 },
+        DirectX::XMFLOAT2{ 246, 105 },
+        DirectX::XMFLOAT2{ 0, 0 },
+        DirectX::XMFLOAT2{ 246, 105 },
+        0, 10,
+        [this]() {
+            poseMenu->SetActive(true);
+            settingMenu->SetActive(false);
+        },
+        true
+    ));
+
+    settingMenu->SetActive(false);
+
+    sensitivity = static_cast<int>(SENSITIVITY_TYPE::NORMALE);
+    fov = static_cast<int>(FOV_TYPE::NORMALE);
+    shake = static_cast<int>(SHAKE_TYPE::ON);
+    drunkenness = static_cast<int>(DRUNKENNESS_TYPE::NONE);
+
+    buttonSensitivity = 1;
+    buttonFov = 4;
+    buttonShake = 5;
+    buttonDrunkenness = 9;
+
+    sprSetting = std::make_unique<Sprite>("Data/Sprite/setting_switch.png");
+
+    lerp = std::make_unique<Lerp>(0.1f);
+    lerpButton = std::make_unique<Lerp>(0.1f);
 }
 
-void Pose::Update(float elapsedTime)
-{
-	{
-		if (KeyInput::Instance().GetKeyDown('P') && onPose == false)
-		{
-			onPose = true;
-			fadeIn = true;
+void Pose::Update(float elapsedTime) {
+    {
+        if (KeyInput::Instance().GetKeyDown('P') && onPose == false) {
+            onPose = true;
+            fadeIn = true;
 
-			poseMenu->SetMenuStart(true);
-			settingMenu->SetMenuStart(false);
-			lerp->SetAmount(0.0f);
-			poseMenu->SetAlphaChange(true);
-			poseMenu->SetAlphaMax(0.5f);
+            poseMenu->SetActive(true);
+            settingMenu->SetActive(false);
+            lerp->SetAmount(0.0f);
+            poseMenu->SetAlphaTransition(true);
+            poseMenu->SetTargetAlpha(0.5f);
 
-			setPause->Stop();
-			setPause->Play(false);
-		}
-		else if (KeyInput::Instance().GetKeyDown('P') && onPose == true)
-		{
-			fadeOut = true;
-			fadeIn = false;
+            setPause->Stop();
+            setPause->Play(false);
+        }
+        else if (KeyInput::Instance().GetKeyDown('P') && onPose == true) {
+            fadeOut = true;
+            fadeIn = false;
 
-			setPause->Stop();
-			setPause->Play(false);
-		}
-		if(fadeOut) PoseOff();
-	}
+            setPause->Stop();
+            setPause->Play(false);
+        }
+        if (fadeOut) PoseOff();
+    }
 
-	if (!onPose) return;
+    if (!onPose) return;
 
-	if (fadeIn)
-	{
-		lerp->Update(elapsedTime, Lerp::RESET_TYPE::Fixed, Lerp::ADD_TYPE::ADD);
-		alhpa = lerp->GetOffset(Lerp::EASING_TYPE::Normal, 0.0f, 1.0f);
-		poseMenu->SetProgress(lerp->GetProgress(Lerp::EASING_TYPE::Normal));
-		lerpButton->SetAmount(0.0f);
-		if (lerp->GetAmount() >= lerp->GetMaxAmount())
-		{
-			poseMenu->SetAlphaChange(false);
-		}
-	}
-	else
-	{
-		lerp->Update(elapsedTime, Lerp::RESET_TYPE::Fixed, Lerp::ADD_TYPE::Subtract);
-		lerpButton->Update(elapsedTime, Lerp::RESET_TYPE::Fixed, Lerp::ADD_TYPE::ADD);
-		alhpa = lerp->GetOffset(Lerp::EASING_TYPE::Normal, 0.0f, 1.0f);
-		poseMenu->SetAlphaChange(true);
-		poseMenu->SetAlphaMax(0.0f);
-		poseMenu->SetProgress(lerpButton->GetProgress(Lerp::EASING_TYPE::Normal));
-	}
+    if (fadeIn) {
+        lerp->Update(elapsedTime, Lerp::RESET_TYPE::Fixed, Lerp::ADD_TYPE::ADD);
+        alhpa = lerp->GetOffset(Lerp::EASING_TYPE::Normal, 0.0f, 1.0f);
+        poseMenu->SetAlphaProgress(lerp->GetProgress(Lerp::EASING_TYPE::Normal));
+        lerpButton->SetAmount(0.0f);
+        if (lerp->GetAmount() >= lerp->GetMaxAmount()) {
+            poseMenu->SetAlphaTransition(false);
+        }
+    }
+    else {
+        lerp->Update(elapsedTime, Lerp::RESET_TYPE::Fixed, Lerp::ADD_TYPE::Subtract);
+        lerpButton->Update(elapsedTime, Lerp::RESET_TYPE::Fixed, Lerp::ADD_TYPE::ADD);
+        alhpa = lerp->GetOffset(Lerp::EASING_TYPE::Normal, 0.0f, 1.0f);
+        poseMenu->SetAlphaTransition(true);
+        poseMenu->SetTargetAlpha(0.0f);
+        poseMenu->SetAlphaProgress(lerpButton->GetProgress(Lerp::EASING_TYPE::Normal));
+    }
 
-	if (poseMenu->GetMenyuStart())
-	{
-		poseMenu->Updeat(&num);
+    if (poseMenu->IsActive()) {
+        poseMenu->Update(&num);
 
-		if (num != -1)
-		{
-			numBank = num;
-		}
+        if (num != -1) {
+            pauseSelectSE->Stop();
+            pauseSelectSE->Play(false);
+        }
+    }
+    else if (settingMenu->IsActive()) {
+        settingMenu->Update(&num);
 
-		switch (numBank)
-		{
-		case 0:
-			poseMenu->SetMenuStart(false);
-			settingMenu->SetMenuStart(true);
-			numBank = -1;
-			break;
-		case 1:
-			PoseOff();
-			fadeIn = false;
-			break;
-		case 2:
-			if (PoseOff())
-			{
-				SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle()));
-			}
-			fadeIn = false;
-			break;
-		case 3:
-			if (PoseOff())
-			{
-				if (tutorial)
-					SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial()));
-				else
-					SceneManager::Instance().ChangeScene(new SceneLoading(new SceneGame()));
-			}
-			fadeIn = false;
-			break;
-		default:
-			break;
-		}
-	}
-	else if(settingMenu->GetMenyuStart())
-	{
-		settingMenu->Updeat(&num);
+        const auto& input_state = settingMenu->GetInputState();
+        if (input_state.is_button_held || input_state.is_button_down) {
+            for (int i = 0; i < 11; ++i) {
+                if (settingButtons[i] && settingButtons[i]->IsHovered()) {
+                    holdNum = settingButtons[i]->GetActionId();
+                    break;
+                }
+            }
+        }
 
-		if (settingMenu->GetCurrentButton() != nullptr)
-		{
-			holdNum = settingMenu->GetCurrentButton()->GetMode();
-		}
+        if (num != -1) {
+            pauseSelectSE->Stop();
+            pauseSelectSE->Play(false);
+        }
+    }
 
-		switch (num)
-		{
-		case 0:
-			sensitivity = static_cast<int>(SENSITIVITY_TYPE::HIGH);
-			buttonSensitivity = num;
-			break;
-		case 1:
-			sensitivity = static_cast<int>(SENSITIVITY_TYPE::NORMALE);
-			buttonSensitivity = num;
-
-			break;
-		case 2:
-			sensitivity = static_cast<int>(SENSITIVITY_TYPE::LOW);
-			buttonSensitivity = num;
-
-			break;
-		case 3:
-			fov = static_cast<int>(FOV_TYPE::HIGH);
-			buttonFov = num;
-
-			break;
-		case 4:
-			fov = static_cast<int>(FOV_TYPE::NORMALE);
-			buttonFov = num;
-
-			break;
-		case 5:
-			shake = static_cast<int>(SHAKE_TYPE::ON);
-			buttonShake = num;
-
-			break;
-		case 6:
-			shake = static_cast<int>(SHAKE_TYPE::OFF);
-			buttonShake = num;
-
-			break;
-		case 7:
-			drunkenness = static_cast<int>(DRUNKENNESS_TYPE::HIGH);
-			buttonDrunkenness = num;
-			shake = static_cast<int>(SHAKE_TYPE::OFF);
-			buttonShake = 6;
-
-			break;
-		case 8:
-			drunkenness = static_cast<int>(DRUNKENNESS_TYPE::LOW);
-			buttonDrunkenness = num;
-
-			break;
-		case 9:
-			drunkenness = static_cast<int>(DRUNKENNESS_TYPE::NONE);
-			buttonDrunkenness = num;
-			break;
-		case 10:
-			poseMenu->SetMenuStart(true);
-			settingMenu->SetMenuStart(false);
-			break;
-		default:
-			break;
-		}
-
-	}
-	if (num != -1)
-	{
-		pauseSelectSE->Stop();
-		pauseSelectSE->Play(false);
-	}
-	num = -1;
+    num = -1;
 }
 
-void Pose::Render(const RenderContext& rc)
-{
-	if (!onPose) return;
-	sprPoseBack->Render(rc, 0, 0, 0, SCREEN_W, SCREEN_H, 0.0f, 1, 1, 1, alhpa);
+void Pose::Render(const RenderContext& rc) {
+    if (!onPose) return;
 
-	if (poseMenu->GetMenyuStart())
-	{
-		poseMenu->Render(rc, MENU::BACK_OFF, false);
-	}
-	else if (settingMenu->GetMenyuStart())
-	{
-		sprSettingBack->Render(rc, 0, 0, 0, SCREEN_W, SCREEN_H, 0.0f, 1, 1, 1, alhpa);
+    sprPoseBack->Render(rc, 0, 0, 0, SCREEN_W, SCREEN_H, 0.0f, 1, 1, 1, alhpa);
 
-		int renderMode = 0;
+    if (poseMenu->IsActive()) {
+        poseMenu->Render(rc, MenuBackgroundMode::kBackgroundVisible, false);
+    }
+    else if (settingMenu->IsActive()) {
+        sprSettingBack->Render(rc, 0, 0, 0, SCREEN_W, SCREEN_H, 0.0f, 1, 1, 1, alhpa);
 
-		for (int i = 0; i < settingMenu->GetButtonManager()->GetButtonSize(); i++)
-		{
-			Button* b = settingMenu->GetButton(i);
-			if (b->GetMode() == holdNum)
-			{
-				renderMode = 1;
-			}
+        int renderMode = 0;
 
-			if (b->GetMode() <= 2 && b->GetMode() == buttonSensitivity)
-			{
-				renderMode = 2;
-			}
-			else if (b->GetMode() <= 4 && b->GetMode() == buttonFov)
-			{
-				renderMode = 2;
-			}
-			else if (b->GetMode() <= 6 && b->GetMode() == buttonShake)
-			{
-				renderMode = 2;
-			}
-			else if (b->GetMode() <= 9 && b->GetMode() == buttonDrunkenness)
-			{
-				renderMode = 2;
-			}
+        for (int i = 0; i < 11; ++i) {
+            if (!settingButtons[i]) continue;
 
-			if(i != 10)
-			sprSetting->Render(rc, settingMenu->GetButton(i)->GetPos().x, settingMenu->GetButton(i)->GetPos().y + 5.0f, 0.0f,
-				56, 56,
-				56.0f * renderMode, 0, 56, 56,
-				0.0f,
-				1, 1, 1, alhpa);
+            UiButton* b = settingButtons[i];
+            int mode = b->GetActionId();
 
-			renderMode = 0;
-		}
-		settingMenu->Render(rc, MENU::BACK_OFF, false);
-	}
+            if (mode == holdNum) {
+                renderMode = 1;
+            }
+
+            if (mode <= 2 && mode == buttonSensitivity) {
+                renderMode = 2;
+            }
+            else if (mode <= 4 && mode == buttonFov) {
+                renderMode = 2;
+            }
+            else if (mode <= 6 && mode == buttonShake) {
+                renderMode = 2;
+            }
+            else if (mode <= 9 && mode == buttonDrunkenness) {
+                renderMode = 2;
+            }
+
+            if (i != 10) {
+                DirectX::XMFLOAT2 pos = b->GetPosition();
+                sprSetting->Render(rc, pos.x, pos.y + 5.0f, 0.0f,
+                    56, 56,
+                    56.0f * renderMode, 0, 56, 56,
+                    0.0f,
+                    1, 1, 1, alhpa);
+            }
+
+            renderMode = 0;
+        }
+        settingMenu->Render(rc, MenuBackgroundMode::kBackgroundVisible, false);
+    }
 }
 
-bool Pose::PoseOff()
-{
-	if (lerp->GetAmount() <= 0.0f)
-	{
-		onPose = false;
-		fadeIn = true;
-		fadeOut = false;
-		numBank = -1;
-		poseMenu->SetMenuStart(false);
-		settingMenu->SetMenuStart(false);
-		// ƒJ[ƒ\ƒ‹‚ð’†‰›‚É–ß‚·
-		POINT screenCenter{ (LONG)(SCREEN_W / 2), (LONG)(SCREEN_H / 2) };
-		ClientToScreen(Graphics::Instance().GetWindowHandle(), &screenCenter);
-		SetCursorPos(screenCenter.x, screenCenter.y);
-		return true;
-	}
-	return false;
+bool Pose::PoseOff() {
+    if (lerp->GetAmount() <= 0.0f) {
+        onPose = false;
+        fadeIn = true;
+        fadeOut = false;
+        numBank = -1;
+        poseMenu->SetActive(false);
+        settingMenu->SetActive(false);
+
+        POINT screenCenter{ (LONG)(SCREEN_W / 2), (LONG)(SCREEN_H / 2) };
+        ClientToScreen(Graphics::Instance().GetWindowHandle(), &screenCenter);
+        SetCursorPos(screenCenter.x, screenCenter.y);
+        return true;
+    }
+    return false;
 }

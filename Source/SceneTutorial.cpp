@@ -1,6 +1,4 @@
 #include "System/Graphics.h"
-
-#include "SceneTutorial.h"
 #include "Player.h"
 #include "common.h"
 #include "System/Input.h"
@@ -18,105 +16,95 @@
 #include "SceneGame.h"
 #include "EffectManager.h"
 #include "Cursor.h"
+#include "SceneTutorial.h"
 
+SceneTutorial::SceneTutorial() {}
 
-SceneTutorial::SceneTutorial()
-{
-	int i = 0;
+void SceneTutorial::Initialize() {
+    Graphics& graphics = Graphics::Instance();
+
+    BGMTutorial = Audio::Instance().LoadAudioSource("Data/Sound/Tutorial/BGM_tutorial.wav");
+    BGMTutorial->Play(true);
+
+    skyMap = std::make_unique<sky_map>(graphics.GetDevice(),
+        L"Data/SkyMapSprite/game_background3.hdr");
+    player = std::make_unique<Player>();
+
+    cameraController = std::make_unique<CameraController>();
+
+    camera = std::make_unique<Camera>();
+    DirectX::XMFLOAT3 eye = player->GetPosition();
+    DirectX::XMFLOAT3 focus{};
+    focus.x = sinf(player->GetAngle().y);
+    focus.z = cosf(player->GetAngle().y);
+    float fov = 80.0f;
+    camera->SetLookAt(eye, focus, DirectX::XMFLOAT3(0, 1, 0));
+    camera->SetPerspectibeFov(
+        DirectX::XMConvertToRadians(fov),
+        graphics.GetScreenWidth() / graphics.GetScreenHeight(),
+        0.1f,
+        100000.0f
+    );
+
+    tutorialMenu = std::make_unique<UiPanel>();
+
+    Pose::Instance().SetTutorial(true);
 }
 
-// 初期化
-void SceneTutorial::Initialize()
-{
-	Graphics& graphics = Graphics::Instance();
-	//ステージ初期化
-	//スプライト初期化
-
-	BGMTutorial        = Audio::Instance().LoadAudioSource("Data/Sound/Tutorial/BGM_tutorial.wav");
-	BGMTutorial->Play(true);
-
-	skyMap = std::make_unique<sky_map>(graphics.GetDevice(), L"Data/SkyMapSprite/game_background3.hdr");
-	player = std::make_unique<Player>();
-	//カメラコントローラー初期化
-	cameraController = std::make_unique<CameraController>();
-	//カメラ初期化
-	camera = std::make_unique <Camera>();
-
-	DirectX::XMFLOAT3 eye = player->GetPosition();
-	DirectX::XMFLOAT3 focus{};
-	focus.x = sinf(player->GetAngle().y);
-	focus.z = cosf(player->GetAngle().y);
-
-	float fov = 80.0f;
-	camera->SetLookAt(
-		eye,
-		focus,
-		DirectX::XMFLOAT3(0, 1, 0)
-	);
-	camera->SetPerspectibeFov(
-		DirectX::XMConvertToRadians(fov),
-		graphics.GetScreenWidth() / graphics.GetScreenHeight(),
-		0.1f,
-		100000.0f
-	);
-
-	Pose::Instance().SetTutorial(true);
+void SceneTutorial::Finalize() {
+    player->Finalize();
+    BGMTutorial->Stop();
+    EffectManager::Instance().Initialize();
+    delete BGMTutorial;
 }
 
-// 終了化
-void SceneTutorial::Finalize()
-{
-	player->Finalize();
+void SceneTutorial::Update(float elapsedTime) {
+    Cursor::Instance().Update(elapsedTime);
+    cameraController->Updeate(elapsedTime, camera.get(), 0, 0);
 
-	BGMTutorial->Stop();
-
-	EffectManager::Instance().Initialize();
-
-	delete BGMTutorial;
+    int clicked_button_id = -1;
+    if (tutorialMenu) {
+        tutorialMenu->Update(&clicked_button_id);
+    }
 }
 
-// 更新処理
-void SceneTutorial::Update(float elapsedTime)
-{
+void SceneTutorial::Render() {
+    Graphics& graphics = Graphics::Instance();
+    ID3D11DeviceContext* dc = graphics.GetDeviceContext();
+    ShapeRenderer* shapeRenderer = graphics.GetShapeRenderer();
+    ModelRenderer* modelRenderer = graphics.GetModelRenderer();
+
+    ID3D11Device* device = graphics.GetDevice();
+    D3D11_RASTERIZER_DESC rasterDesc{};
+    rasterDesc.FillMode = D3D11_FILL_SOLID;
+    rasterDesc.CullMode = D3D11_CULL_BACK;
+    rasterDesc.FrontCounterClockwise = FALSE;
+    rasterDesc.DepthClipEnable = TRUE;
+    ID3D11RasterizerState* rasterState = nullptr;
+    device->CreateRasterizerState(&rasterDesc, &rasterState);
+    dc->RSSetState(rasterState);
+    rasterState->Release();
+
+    RenderContext rc;
+    rc.deviceContext = dc;
+    rc.renderState = graphics.GetRenderState();
+    rc.view = camera->GetView();
+    rc.projection = camera->GetProjection();
+
+    DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.view);
+    DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.projection);
+    DirectX::XMMATRIX VP = V * P;
+    DirectX::XMFLOAT4X4 vp;
+    DirectX::XMStoreFloat4x4(&vp, VP);
+    DirectX::XMFLOAT3 Cpos = camera->GetEye();
+
+    skyMap->blit(rc, vp, { Cpos.x, Cpos.y, Cpos.z, 1.0f });
+
+    if (tutorialMenu) {
+        tutorialMenu->Render(rc, MenuBackgroundMode::kBackgroundVisible, false);
+    }
+
+    Cursor::Instance().Render(rc);
 }
 
-// 描画処理
-void SceneTutorial::Render()
-{
-	Graphics& graphics = Graphics::Instance();
-	ID3D11DeviceContext* dc = graphics.GetDeviceContext();
-	ShapeRenderer* shapeRenderer = graphics.GetShapeRenderer();
-	ModelRenderer* modelRenderer = graphics.GetModelRenderer();
-
-	// ======= バックフェイスカリング設定ここから =======
-	ID3D11Device* device = graphics.GetDevice();
-
-	D3D11_RASTERIZER_DESC rasterDesc{};
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.CullMode = D3D11_CULL_BACK;           // 背面カリング
-	rasterDesc.FrontCounterClockwise = FALSE;        // 時計回りを表面とみなす
-	rasterDesc.DepthClipEnable = TRUE;
-
-	ID3D11RasterizerState* rasterState = nullptr;
-	device->CreateRasterizerState(&rasterDesc, &rasterState);
-	dc->RSSetState(rasterState);
-	rasterState->Release(); // 参照カウント減らしておく（安全）
-	// ======= バックフェイスカリング設定ここまで =======
-
-	// 3Dモデル描画
-	{
-	}
-
-	// 3Dデバッグ描画
-	{
-	}
-
-	// 2Dスプライト描画
-	{
-	}
-}
-
-// GUI描画
-void SceneTutorial::DrawGUI()
-{
-}
+void SceneTutorial::DrawGUI() {}

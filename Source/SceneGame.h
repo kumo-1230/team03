@@ -5,7 +5,6 @@
 #include "Camera.h"
 #include <memory>
 #include "Player.h"
-#include "Menu.h"
 #include <vector>
 #include "sky_map.h"
 #include "Lerp.h"

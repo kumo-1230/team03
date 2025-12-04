@@ -144,13 +144,10 @@
     <ClInclude Include="Source\System\Sprite.h">
       <Filter>Source\System</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Button.h">
+    <ClInclude Include="Source\ui_button.h">
       <Filter>Source\MySystem\menu</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ButtonManager.h">
-      <Filter>Source\MySystem\menu</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Menu.h">
+    <ClInclude Include="Source\ui_panel.h">
       <Filter>Source\MySystem\menu</Filter>
     </ClInclude>
     <ClInclude Include="Source\SceneGame.h">
@@ -261,6 +258,9 @@
     <ClInclude Include="Source\SceneTutorial.h">
       <Filter>Source\scene</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ui_element.h">
+      <Filter>Source\MySystem\menu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui-docking\imgui.cpp">
@@ -332,13 +332,10 @@
     <ClCompile Include="Source\System\Sprite.cpp">
       <Filter>Source\System</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Button.cpp">
+    <ClCompile Include="Source\ui_button.cpp">
       <Filter>Source\MySystem\menu</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ButtonManager.cpp">
-      <Filter>Source\MySystem\menu</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Menu.cpp">
+    <ClCompile Include="Source\ui_panel.cpp">
       <Filter>Source\MySystem\menu</Filter>
     </ClCompile>
     <ClCompile Include="Source\SceneGame.cpp">
@@ -424,6 +421,9 @@
     </ClCompile>
     <ClCompile Include="Source\SceneTutorial.cpp">
       <Filter>Source\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ui_element.cpp">
+      <Filter>Source\MySystem\menu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

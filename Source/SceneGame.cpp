@@ -16,6 +16,7 @@
 #include "System/Audio.h"
 #include "EffectManager.h"
 #include "Cursor.h"
+#include <KeyInput.h>
 
 SceneGame::SceneGame()
 {

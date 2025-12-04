@@ -1,52 +1,30 @@
 #pragma once
-
-#include "CameraController.h"
+#include "System/Sprite.h"
 #include "Scene.h"
-#include "Camera.h"
-#include <memory>
-#include "Player.h"
-#include "Menu.h"
-#include <vector>
+#include "ui_panel.h"
+#include "CameraController.h"
 #include "sky_map.h"
-#include "Lerp.h"
-#include "math.h"
 #include "System/AudioSource.h"
+#include "Player.h"
+#include <memory>
 
-// ゲームシーン
-class SceneTutorial : public Scene
-{
-private:
-	std::unique_ptr<Player> player = nullptr;
-	std::unique_ptr<Camera> camera = nullptr;
-	std::unique_ptr<CameraController> cameraController = nullptr;
-	std::unique_ptr<sky_map> skyMap = nullptr;
-
-	AudioSource* BGMTutorial = nullptr;
-
+class SceneTutorial : public Scene {
 public:
 	SceneTutorial();
-	//~SceneGame() {};
 	~SceneTutorial() override {}
 
-	// 初期化
-	//void Initialize();
 	void Initialize() override;
-
-	// 終了化
-	//void Finalize();
 	void Finalize() override;
-
-	// 更新処理
-	//void Update(float elapsedTime);
 	void Update(float elapsedTime) override;
-
-	// 描画処理
-	//void Render();
 	void Render() override;
-
-	// GUI描画
-	//void DrawGUI();
 	void DrawGUI() override;
 
+private:
+	std::unique_ptr<UiPanel> tutorialMenu;
+	std::unique_ptr<Camera> camera{ nullptr };
+	std::unique_ptr<CameraController> cameraController{ nullptr };
+	std::unique_ptr<sky_map> skyMap{ nullptr };
+	std::unique_ptr<Player> player{ nullptr };
 
+	AudioSource* BGMTutorial{ nullptr };
 };
