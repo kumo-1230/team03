@@ -264,6 +264,12 @@
     <ClInclude Include="Source\render_layer.h">
       <Filter>Source\MySystem\menu</Filter>
     </ClInclude>
+    <ClInclude Include="Source\System\GLTFImporter.h">
+      <Filter>Source\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\System\Light.h">
+      <Filter>Source\System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui-docking\imgui.cpp">
@@ -427,6 +433,9 @@
     </ClCompile>
     <ClCompile Include="Source\ui_element.cpp">
       <Filter>Source\MySystem\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\System\GLTFImporter.cpp">
+      <Filter>Source\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

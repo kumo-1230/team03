@@ -1,6 +1,6 @@
 #include "Basic.hlsli"
 
-cbuffer CbMesh : register(b1)
+cbuffer CbMesh : register(b0)
 {
 	float4		materialColor;
 };

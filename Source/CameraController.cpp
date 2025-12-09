@@ -5,7 +5,7 @@
 #include "System/Graphics.h"
 
 //XVˆ—
-void CameraController::Updeate(float elapsedTime, Camera* camera, float ax, float ay)
+void CameraController::Update(float elapsedTime, Camera* camera, float ax, float ay)
 {
 	{
 		//POINT center;

@@ -1,5 +1,5 @@
-#include "Lambert.hlsli"
 #include "Skinning.hlsli"
+#include "Lambert.hlsli"
 
 VS_OUT main(
 	float4 position		: POSITION,

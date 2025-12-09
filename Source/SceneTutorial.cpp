@@ -39,7 +39,7 @@ void SceneTutorial::Initialize() {
     focus.z = cosf(player->GetAngle().y);
     float fov = 80.0f;
     camera->SetLookAt(eye, focus, DirectX::XMFLOAT3(0, 1, 0));
-    camera->SetPerspectibeFov(
+    camera->SetPerspectiveFov(
         DirectX::XMConvertToRadians(fov),
         graphics.GetScreenWidth() / graphics.GetScreenHeight(),
         0.1f,
@@ -60,7 +60,7 @@ void SceneTutorial::Finalize() {
 
 void SceneTutorial::Update(float elapsedTime) {
     Cursor::Instance().Update(elapsedTime);
-    cameraController->Updeate(elapsedTime, camera.get(), 0, 0);
+    cameraController->Update(elapsedTime, camera.get(), 0, 0);
 
     int clicked_button_id = -1;
     if (tutorialMenu) {
@@ -88,11 +88,10 @@ void SceneTutorial::Render() {
     RenderContext rc;
     rc.deviceContext = dc;
     rc.renderState = graphics.GetRenderState();
-    rc.view = camera->GetView();
-    rc.projection = camera->GetProjection();
+    rc.camera = camera.get();
 
-    DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.view);
-    DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.projection);
+    DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.camera->GetView());
+    DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.camera->GetProjection());
     DirectX::XMMATRIX VP = V * P;
     DirectX::XMFLOAT4X4 vp;
     DirectX::XMStoreFloat4x4(&vp, VP);
@@ -101,10 +100,10 @@ void SceneTutorial::Render() {
     skyMap->blit(rc, vp, { Cpos.x, Cpos.y, Cpos.z, 1.0f });
 
     if (tutorialMenu) {
-        tutorialMenu->Render(rc, MenuBackgroundMode::kBackgroundVisible, false);
+        tutorialMenu->Render(dc, MenuBackgroundMode::kBackgroundVisible, false);
     }
 
-    Cursor::Instance().Render(rc);
+    Cursor::Instance().Render(dc);
 }
 
 void SceneTutorial::DrawGUI() {}

@@ -25,36 +25,54 @@ ModelRenderer::ModelRenderer(ID3D11Device* device)
 	shaders[static_cast<int>(ShaderId::Lambert)] = std::make_unique<LambertShader>(device);
 }
 
+// 箱描画
+void ModelRenderer::Draw(ShaderId shaderId, std::shared_ptr<Model> model)
+{
+	DrawInfo& drawInfo = drawInfos.emplace_back();
+	drawInfo.shaderId = shaderId;
+	drawInfo.model = model;
+}
+
 // 描画実行
-void ModelRenderer::Render(const RenderContext& rc, const DirectX::XMFLOAT4X4& worldTransform, const Model* model, ShaderId shaderId)
+void ModelRenderer::Render(const RenderContext& rc)
 {
 	ID3D11DeviceContext* dc = rc.deviceContext;
 
 	// シーン用定数バッファ更新
 	{
+		static LightManager defaultLightManager;
+		const LightManager* lightManager = rc.lightManager ? rc.lightManager : &defaultLightManager;
+
 		CbScene cbScene{};
-		DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.view);
-		DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.projection);
+		DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.camera->GetView());
+		DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.camera->GetProjection());
 		DirectX::XMStoreFloat4x4(&cbScene.viewProjection, V * P);
-		cbScene.lightDirection.x = rc.lightDirection.x;
-		cbScene.lightDirection.y = rc.lightDirection.y;
-		cbScene.lightDirection.z = rc.lightDirection.z;
+		const DirectionalLight& directionalLight = lightManager->GetDirectionalLight();
+		cbScene.lightDirection.x = directionalLight.direction.x;
+		cbScene.lightDirection.y = directionalLight.direction.y;
+		cbScene.lightDirection.z = directionalLight.direction.z;
+		cbScene.lightColor.x = directionalLight.color.x;
+		cbScene.lightColor.y = directionalLight.color.y;
+		cbScene.lightColor.z = directionalLight.color.z;
+		const DirectX::XMFLOAT3& eye = rc.camera->GetEye();
+		cbScene.cameraPosition.x = eye.x;
+		cbScene.cameraPosition.y = eye.y;
+		cbScene.cameraPosition.z = eye.z;
 		dc->UpdateSubresource(sceneConstantBuffer.Get(), 0, 0, &cbScene, 0, 0);
 	}
 
 	// 定数バッファ設定
 	ID3D11Buffer* vsConstantBuffers[] =
 	{
-		sceneConstantBuffer.Get(),
 		skeletonConstantBuffer.Get(),
+		sceneConstantBuffer.Get(),
 	};
-	dc->VSSetConstantBuffers(0, _countof(vsConstantBuffers), vsConstantBuffers);
-
 	ID3D11Buffer* psConstantBuffers[] =
 	{
 		sceneConstantBuffer.Get(),
 	};
-	dc->PSSetConstantBuffers(0, _countof(psConstantBuffers), psConstantBuffers);
+	dc->VSSetConstantBuffers(6, _countof(vsConstantBuffers), vsConstantBuffers);
+	dc->PSSetConstantBuffers(7, _countof(psConstantBuffers), psConstantBuffers);
 
 	// サンプラステート設定
 	ID3D11SamplerState* samplerStates[] =
@@ -65,22 +83,13 @@ void ModelRenderer::Render(const RenderContext& rc, const DirectX::XMFLOAT4X4& w
 
 	// レンダーステート設定
 	dc->OMSetDepthStencilState(rc.renderState->GetDepthStencilState(DepthState::TestAndWrite), 0);
-	//dc->RSSetState(rc.renderState->GetRasterizerState(RasterizerState::SolidCullBack));
+	dc->RSSetState(rc.renderState->GetRasterizerState(RasterizerState::SolidCullBack));
 
-	// ブレンドステート設定
-	dc->OMSetBlendState(rc.renderState->GetBlendState(BlendState::Transparency), nullptr, 0xFFFFFFFF);
-
-	// 描画処理
-	Shader* shader = shaders[static_cast<int>(shaderId)].get();
-	shader->Begin(rc);
-
-	DirectX::XMMATRIX WorldTransform = DirectX::XMLoadFloat4x4(&worldTransform);
-
-	const ModelResource* resource = model->GetResource();
-	for (const ModelResource::Mesh& mesh : resource->GetMeshes())
+	// メッシュ描画関数
+	auto drawMesh = [&](const Model::Mesh& mesh, Shader* shader)
 	{
 		// 頂点バッファ設定
-		UINT stride = sizeof(ModelResource::Vertex);
+		UINT stride = sizeof(Model::Vertex);
 		UINT offset = 0;
 		dc->IASetVertexBuffers(0, 1, mesh.vertexBuffer.GetAddressOf(), &stride, &offset);
 		dc->IASetIndexBuffer(mesh.indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
@@ -88,43 +97,98 @@ void ModelRenderer::Render(const RenderContext& rc, const DirectX::XMFLOAT4X4& w
 
 		// スケルトン用定数バッファ更新
 		CbSkeleton cbSkeleton{};
-		if (mesh.nodeIndices.size() > 0)
+		if (mesh.bones.size() > 0)
 		{
-			for (size_t i = 0; i < mesh.nodeIndices.size(); ++i)
+			for (size_t i = 0; i < mesh.bones.size(); ++i)
 			{
-				int nodeIndex = mesh.nodeIndices.at(i);
-				const Model::Node& node = model->GetNodes().at(nodeIndex);
-				DirectX::XMMATRIX GlobalTransform = DirectX::XMLoadFloat4x4(&node.globalTransform);
-				DirectX::XMMATRIX OffsetTransform = DirectX::XMLoadFloat4x4(&mesh.offsetTransforms.at(i));
-				DirectX::XMMATRIX BoneTransform = OffsetTransform * GlobalTransform * WorldTransform;
+				const Model::Bone& bone = mesh.bones.at(i);
+				DirectX::XMMATRIX WorldTransform = DirectX::XMLoadFloat4x4(&bone.node->worldTransform);
+				DirectX::XMMATRIX OffsetTransform = DirectX::XMLoadFloat4x4(&bone.offsetTransform);
+				DirectX::XMMATRIX BoneTransform = OffsetTransform * WorldTransform;
 				DirectX::XMStoreFloat4x4(&cbSkeleton.boneTransforms[i], BoneTransform);
 			}
 		}
 		else
 		{
-			const Model::Node& node = model->GetNodes().at(mesh.nodeIndex);
-			DirectX::XMMATRIX GlobalTransform = DirectX::XMLoadFloat4x4(&node.globalTransform);
-			DirectX::XMMATRIX BoneTransform = GlobalTransform * WorldTransform;
-			DirectX::XMStoreFloat4x4(&cbSkeleton.boneTransforms[0], BoneTransform);
+			cbSkeleton.boneTransforms[0] = mesh.node->worldTransform;
 		}
 		dc->UpdateSubresource(skeletonConstantBuffer.Get(), 0, 0, &cbSkeleton, 0, 0);
 
+		// 更新
+		shader->Update(rc, mesh);
+
 		// 描画
-		for (const ModelResource::Subset& subset : mesh.subsets)
+		dc->DrawIndexed(static_cast<UINT>(mesh.indices.size()), 0, 0);
+	};
+
+	DirectX::XMVECTOR CameraPosition = DirectX::XMLoadFloat3(&rc.camera->GetEye());
+	DirectX::XMVECTOR CameraFront = DirectX::XMLoadFloat3(&rc.camera->GetFront());
+
+	// ブレンドステート設定
+	dc->OMSetBlendState(rc.renderState->GetBlendState(BlendState::Opaque), nullptr, 0xFFFFFFFF);
+
+	// 不透明描画処理
+	for (DrawInfo& drawInfo : drawInfos)
+	{
+		Shader* shader = shaders[static_cast<int>(drawInfo.shaderId)].get();
+		shader->Begin(rc);
+
+		for (const Model::Mesh& mesh : drawInfo.model->GetMeshes())
 		{
-			shader->Update(rc, *subset.material);
+			// 半透明メッシュ登録
+			if (mesh.material->alphaMode == Model::AlphaMode::Blend ||
+				(mesh.material->baseColor.w > 0.01f && mesh.material->baseColor.w < 0.99f))
+			{
+				TransparencyDrawInfo& transparencyDrawInfo = transparencyDrawInfos.emplace_back();
+				transparencyDrawInfo.mesh = &mesh;
+				// カメラとの距離を算出
+				DirectX::XMVECTOR Position = DirectX::XMVectorSet(
+					mesh.node->worldTransform._41,
+					mesh.node->worldTransform._42,
+					mesh.node->worldTransform._43,
+					0.0f);
+				DirectX::XMVECTOR Vec = DirectX::XMVectorSubtract(Position, CameraPosition);
+				transparencyDrawInfo.distance = DirectX::XMVectorGetX(DirectX::XMVector3Dot(CameraFront, Vec));
 
-			dc->DrawIndexed(subset.indexCount, subset.startIndex, 0);
+				continue;
+			}
+
+			// 描画
+			drawMesh(mesh, shader);
 		}
-	}
 
-	shader->End(rc);
+		shader->End(rc);
+	}
+	drawInfos.clear();
+
+	// ブレンドステート設定
+	dc->OMSetBlendState(rc.renderState->GetBlendState(BlendState::Transparency), nullptr, 0xFFFFFFFF);
+
+	// カメラから遠い順にソート
+	std::sort(transparencyDrawInfos.begin(), transparencyDrawInfos.end(),
+		[](const TransparencyDrawInfo& lhs, const TransparencyDrawInfo& rhs)
+		{
+			return lhs.distance > rhs.distance;
+		});
+
+	// 半透明描画処理
+	for (const TransparencyDrawInfo& transparencyDrawInfo : transparencyDrawInfos)
+	{
+		Shader* shader = shaders[static_cast<int>(transparencyDrawInfo.shaderId)].get();
+
+		shader->Begin(rc);
+
+		drawMesh(*transparencyDrawInfo.mesh, shader);
+
+		shader->End(rc);
+	}
+	transparencyDrawInfos.clear();
 
 	// 定数バッファ設定解除
 	for (ID3D11Buffer*& vsConstantBuffer : vsConstantBuffers) { vsConstantBuffer = nullptr; }
 	for (ID3D11Buffer*& psConstantBuffer : psConstantBuffers) { psConstantBuffer = nullptr; }
-	dc->VSSetConstantBuffers(0, _countof(vsConstantBuffers), vsConstantBuffers);
-	dc->PSSetConstantBuffers(0, _countof(psConstantBuffers), psConstantBuffers);
+	dc->VSSetConstantBuffers(6, _countof(vsConstantBuffers), vsConstantBuffers);
+	dc->PSSetConstantBuffers(7, _countof(psConstantBuffers), psConstantBuffers);
 
 	// サンプラステート設定解除
 	for (ID3D11SamplerState*& samplerState : samplerStates) { samplerState = nullptr; }

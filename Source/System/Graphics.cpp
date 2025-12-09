@@ -74,23 +74,6 @@ void Graphics::Initialize(HWND hWnd)
 
 	// レンダーターゲットビューの生成
 	{
-		//// 深度ステンシル情報を書き込むためのテクスチャを作成する。
-		//Microsoft::WRL::ComPtr<ID3D11Texture2D> texture2d;
-		//D3D11_TEXTURE2D_DESC texture2dDesc;
-		//texture2dDesc.Width = screenWidth;
-		//texture2dDesc.Height = screenHeight;
-		//texture2dDesc.MipLevels = 1;
-		//texture2dDesc.ArraySize = 1;
-		//texture2dDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		//texture2dDesc.SampleDesc.Count = 1;
-		//texture2dDesc.SampleDesc.Quality = 0;
-		//texture2dDesc.Usage = D3D11_USAGE_DEFAULT;
-		//texture2dDesc.BindFlags = D3D11_BIND_RENDER_TARGET;
-		//texture2dDesc.CPUAccessFlags = 0;
-		//texture2dDesc.MiscFlags = 0;
-		//hr = device->CreateTexture2D(&texture2dDesc, nullptr, texture2d.GetAddressOf());
-
-
 		// スワップチェーンからバックバッファテクスチャを取得する。
 		// ※スワップチェーンに内包されているバックバッファテクスチャは'色'を書き込むテクスチャ。
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> texture2d;
@@ -143,6 +126,7 @@ void Graphics::Initialize(HWND hWnd)
 	renderState = std::make_unique<RenderState>(device.Get());
 
 	// レンダラ生成
+	primitiveRenderer = std::make_unique<PrimitiveRenderer>(device.Get());
 	shapeRenderer = std::make_unique<ShapeRenderer>(device.Get());
 	modelRenderer = std::make_unique<ModelRenderer>(device.Get());
 

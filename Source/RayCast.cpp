@@ -24,8 +24,8 @@ bool Hit::RayCast(
 	DirectX::XMMATRIX ParentWorldTransform = DirectX::XMLoadFloat4x4(&worldTransform);
 
 	// モデル内の全てのメッシュと交差判定を行う
-	const ModelResource* resource = model->GetResource();
-	for (const ModelResource::Mesh& mesh : resource->GetMeshes())
+	//const ModelResource* resource = model->GetResource();
+	for (const auto& mesh : model->GetMeshes())
 	{
 		// メッシュのワールド行列を求める
 		const Model::Node& node = model->GetNodes().at(mesh.nodeIndex);
@@ -44,9 +44,9 @@ bool Hit::RayCast(
 		for (size_t i = 0; i < mesh.indices.size(); i += 3)
 		{
 			// 三角形の頂点座標を取得
-			const ModelResource::Vertex& a = mesh.vertices.at(mesh.indices.at(i + 0));
-			const ModelResource::Vertex& b = mesh.vertices.at(mesh.indices.at(i + 1));
-			const ModelResource::Vertex& c = mesh.vertices.at(mesh.indices.at(i + 2));
+			const Model::Vertex& a = mesh.vertices.at(mesh.indices.at(i + 0));
+			const Model::Vertex& b = mesh.vertices.at(mesh.indices.at(i + 1));
+			const Model::Vertex& c = mesh.vertices.at(mesh.indices.at(i + 2));
 
 			DirectX::XMVECTOR A = DirectX::XMLoadFloat3(&a.position);
 			DirectX::XMVECTOR B = DirectX::XMLoadFloat3(&b.position);

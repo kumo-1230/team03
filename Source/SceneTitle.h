@@ -49,4 +49,6 @@ private:
 	AudioSource* backGroundMusic{ nullptr };
 
 	int lastHoveredButtonId{ -1 };
+
+	LightManager lightManager;
 };

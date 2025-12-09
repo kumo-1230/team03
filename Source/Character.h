@@ -2,6 +2,7 @@
 
 #include <DirectXMath.h>
 #include "System/ShapeRenderer.h"
+#include "System/RenderContext.h"
 
 class EnemyManager;
 class Stage;

@@ -20,8 +20,9 @@ Pose::~Pose() {
 }
 
 void Pose::Initializer() {
-    sprSettingBack = std::make_unique<Sprite>("./Data/Sprite/setting_default.png");
-    sprPoseBack = std::make_unique<Sprite>("./Data/Sprite/pause_default.png");
+	auto* device = Graphics::Instance().GetDevice();
+    sprSettingBack = std::make_unique<Sprite>(device, "./Data/Sprite/setting_default.png");
+    sprPoseBack = std::make_unique<Sprite>(device, "./Data/Sprite/pause_default.png");
 
     setPause = Audio::Instance().LoadAudioSource("Data/Sound/Game/SE_game_pause.wav");
     setPause->SetVolume(1.0f);
@@ -266,7 +267,7 @@ void Pose::Initializer() {
     buttonShake = 5;
     buttonDrunkenness = 9;
 
-    sprSetting = std::make_unique<Sprite>("Data/Sprite/setting_switch.png");
+    sprSetting = std::make_unique<Sprite>(device, "Data/Sprite/setting_switch.png");
 
     lerp = std::make_unique<Lerp>(0.1f);
     lerpButton = std::make_unique<Lerp>(0.1f);
@@ -347,16 +348,16 @@ void Pose::Update(float elapsedTime) {
     num = -1;
 }
 
-void Pose::Render(const RenderContext& rc) {
+void Pose::Render(ID3D11DeviceContext* dc) {
     if (!onPose) return;
 
-    sprPoseBack->Render(rc, 0, 0, 0, SCREEN_W, SCREEN_H, 0.0f, 1, 1, 1, alhpa);
+    sprPoseBack->Render(dc, 0, 0, 0, SCREEN_W, SCREEN_H, 0.0f, 1, 1, 1, alhpa);
 
     if (poseMenu->IsActive()) {
-        poseMenu->Render(rc, MenuBackgroundMode::kBackgroundVisible, false);
+        poseMenu->Render(dc, MenuBackgroundMode::kBackgroundVisible, false);
     }
     else if (settingMenu->IsActive()) {
-        sprSettingBack->Render(rc, 0, 0, 0, SCREEN_W, SCREEN_H, 0.0f, 1, 1, 1, alhpa);
+        sprSettingBack->Render(dc, 0, 0, 0, SCREEN_W, SCREEN_H, 0.0f, 1, 1, 1, alhpa);
 
         int renderMode = 0;
 
@@ -385,7 +386,7 @@ void Pose::Render(const RenderContext& rc) {
 
             if (i != 10) {
                 DirectX::XMFLOAT2 pos = b->GetPosition();
-                sprSetting->Render(rc, pos.x, pos.y + 5.0f, 0.0f,
+                sprSetting->Render(dc, pos.x, pos.y + 5.0f, 0.0f,
                     56, 56,
                     56.0f * renderMode, 0, 56, 56,
                     0.0f,
@@ -394,7 +395,7 @@ void Pose::Render(const RenderContext& rc) {
 
             renderMode = 0;
         }
-        settingMenu->Render(rc, MenuBackgroundMode::kBackgroundVisible, false);
+        settingMenu->Render(dc, MenuBackgroundMode::kBackgroundVisible, false);
     }
 }
 

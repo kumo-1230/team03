@@ -2,6 +2,7 @@
 
 #include "System/ModelRenderer.h"
 #include "stage.h"
+#include <System/Graphics.h>
 
 class Player;
 
@@ -9,9 +10,9 @@ class Star : public Stage
 {
 private:
 	std::shared_ptr<Model> models[3] = {
-	std::make_shared<Model>("Data/Model/Rock/rock_10.mdl"),
-	std::make_shared<Model>("Data/Model/Rock/rock_15.mdl"),
-	std::make_shared<Model>("Data/Model/Rock/rock_20.mdl")
+	std::make_shared<Model>(Graphics::Instance().GetDevice(), "Data/Model/Rock/rock_10.mdl"),
+	std::make_shared<Model>(Graphics::Instance().GetDevice(), "Data/Model/Rock/rock_15.mdl"),
+	std::make_shared<Model>(Graphics::Instance().GetDevice(), "Data/Model/Rock/rock_20.mdl")
 	};
 private:
  	void Initialize(int type);

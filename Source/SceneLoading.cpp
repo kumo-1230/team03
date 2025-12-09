@@ -22,8 +22,9 @@ void SceneLoading::LoadingThread(SceneLoading* scene)
 void SceneLoading::Initialize()
 {
 	//スプライト初期化
-	load_Back = std::make_unique<Sprite>("Data/Sprite/load_background.png");
-	load_Sprite = std::make_unique<Sprite>("Data/Sprite/load_mapchip.png");
+	auto* device = Graphics::Instance().GetDevice();
+	load_Back = std::make_unique<Sprite>(device, "Data/Sprite/load_background.png");
+	load_Sprite = std::make_unique<Sprite>(device, "Data/Sprite/load_mapchip.png");
 
 	//スレッド開始
 	thread = new std::thread(LoadingThread,this);
@@ -57,7 +58,7 @@ void SceneLoading::Update(float elapsedTime)
 		sprPos = 0;
 	}
 	//次のシーンの準備が完了したらシーン切り替え
-	if (nextScene->IsReady()&&timer > 3.0f)
+	if (nextScene->IsReady()/*&&timer > 3.0f*/)
 	{
 		if (thread && thread->joinable())
 		{
@@ -71,19 +72,20 @@ void SceneLoading::Render()
 {
 	Graphics& graphics = Graphics::Instance();
 	ID3D11DeviceContext* dc = graphics.GetDeviceContext();
-	RenderState* renderState = graphics.GetRenderState();
+	RenderState* rs = graphics.GetRenderState();
+	dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), nullptr, 0xffffffff);
+	ID3D11SamplerState* s = rs->GetSamplerState(SamplerState::LinearClamp);
+	dc->PSSetSamplers(0, 1, &s);
+	dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
+	dc->RSSetState(rs->GetRasterizerState(RasterizerState::SolidCullNone));
 
-	//描画準備
-	RenderContext rc;
-	rc.deviceContext = dc;
-	rc.renderState = graphics.GetRenderState();
 
 	//2Dスプライト描画
 	{
 		//画面右下にローディング描画
-		load_Back->Render(rc, 0, 0, 0, 1920, 1080, 0, 1, 1, 1, 1);
+		load_Back->Render(dc, 0, 0, 0, 1920, 1080, 0, 1, 1, 1, 1);
 
-		load_Sprite->Render(rc, 1520, 680, 0, 400, 400, sprPos * 400, 400,400,400, 0, 1, 1, 1, 1);
+		load_Sprite->Render(dc, 1520, 680, 0, 400, 400, sprPos * 400, 400,400,400, 0, 1, 1, 1, 1);
 	}
 }
 

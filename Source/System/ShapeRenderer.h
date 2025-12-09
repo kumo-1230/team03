@@ -4,7 +4,6 @@
 #include <wrl.h>
 #include <d3d11.h>
 #include <DirectXMath.h>
-#include "RenderContext.h"
 
 class ShapeRenderer
 {
@@ -13,35 +12,36 @@ public:
 	~ShapeRenderer() {}
 
 	// î†ï`âÊ
-	void RenderBox(
-		const RenderContext& rc,
+	void DrawBox(
 		const DirectX::XMFLOAT3& position,
 		const DirectX::XMFLOAT3& angle,
 		const DirectX::XMFLOAT3& size,
-		const DirectX::XMFLOAT4& color) const;
+		const DirectX::XMFLOAT4& color);
 
 	// ãÖï`âÊ
-	void RenderSphere(
-		const RenderContext& rc,
+	void DrawSphere(
 		const DirectX::XMFLOAT3& position,
 		float radius,
-		const DirectX::XMFLOAT4& color) const;
-
-	// â~íåï`âÊ
-	void RenderCylinder(
-		const RenderContext& rc,
-		const DirectX::XMFLOAT3& position,
-		float radius,
-		float height,
-		const DirectX::XMFLOAT4& color) const;
+		const DirectX::XMFLOAT4& color);
 
 	// ÉJÉvÉZÉãï`âÊ
-	void RenderCapsule(
-		const RenderContext& rc,
+	void DrawCapsule(
 		const DirectX::XMFLOAT4X4& transform,
 		float radius,
 		float height,
-		const DirectX::XMFLOAT4& color) const;
+		const DirectX::XMFLOAT4& color);
+
+	// çúï`âÊ
+	void DrawBone(
+		const DirectX::XMFLOAT4X4& transform,
+		float length,
+		const DirectX::XMFLOAT4& color);
+
+	// ï`âÊé¿çs
+	void Render(
+		ID3D11DeviceContext* dc,
+		const DirectX::XMFLOAT4X4& view,
+		const DirectX::XMFLOAT4X4& projection);
 
 private:
 	struct Mesh
@@ -50,13 +50,18 @@ private:
 		UINT									vertexCount;
 	};
 
+	struct Instance
+	{
+		Mesh* mesh;
+		DirectX::XMFLOAT4X4		worldTransform;
+		DirectX::XMFLOAT4		color;
+	};
+
 	struct CbMesh
 	{
 		DirectX::XMFLOAT4X4		worldViewProjection;
 		DirectX::XMFLOAT4		color;
 	};
-	// ï`âÊé¿çs
-	void Render(const RenderContext& rc, const Mesh& mesh, const DirectX::XMFLOAT4X4& transform, const DirectX::XMFLOAT4& color) const;
 
 	// ÉÅÉbÉVÉÖê∂ê¨
 	void CreateMesh(ID3D11Device* device, const std::vector<DirectX::XMFLOAT3>& vertices, Mesh& mesh);
@@ -73,11 +78,16 @@ private:
 	// â~íå
 	void CreateCylinderMesh(ID3D11Device* device, float radius1, float radius2, float start, float height, int subdivisions);
 
+	// çúÉÅÉbÉVÉÖçÏê¨
+	void CreateBoneMesh(ID3D11Device* device, float length);
+
 private:
 	Mesh										boxMesh;
 	Mesh										sphereMesh;
 	Mesh										halfSphereMesh;
 	Mesh										cylinderMesh;
+	Mesh										boneMesh;
+	std::vector<Instance>						instances;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader>	vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>	pixelShader;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout>	inputLayout;

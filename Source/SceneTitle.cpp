@@ -14,10 +14,12 @@ SceneTitle::SceneTitle() {}
 
 void SceneTitle::Initialize() {
     Graphics& graphics = Graphics::Instance();
+    auto* device = graphics.GetDevice();
 
-    sprTitle = std::make_unique<Sprite>("Data/Sprite/game_logo_new.png");
-    sprButtonBack = std::make_unique<Sprite>("Data/Sprite/title_square.png");
-    sprFadeLoad = std::make_unique<Sprite>("Data/Sprite/load_background.png");
+
+    sprTitle = std::make_unique<Sprite>(device, "Data/Sprite/game_logo_new.png");
+    sprButtonBack = std::make_unique<Sprite>(device, "Data/Sprite/title_square.png");
+    sprFadeLoad = std::make_unique<Sprite>(device, "Data/Sprite/load_background.png");
 
     titleStartMenu = std::make_unique<UiPanel>();
     titleStartMenu->AddButton(std::make_unique<UiButton>(
@@ -73,7 +75,7 @@ void SceneTitle::Initialize() {
     DirectX::XMFLOAT3 eye{ 0, 0, 0 };
     DirectX::XMFLOAT3 focus{ 1, 0, 0 };
     camera->SetLookAt(eye, focus, DirectX::XMFLOAT3(0, 1, 0));
-    camera->SetPerspectibeFov(
+    camera->SetPerspectiveFov(
         DirectX::XMConvertToRadians(45),
         graphics.GetScreenWidth() / graphics.GetScreenHeight(),
         0.1f,
@@ -85,6 +87,11 @@ void SceneTitle::Initialize() {
     cameraController->SetTarget({ 0, 0, 1 });
 
     lastHoveredButtonId = -1;
+
+    DirectionalLight directionalLight;
+    directionalLight.direction = { 0, -1, -1 };
+    directionalLight.color = { 1, 1, 1 };
+    lightManager.SetDirectionalLight(directionalLight);
 }
 
 void SceneTitle::Finalize() {
@@ -102,7 +109,7 @@ void SceneTitle::Finalize() {
 void SceneTitle::Update(float elapsedTime) {
     backGroundMusic->Play(true);
     Cursor::Instance().Update(elapsedTime);
-    cameraController->Updeate(elapsedTime, camera.get(), 0, 0);
+    cameraController->Update(elapsedTime, camera.get(), 0, 0);
 
     int clicked_button_id = -1;
     titleStartMenu->Update(&clicked_button_id);
@@ -131,17 +138,23 @@ void SceneTitle::Update(float elapsedTime) {
 void SceneTitle::Render() {
     Graphics& graphics = Graphics::Instance();
     ID3D11DeviceContext* dc = graphics.GetDeviceContext();
-    RenderState* renderState = graphics.GetRenderState();
+    RenderState* rs = graphics.GetRenderState();
 
     RenderContext rc;
     rc.deviceContext = dc;
-    rc.renderState = graphics.GetRenderState();
-    ModelRenderer* modelRenderer = graphics.GetModelRenderer();
+    rc.renderState = rs;
+    rc.camera = camera.get();
+    rc.lightManager = &lightManager;
 
-    rc.view = camera->GetView();
-    rc.projection = camera->GetProjection();
-    DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.view);
-    DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.projection);
+    dc->RSSetState(rs->GetRasterizerState(RasterizerState::SolidCullNone));
+    dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestOnly), 0);
+    ID3D11SamplerState* s = rs->GetSamplerState(SamplerState::LinearClamp);
+    dc->PSSetSamplers(0, 1, &s);
+    const float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
+
+    DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.camera->GetView());
+    DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.camera->GetProjection());
     DirectX::XMMATRIX VP = V * P;
     DirectX::XMFLOAT4X4 vp;
     DirectX::XMStoreFloat4x4(&vp, VP);
@@ -149,9 +162,9 @@ void SceneTitle::Render() {
 
     skyMap->blit(rc, vp, { Cpos.x, Cpos.y, Cpos.z, 1.0f });
 
-    sprTitle->Render(rc, 50, 50, 0, 656, 188, 0, 1, 1, 1, 1);
-    titleStartMenu->Render(rc, MenuBackgroundMode::kBackgroundVisible, false);
-    Cursor::Instance().Render(rc);
+    sprTitle->Render(dc, 50, 50, 0, 656, 188, 0, 1, 1, 1, 1);
+    titleStartMenu->Render(dc, MenuBackgroundMode::kBackgroundVisible, false);
+    Cursor::Instance().Render(dc);
 }
 
 void SceneTitle::DrawGUI() {}

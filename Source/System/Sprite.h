@@ -4,14 +4,12 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 
-#include "RenderContext.h"
-
 // スプライト
 class Sprite
 {
 public:
-	Sprite();
-	Sprite(const char* filename);
+	Sprite(ID3D11Device* device);
+	Sprite(ID3D11Device* device, const char* filename);
 
 	// 頂点データ
 	struct Vertex
@@ -22,7 +20,7 @@ public:
 	};
 
 	// 描画実行
-	void Render(const RenderContext& rc,
+	void Render(ID3D11DeviceContext* dc,
 		float dx, float dy,					// 左上位置
 		float dz,							// 奥行
 		float dw, float dh,					// 幅、高さ
@@ -33,7 +31,7 @@ public:
 	) const;
 
 	// 描画実行（テクスチャ切り抜き指定なし）
-	void Render(const RenderContext& rc,
+	void Render(ID3D11DeviceContext* dc,
 		float dx, float dy,					// 左上位置
 		float dz,							// 奥行
 		float dw, float dh,					// 幅、高さ

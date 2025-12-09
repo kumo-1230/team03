@@ -2,60 +2,47 @@
 
 #include <DirectXMath.h>
 
-//カメラ
+// カメラ
 class Camera
 {
-private:
-	DirectX::XMFLOAT4X4		view{};
-	DirectX::XMFLOAT4X4		projection{};
-
-	DirectX::XMFLOAT3		eye{};
-	DirectX::XMFLOAT3		focus{};
-
-	DirectX::XMFLOAT3		up{};
-	DirectX::XMFLOAT3		front{};
-	DirectX::XMFLOAT3		right{};
 public:
-	////唯一のインスタンス取得
-	//static Camera& Instanca()
-	//{
-	//	static Camera camera;
-	//	return camera;
-	//}
+	Camera();
 
-	Camera() {}
-	~Camera() {}
-
-public:
-	//指定方向を向く
+	// 指定方向を向く
 	void SetLookAt(const DirectX::XMFLOAT3& eye, const DirectX::XMFLOAT3& focus, const DirectX::XMFLOAT3& up);
 
-	//パースペクティブ設定
-	void SetPerspectibeFov(float fovY, float aspect, float nearZ, float farZ);
+	// パースペクティブ設定
+	void SetPerspectiveFov(float fovY, float aspect, float nearZ, float farZ);
 
-	//ビュー行列取得
-	const DirectX::XMFLOAT4X4& GetView      () const { return view; }
+	// ビュー行列取得
+	const DirectX::XMFLOAT4X4& GetView() const { return view; }
 
-	//プロジェクション行列取得
+	// プロジェクション行列取得
 	const DirectX::XMFLOAT4X4& GetProjection() const { return projection; }
 
-	//視点取得
-	const DirectX::XMFLOAT3  & GetEye       () const { return eye; }
+	// 視点取得
+	const DirectX::XMFLOAT3& GetEye() const { return eye; }
 
-	//注視点取得
-	const DirectX::XMFLOAT3  & GetFocus     () const { return focus; }
+	// 注視点取得
+	const DirectX::XMFLOAT3& GetFocus() const { return focus; }
 
-	//上方向取得
-	const DirectX::XMFLOAT3  & GetUp        () const { return up; }
+	// 上方向取得
+	const DirectX::XMFLOAT3& GetUp() const { return up; }
 
-	//前方向取得
-	const DirectX::XMFLOAT3  & GetFront     () const { return front; }
+	// 前方向取得
+	const DirectX::XMFLOAT3& GetFront() const { return front; }
 
-	//右方向取得
-	const DirectX::XMFLOAT3  & GetRight     () const { return right; }
+	// 右方向取得
+	const DirectX::XMFLOAT3& GetRight() const { return right; }
 
 public:
+	DirectX::XMFLOAT4X4		view;
+	DirectX::XMFLOAT4X4		projection;
 
-	void CameraShakeRange(float elapsedTime,float t, float Rmin, float Rmax, float range);
+	DirectX::XMFLOAT3		eye;
+	DirectX::XMFLOAT3		focus;
 
+	DirectX::XMFLOAT3		up;
+	DirectX::XMFLOAT3		front;
+	DirectX::XMFLOAT3		right;
 };

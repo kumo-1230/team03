@@ -159,7 +159,7 @@ int UiPanel::GetClickedButtonId() {
     return -1;
 }
 
-void UiPanel::Render(const RenderContext& rc, int background_mode,
+void UiPanel::Render(ID3D11DeviceContext* dc, int background_mode,
     bool freeze_effects) {
     if (!is_active_) {
         return;
@@ -178,7 +178,7 @@ void UiPanel::Render(const RenderContext& rc, int background_mode,
             background_element_->SetAlphaProgress(alpha_progress_);
         }
         background_element_->SetColor(bg_color);
-        background_element_->Render(rc);
+        background_element_->Render(dc);
     }
 
     for (auto& sprite : sprites_) {
@@ -191,7 +191,7 @@ void UiPanel::Render(const RenderContext& rc, int background_mode,
             sprite->SetTargetAlpha(target_alpha_);
             sprite->SetAlphaProgress(alpha_progress_);
         }
-        sprite->Render(rc);
+        sprite->Render(dc);
     }
 
     for (auto& button : buttons_) {
@@ -204,7 +204,7 @@ void UiPanel::Render(const RenderContext& rc, int background_mode,
             button->SetTargetAlpha(target_alpha_);
             button->SetAlphaProgress(alpha_progress_);
         }
-        button->Render(rc);
+        button->Render(dc);
     }
 }
 

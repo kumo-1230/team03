@@ -52,7 +52,7 @@ void SceneGame::Initialize()
 		focus,
 		DirectX::XMFLOAT3(0, 1, 0)
 	);
-	camera->SetPerspectibeFov(
+	camera->SetPerspectiveFov(
 		DirectX::XMConvertToRadians(fov),
 		graphics.GetScreenWidth() / graphics.GetScreenHeight(),
 		0.1f,
@@ -128,10 +128,10 @@ void SceneGame::Update(float elapsedTime)
 		float ax = (float)(cursor.x - center.x) * sensitivity;
 		float ay = (float)(cursor.y - center.y) * sensitivity;
 
-		//cameraController->Updeate(elapsedTime, camera.get(), ax, ay);
+		//cameraController->Update(elapsedTime, camera.get(), ax, ay);
 
 		{
-			cameraController->Updeate(elapsedTime, camera.get(), ax, ay);
+			cameraController->Update(elapsedTime, camera.get(), ax, ay);
 		}
 
 		{
@@ -196,15 +196,16 @@ void SceneGame::Render()
 	// 描画準備
 	RenderContext rc;
 	rc.deviceContext  = dc;
-	rc.lightDirection = { 0.0f, -1.0f, 0.0f };	// ライト方向（下方向）
+
+	LightManager lm;
+	DirectionalLight directionalLight;
+	lm.SetDirectionalLight(directionalLight);
+	rc.lightManager = &lm;
 	rc.renderState    = graphics.GetRenderState();
+	rc.camera = camera.get();
 
-	//カメラパラメータ設定
-	rc.view           = camera->GetView();
-	rc.projection     = camera->GetProjection();
-
-	DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.view);
-	DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.projection);
+	DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.camera->GetView());
+	DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.camera->GetProjection());
 	DirectX::XMMATRIX VP = V * P;
 	DirectX::XMFLOAT4X4 vp;
 	DirectX::XMStoreFloat4x4(&vp, VP);
@@ -217,7 +218,7 @@ void SceneGame::Render()
 	{
 		player->Render(rc, modelRenderer);
 
-		EffectManager::Instance().Render(rc.view, rc.projection);
+		EffectManager::Instance().Render(rc.camera->view, rc.camera->projection);
 	}
 
 	// 3Dデバッグ描画

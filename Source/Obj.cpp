@@ -113,6 +113,6 @@ void Obj::Render(const RenderContext& rc, ModelRenderer* renderer)
 {
     if (model != nullptr)
     {
-        renderer->Render(rc, transform, model.get(), ShaderId::Lambert);
+        renderer->Draw(ShaderId::Lambert, model);
     }
 }

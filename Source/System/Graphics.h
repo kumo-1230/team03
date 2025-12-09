@@ -1,12 +1,13 @@
 #pragma once
 
-#include <mutex>
 #include <d3d11.h>
 #include <wrl.h>
 #include <memory>
 #include "RenderState.h"
+#include "PrimitiveRenderer.h"
 #include "ShapeRenderer.h"
 #include "ModelRenderer.h"
+#include <mutex>
 
 // グラフィックス
 class Graphics
@@ -53,30 +54,33 @@ public:
 	// レンダーステート取得
 	RenderState* GetRenderState() { return renderState.get(); }
 
+	// プリミティブレンダラ取得
+	PrimitiveRenderer* GetPrimitiveRenderer() const { return primitiveRenderer.get(); }
+
 	// シェイプレンダラ取得
 	ShapeRenderer* GetShapeRenderer() const { return shapeRenderer.get(); }
 
 	// モデルレンダラ取得
 	ModelRenderer* GetModelRenderer() const { return modelRenderer.get(); }
 
-	//ミューテックス取得
 	std::mutex& GetMutex() { return mutex; }
 
 private:
 	HWND											hWnd = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11Device>			device = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		immediateContext = nullptr;
-	Microsoft::WRL::ComPtr<IDXGISwapChain>			swapchain = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>	renderTargetView = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>	depthStencilView = nullptr;
-	D3D11_VIEWPORT									viewport{};
+	Microsoft::WRL::ComPtr<ID3D11Device>			device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		immediateContext;
+	Microsoft::WRL::ComPtr<IDXGISwapChain>			swapchain;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>	renderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>	depthStencilView;
+	D3D11_VIEWPORT									viewport;
 
 	float	screenWidth = 0;
 	float	screenHeight = 0;
 
-	std::unique_ptr<RenderState>					renderState = nullptr;
-	std::unique_ptr<ShapeRenderer>					shapeRenderer = nullptr;
-	std::unique_ptr<ModelRenderer>					modelRenderer = nullptr;
+	std::unique_ptr<RenderState>					renderState;
+	std::unique_ptr<PrimitiveRenderer>				primitiveRenderer;
+	std::unique_ptr<ShapeRenderer>					shapeRenderer;
+	std::unique_ptr<ModelRenderer>					modelRenderer;
 
 	std::mutex mutex;
 };

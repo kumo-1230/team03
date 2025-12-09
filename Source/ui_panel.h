@@ -43,7 +43,7 @@ public:
     void Update(int* clicked_button_id);
 
     // •`‰æˆ—
-    void Render(const RenderContext& rc,
+    void Render(ID3D11DeviceContext* dc,
         int background_mode = MenuBackgroundMode::kBackgroundVisible,
         bool freeze_effects = false);
 

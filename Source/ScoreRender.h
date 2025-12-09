@@ -10,7 +10,7 @@ public:
 	//{
 	//	if (score == 0)
 	//	{
-	//		sprite->Render(rc,
+	//		sprite->Render(rc.deviceContext,
 	//			worldPosX + 40,
 	//			worldPosY,
 	//			0.0f,
@@ -38,7 +38,7 @@ public:
 	//	//マイナスかどうかの処理
 	//	for (int i = ketasuu;i > 0;i--)
 	//	{
-	//		sprite->Render(rc,
+	//		sprite->Render(rc.deviceContext,
 	//			worldPosX + i*texSizeX,
 	//			worldPosY,
 	//			0.0f,
@@ -62,7 +62,7 @@ public:
 	{
 		if (score == 0)
 		{
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				worldPosX, worldPosY, 0.0f,
 				texSizeX * scale, texSizeY * scale,
 				0, 0, texSizeX, texSizeY,
@@ -101,7 +101,7 @@ public:
 			float drawX = centerX + rotatedX;
 			float drawY = centerY + rotatedY;
 
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				drawX, drawY, 0.0f,
 				texSizeX, texSizeY,
 				texSizeX * digit, 0, texSizeX, texSizeY,
@@ -114,7 +114,7 @@ public:
 	{
 		if (score == 0)
 		{
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				worldPosX, worldPosY, 0.0f,
 				texSizeX, texSizeY,
 				0, texSizeY * vertical, texSizeX, texSizeY,
@@ -153,7 +153,7 @@ public:
 			float drawX = centerX + rotatedX;
 			float drawY = centerY + rotatedY;
 
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				drawX, drawY, 0.0f,
 				texSizeX, texSizeY,
 				texSizeX * digit, texSizeY * vertical, texSizeX, texSizeY,
@@ -166,7 +166,7 @@ public:
 	{
 		if (score == 0)
 		{
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				worldPosX, worldPosY, 0.0f,
 				texSizeX, texSizeY,
 				0, texSizeY * vertical, texSizeX, texSizeY,
@@ -205,7 +205,7 @@ public:
 			float drawX = centerX + rotatedX;
 			float drawY = centerY + rotatedY;
 
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				drawX, drawY, 0.0f,
 				texSizeX, texSizeY,
 				texSizeX * digit, texSizeY * vertical, texSizeX, texSizeY,
@@ -220,7 +220,7 @@ public:
 	{
 		if (score == 0)
 		{
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				worldPosX, worldPosY, 0.0f,
 				texSizeX, texSizeY,
 				0, texSizeY * vertical, texSizeX, texSizeY,
@@ -267,7 +267,7 @@ public:
 			float drawX = centerX + rotatedX;
 			float drawY = centerY + rotatedY;
 
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				drawX, drawY, 0.0f,
 				texSizeX, texSizeY,
 				texSizeX * num, texSizeY * vertical, texSizeX, texSizeY,
@@ -292,7 +292,7 @@ public:
 			float drawX = centerX + rotatedX;
 			float drawY = centerY + rotatedY;
 
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				drawX, drawY, 0.0f,
 				texSizeX, texSizeY,
 				texSizeX * digit, texSizeY * vertical, texSizeX, texSizeY,
@@ -307,7 +307,7 @@ public:
 	{
 		if (score == 0)
 		{
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				worldPosX, worldPosY, 0.0f,
 				texSizeX * scale, texSizeY * scale,
 				0, texSizeY * vertical, texSizeX, texSizeY,
@@ -352,7 +352,7 @@ public:
 			float drawX = centerX + rotatedX;
 			float drawY = centerY + rotatedY;
 
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				drawX, drawY, 0.0f,
 				texSizeX * scale, texSizeY * scale,
 				texSizeX * num, texSizeY * vertical, texSizeX, texSizeY,
@@ -379,7 +379,7 @@ public:
 			float drawX = centerX + rotatedX;
 			float drawY = centerY + rotatedY;
 
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				drawX, drawY, 0.0f,
 				texSizeX * scale, texSizeY * scale,
 				texSizeX * digit, texSizeY * vertical, texSizeX, texSizeY,
@@ -393,7 +393,7 @@ public:
 	{
 		if (score == 0)
 		{
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				worldPosX, worldPosY, 0.0f,
 				texSizeX * scale, texSizeY * scale,
 				0, texSizeY * vertical, texSizeX, texSizeY,
@@ -439,7 +439,7 @@ public:
 			float drawX = centerX + rotatedX;
 			float drawY = centerY + rotatedY;
 
-			sprite->Render(rc,
+			sprite->Render(rc.deviceContext,
 				drawX, drawY, 0.0f,
 				texSizeX * scale, texSizeY * scale,
 				texSizeX * digit, texSizeY * vertical, texSizeX, texSizeY,

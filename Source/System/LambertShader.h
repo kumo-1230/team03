@@ -12,13 +12,13 @@ public:
 	void Begin(const RenderContext& rc) override;
 
 	// XVˆ—
-	void Update(const RenderContext& rc, const ModelResource::Material& material) override;
+	void Update(const RenderContext& rc, const Model::Mesh& mesh) override;
 
 	// I—¹ˆ—
 	void End(const RenderContext& rc) override;
 
 private:
-	struct CbMaterial
+	struct CbMesh
 	{
 		DirectX::XMFLOAT4		materialColor;
 	};
@@ -26,5 +26,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader>		vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>		pixelShader;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout>		inputLayout;
-	Microsoft::WRL::ComPtr<ID3D11Buffer>			constantBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>			meshConstantBuffer;
 };

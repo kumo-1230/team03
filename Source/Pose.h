@@ -38,7 +38,7 @@ public:
     void SetTutorial(bool b) { tutorial = b; }
 
     void Update(float elapsedTime);
-    void Render(const RenderContext& rc);
+    void Render(ID3D11DeviceContext* dc);
 
 private:
     Pose();

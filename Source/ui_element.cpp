@@ -17,14 +17,14 @@ UiElement::UiElement(const char* file_name, DirectX::XMFLOAT2 position,
     }
 
     if (is_valid_) {
-        sprite_ = std::make_unique<Sprite>(file_name);
+        sprite_ = std::make_unique<Sprite>(Graphics::Instance().GetDevice(), file_name);
     }
     else {
         int a = 3;
     }
 }
 
-void UiElement::Render(const RenderContext& rc) {
+void UiElement::Render(ID3D11DeviceContext* dc) {
     if (render_mode_ == UiRenderMode::kInvisible || !is_valid_) {
         return;
     }
@@ -32,7 +32,7 @@ void UiElement::Render(const RenderContext& rc) {
     DirectX::XMFLOAT4 final_color = color_;
     final_color.w = CalculateAlpha();
 
-    sprite_->Render(rc,
+    sprite_->Render(dc,
         position_.x + size_offset_,
         position_.y + size_offset_,
         0.0f,

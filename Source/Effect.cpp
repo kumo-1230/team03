@@ -1,6 +1,7 @@
 #include "Effect.h"
 #include "System/Graphics.h"
 #include "EffectManager.h"
+#include <mutex>
 
 //コンストラクタ
 Effect::Effect(const char* filename)

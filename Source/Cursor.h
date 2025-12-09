@@ -25,7 +25,7 @@ private:
 private:
 	Cursor()
 	{
-		sprCursor = std::make_unique<Sprite>("Data/Sprite/new_cursor.png");
+		sprCursor = std::make_unique<Sprite>(Graphics::Instance().GetDevice(), "Data/Sprite/new_cursor.png");
 	};
 	~Cursor() {};
 public:
@@ -61,13 +61,13 @@ public:
 		}
 	}
 
-	void Render(const RenderContext& rc)
+	void Render(ID3D11DeviceContext* dc)
 	{
 		if (!fade)
 		{
 			for (const auto& p : particles)
 			{
-				sprCursor->Render(rc,
+				sprCursor->Render(dc,
 					p.particlesPos.x - 25.0f, p.particlesPos.y - p.showLerp->GetOffset(Lerp::EASING_TYPE::Normal, 0.0f, -100.0f) - 25.0f, 0.0f,
 					50.0f, 50.0f,
 					50.0f * p.type, 0.0f,
@@ -76,13 +76,13 @@ public:
 					1, 1, 1, p.showLerp->GetOffset(Lerp::EASING_TYPE::Normal, 1.0f, 0.0f));
 			}
 
-			sprCursor->Render(rc, pos.x - 25.0f, pos.y - 25.0f, 0.0f, 50.0f, 50.0f, 50 * 0, 0.0f, 50.0f, 50.0f, 0.0f, 1, 1, 1, 1);
+			sprCursor->Render(dc, pos.x - 25.0f, pos.y - 25.0f, 0.0f, 50.0f, 50.0f, 50 * 0, 0.0f, 50.0f, 50.0f, 0.0f, 1, 1, 1, 1);
 		}
 		else
 		{
 			for (const auto& p : particles)
 			{
-				sprCursor->Render(rc,
+				sprCursor->Render(dc,
 					p.particlesPos.x - 25.0f, p.particlesPos.y - p.showLerp->GetOffset(Lerp::EASING_TYPE::Normal, 0.0f, -100.0f) - 25.0f, 0.0f,
 					50.0f, 50.0f,
 					50.0f * p.type, 0.0f,
@@ -91,7 +91,7 @@ public:
 					1, 1, 1, a);
 			}
 
-			sprCursor->Render(rc, pos.x - 25.0f, pos.y - 25.0f, 0.0f, 50.0f, 50.0f, 50 * 0, 0.0f, 50.0f, 50.0f, 0.0f, 1, 1, 1, a);
+			sprCursor->Render(dc, pos.x - 25.0f, pos.y - 25.0f, 0.0f, 50.0f, 50.0f, 50 * 0, 0.0f, 50.0f, 50.0f, 0.0f, 1, 1, 1, a);
 		}
 		particles.erase(
 			std::remove_if(particles.begin(), particles.end(),

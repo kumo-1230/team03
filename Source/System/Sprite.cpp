@@ -1,20 +1,17 @@
 #include <fstream>
-#include "System/Graphics.h"
 #include "Sprite.h"
 #include "Misc.h"
 #include "GpuResourceUtils.h"
 
 // コンストラクタ
-Sprite::Sprite()
-	: Sprite(nullptr)
+Sprite::Sprite(ID3D11Device* device)
+	: Sprite(device, nullptr)
 {
 }
 
 // コンストラクタ
-Sprite::Sprite(const char* filename)
+Sprite::Sprite(ID3D11Device* device, const char* filename)
 {
-	ID3D11Device* device = Graphics::Instance().GetDevice();
-
 	HRESULT hr = S_OK;
 
 	// 頂点バッファの生成
@@ -64,13 +61,6 @@ Sprite::Sprite(const char* filename)
 	// テクスチャの生成	
 	if (filename != nullptr)
 	{
-		int size_needed = MultiByteToWideChar(CP_UTF8, 0, filename, -1, nullptr, 0);
-		wchar_t* wFilename = new wchar_t[size_needed];
-		MultiByteToWideChar(CP_UTF8, 0, filename, -1, wFilename, size_needed);
-
-		OutputDebugStringW(L"[LoadTexture] 読み込もうとしているファイル: ");
-		OutputDebugStringW(wFilename);
-		OutputDebugStringW(L"\n");
 		// テクスチャファイル読み込み
 		D3D11_TEXTURE2D_DESC desc;
 		hr = GpuResourceUtils::LoadTexture(device, filename, shaderResourceView.GetAddressOf(), &desc);
@@ -93,7 +83,7 @@ Sprite::Sprite(const char* filename)
 }
 
 // 描画実行
-void Sprite::Render(const RenderContext& rc,
+void Sprite::Render(ID3D11DeviceContext* dc,
 	float dx, float dy,					// 左上位置
 	float dz,							// 奥行
 	float dw, float dh,					// 幅、高さ
@@ -103,8 +93,6 @@ void Sprite::Render(const RenderContext& rc,
 	float r, float g, float b, float a	// 色
 	) const
 {
-	ID3D11DeviceContext* dc = rc.deviceContext;
-
 	// 頂点座標
 	DirectX::XMFLOAT2 positions[] = {
 		DirectX::XMFLOAT2(dx,      dy),			// 左上
@@ -198,21 +186,12 @@ void Sprite::Render(const RenderContext& rc,
 	dc->PSSetShader(pixelShader.Get(), nullptr, 0);
 	dc->PSSetShaderResources(0, 1, shaderResourceView.GetAddressOf());
 
-	// レンダーステート設定
-	dc->OMSetDepthStencilState(rc.renderState->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
-	dc->RSSetState(rc.renderState->GetRasterizerState(RasterizerState::SolidCullNone));
-	dc->OMSetBlendState(rc.renderState->GetBlendState(BlendState::Transparency), nullptr, 0xFFFFFFFF);
-
-	// サンプラーステート設定
-	ID3D11SamplerState* samplers[] = { rc.renderState->GetSamplerState(SamplerState::LinearWrap) };
-	dc->PSSetSamplers(0, _countof(samplers), samplers);
-
 	// 描画
 	dc->Draw(4, 0);
 }
 
 // 描画実行（テクスチャ切り抜き指定なし）
-void Sprite::Render(const RenderContext& rc,
+void Sprite::Render(ID3D11DeviceContext* dc,
 	float dx, float dy,					// 左上位置
 	float dz,							// 奥行
 	float dw, float dh,					// 幅、高さ
@@ -220,5 +199,5 @@ void Sprite::Render(const RenderContext& rc,
 	float r, float g, float b, float a	// 色
 	) const
 {
-	Render(rc, dx, dy, dz, dw, dh, 0, 0, textureWidth, textureHeight, angle, r, g, b, a);
+	Render(dc, dx, dy, dz, dw, dh, 0, 0, textureWidth, textureHeight, angle, r, g, b, a);
 }

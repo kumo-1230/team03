@@ -23,7 +23,7 @@ SceneResult::SceneResult()
 		focus,
 		DirectX::XMFLOAT3(0, 1, 0)
 	);
-	camera->SetPerspectibeFov(
+	camera->SetPerspectiveFov(
 		DirectX::XMConvertToRadians(CAMERA_FOV),
 		graphics.GetScreenWidth() / graphics.GetScreenHeight(),
 		0.1f,
@@ -50,7 +50,7 @@ void SceneResult::Update(float elapsedTime)
 		SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTitle()));
 	}
 
-	cameraController->Updeate(elapsedTime, camera.get(), 0, 0);
+	cameraController->Update(elapsedTime, camera.get(), 0, 0);
 }
 
 void SceneResult::Render()
@@ -62,16 +62,16 @@ void SceneResult::Render()
 	//描画準備
 	RenderContext rc;
 	rc.deviceContext = dc;
+
+	LightManager lm;
+	DirectionalLight directionalLight;
+	lm.SetDirectionalLight(directionalLight);
+	rc.lightManager = &lm;
 	rc.renderState = graphics.GetRenderState();
-	ModelRenderer* modelRenderer = graphics.GetModelRenderer();
+	rc.camera = camera.get();
 
-	//カメラパラメータ設定
-	rc.view = camera->GetView();
-	rc.projection = camera->GetProjection();
-
-
-	DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.view);
-	DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.projection);
+	DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.camera->GetView());
+	DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.camera->GetProjection());
 	DirectX::XMMATRIX VP = V * P;
 	DirectX::XMFLOAT4X4 vp;
 	DirectX::XMStoreFloat4x4(&vp, VP);
@@ -82,7 +82,7 @@ void SceneResult::Render()
 
 	//2Dスプライト描画
 	{
-		Cursor::Instance().Render(rc);
+		Cursor::Instance().Render(dc);
 	}
 
 }

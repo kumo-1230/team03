@@ -26,7 +26,7 @@ void Character::RenderDebugPrimitive(const RenderContext& rc, ShapeRenderer* ren
 	////球のデバッグ
 	//renderer->RenderSphere(rc, position, radius, DirectX::XMFLOAT4(0, 0, 0, 1));
 	//円柱のデバッグ
-	renderer->RenderCylinder(rc, position, radius, height, DirectX::XMFLOAT4(0, 0, 0, 1));
+	renderer->DrawCapsule(transform, radius, height, DirectX::XMFLOAT4(0, 0, 0, 1));
 }
 
 

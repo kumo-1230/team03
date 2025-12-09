@@ -64,7 +64,7 @@ void Player::Update(float elapsedTime, Camera* camera)
 void Player::Render(const RenderContext& rc, ModelRenderer* renderer)
 {
 	//エフェクト更新処理
-	EffectManager::Instance().Render(rc.view, rc.projection);
+	EffectManager::Instance().Render(rc.camera->view, rc.camera->projection);
 }
 
 //デバッグ用GUI描画

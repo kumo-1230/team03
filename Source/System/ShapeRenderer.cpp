@@ -43,88 +43,78 @@ ShapeRenderer::ShapeRenderer(ID3D11Device* device)
 
 	// 円柱メッシュ生成
 	CreateCylinderMesh(device, 1.0f, 1.0f, -0.5f, 1.0f, 32);
+
+	// 骨メッシュ生成
+	CreateBoneMesh(device, 1.0f);
 }
 
 // 箱描画
-void ShapeRenderer::RenderBox(
-	const RenderContext& rc,
+void ShapeRenderer::DrawBox(
 	const DirectX::XMFLOAT3& position,
 	const DirectX::XMFLOAT3& angle,
 	const DirectX::XMFLOAT3& size,
-	const DirectX::XMFLOAT4& color) const
+	const DirectX::XMFLOAT4& color)
 {
+	Instance& instance = instances.emplace_back();
+	instance.mesh = &boxMesh;
+	instance.color = color;
+
 	DirectX::XMMATRIX S = DirectX::XMMatrixScaling(size.x, size.y, size.z);
 	DirectX::XMMATRIX R = DirectX::XMMatrixRotationRollPitchYaw(angle.x, angle.y, angle.z);
 	DirectX::XMMATRIX T = DirectX::XMMatrixTranslation(position.x, position.y, position.z);
-	DirectX::XMFLOAT4X4 transform;
-	DirectX::XMStoreFloat4x4(&transform, S * R * T);
-
-	Render(rc, boxMesh, transform, color);
+	DirectX::XMStoreFloat4x4(&instance.worldTransform, S * R * T);
 }
 
 // 球描画
-void ShapeRenderer::RenderSphere(
-	const RenderContext& rc,
+void ShapeRenderer::DrawSphere(
 	const DirectX::XMFLOAT3& position,
 	float radius,
-	const DirectX::XMFLOAT4& color) const
+	const DirectX::XMFLOAT4& color)
 {
+	Instance& instance = instances.emplace_back();
+	instance.mesh = &sphereMesh;
+	instance.color = color;
+
 	DirectX::XMMATRIX S = DirectX::XMMatrixScaling(radius, radius, radius);
 	DirectX::XMMATRIX T = DirectX::XMMatrixTranslation(position.x, position.y, position.z);
-	DirectX::XMFLOAT4X4 transform;
-	DirectX::XMStoreFloat4x4(&transform, S * T);
-
-	Render(rc, sphereMesh, transform, color);
-}
-
-// 円柱描画
-void ShapeRenderer::RenderCylinder(
-	const RenderContext& rc,
-	const DirectX::XMFLOAT3& position,
-	float radius,
-	float height,
-	const DirectX::XMFLOAT4& color) const
-{
-	DirectX::XMMATRIX S = DirectX::XMMatrixScaling(radius, height, radius);
-	DirectX::XMMATRIX T = DirectX::XMMatrixTranslation(position.x, position.y + height * 0.5f, position.z);
-	DirectX::XMFLOAT4X4 transform;
-	DirectX::XMStoreFloat4x4(&transform, S * T);
-
-	Render(rc, cylinderMesh, transform, color);
+	DirectX::XMStoreFloat4x4(&instance.worldTransform, S * T);
 }
 
 // カプセル描画
-void ShapeRenderer::RenderCapsule(
-	const RenderContext& rc,
+void ShapeRenderer::DrawCapsule(
 	const DirectX::XMFLOAT4X4& transform,
 	float radius,
 	float height,
-	const DirectX::XMFLOAT4& color) const
+	const DirectX::XMFLOAT4& color)
 {
 	DirectX::XMMATRIX Transform = DirectX::XMLoadFloat4x4(&transform);
 
 	// 上半球
 	{
+		Instance& instance = instances.emplace_back();
+		instance.mesh = &halfSphereMesh;
 		DirectX::XMVECTOR Position = DirectX::XMVector3Transform(DirectX::XMVectorSet(0, height * 0.5f, 0, 0), Transform);
 		DirectX::XMMATRIX World = DirectX::XMMatrixScaling(radius, radius, radius);
 		World.r[3] = DirectX::XMVectorSetW(Position, 1.0f);
-		DirectX::XMFLOAT4X4 world;
-		DirectX::XMStoreFloat4x4(&world, World);
-		Render(rc, halfSphereMesh, world, color);
+		DirectX::XMStoreFloat4x4(&instance.worldTransform, World);
+		instance.color = color;
 	}
 	// 円柱
 	{
+		Instance& instance = instances.emplace_back();
+		instance.mesh = &cylinderMesh;
 		DirectX::XMMATRIX World;
 		World.r[0] = DirectX::XMVectorScale(Transform.r[0], radius);
 		World.r[1] = DirectX::XMVectorScale(Transform.r[1], height);
 		World.r[2] = DirectX::XMVectorScale(Transform.r[2], radius);
 		World.r[3] = Transform.r[3];
-		DirectX::XMFLOAT4X4 world;
-		DirectX::XMStoreFloat4x4(&world, World);
-		Render(rc, cylinderMesh, world, color);
+		DirectX::XMStoreFloat4x4(&instance.worldTransform, World);
+		instance.color = color;
 	}
 	// 下半球
 	{
+		Instance& instance = instances.emplace_back();
+		instance.mesh = &halfSphereMesh;
 		DirectX::XMMATRIX World = DirectX::XMMatrixRotationX(DirectX::XM_PI);
 		DirectX::XMVECTOR Position = DirectX::XMVector3Transform(DirectX::XMVectorSet(0, -height * 0.5f, 0, 0), Transform);
 		Transform.r[3] = DirectX::XMVectorSet(0, 0, 0, 1);
@@ -133,10 +123,26 @@ void ShapeRenderer::RenderCapsule(
 		World.r[1] = DirectX::XMVectorScale(World.r[1], radius);
 		World.r[2] = DirectX::XMVectorScale(World.r[2], radius);
 		World.r[3] = DirectX::XMVectorSetW(Position, 1.0f);
-		DirectX::XMFLOAT4X4 world;
-		DirectX::XMStoreFloat4x4(&world, World);
-		Render(rc, halfSphereMesh, world, color);
+		DirectX::XMStoreFloat4x4(&instance.worldTransform, World);
+		instance.color = color;
 	}
+}
+
+// 骨描画
+void ShapeRenderer::DrawBone(
+	const DirectX::XMFLOAT4X4& transform,
+	float length,
+	const DirectX::XMFLOAT4& color)
+{
+	Instance& instance = instances.emplace_back();
+	instance.mesh = &boneMesh;
+	instance.color = color;
+
+	DirectX::XMMATRIX W = DirectX::XMLoadFloat4x4(&transform);
+	W.r[0] = DirectX::XMVectorScale(DirectX::XMVector3Normalize(W.r[0]), length);
+	W.r[1] = DirectX::XMVectorScale(DirectX::XMVector3Normalize(W.r[1]), length);
+	W.r[2] = DirectX::XMVectorScale(DirectX::XMVector3Normalize(W.r[2]), length);
+	DirectX::XMStoreFloat4x4(&instance.worldTransform, W);
 }
 
 // メッシュ生成
@@ -370,11 +376,61 @@ void ShapeRenderer::CreateCylinderMesh(ID3D11Device* device, float radius1, floa
 	CreateMesh(device, vertices, cylinderMesh);
 }
 
-// 描画実行
-void ShapeRenderer::Render(const RenderContext& rc, const Mesh& mesh, const DirectX::XMFLOAT4X4& transform, const DirectX::XMFLOAT4& color) const
+// 骨メッシュ作成
+void ShapeRenderer::CreateBoneMesh(ID3D11Device* device, float length)
 {
-	ID3D11DeviceContext* dc = rc.deviceContext;
+	float width = length * 0.25f;
+	DirectX::XMFLOAT3 positions[8] =
+	{
+		{ -0.00f,  0.00f,  0.00f},
+		{  width,  0.00f,  width},
+		{  0.00f,  0.00f,  length},
+		{ -width,  0.00f,  width},
+		{  0.00f,  width,  width},
+		{  0.00f, -width,  width},
+	};
 
+	std::vector<DirectX::XMFLOAT3> vertices;
+	vertices.reserve(24);
+
+	// xz
+	vertices.emplace_back(positions[0]);
+	vertices.emplace_back(positions[1]);
+	vertices.emplace_back(positions[1]);
+	vertices.emplace_back(positions[2]);
+	vertices.emplace_back(positions[2]);
+	vertices.emplace_back(positions[3]);
+	vertices.emplace_back(positions[3]);
+	vertices.emplace_back(positions[0]);
+	// yz
+	vertices.emplace_back(positions[0]);
+	vertices.emplace_back(positions[4]);
+	vertices.emplace_back(positions[4]);
+	vertices.emplace_back(positions[2]);
+	vertices.emplace_back(positions[2]);
+	vertices.emplace_back(positions[5]);
+	vertices.emplace_back(positions[5]);
+	vertices.emplace_back(positions[0]);
+	// xy
+	vertices.emplace_back(positions[1]);
+	vertices.emplace_back(positions[4]);
+	vertices.emplace_back(positions[4]);
+	vertices.emplace_back(positions[3]);
+	vertices.emplace_back(positions[3]);
+	vertices.emplace_back(positions[5]);
+	vertices.emplace_back(positions[5]);
+	vertices.emplace_back(positions[1]);
+
+	// メッシュ生成
+	CreateMesh(device, vertices, boneMesh);
+}
+
+// 描画実行
+void ShapeRenderer::Render(
+	ID3D11DeviceContext* dc,
+	const DirectX::XMFLOAT4X4& view,
+	const DirectX::XMFLOAT4X4& projection)
+{
 	// シェーダー設定
 	dc->VSSetShader(vertexShader.Get(), nullptr, 0);
 	dc->PSSetShader(pixelShader.Get(), nullptr, 0);
@@ -384,8 +440,8 @@ void ShapeRenderer::Render(const RenderContext& rc, const Mesh& mesh, const Dire
 	dc->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
 
 	// ビュープロジェクション行列作成
-	DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.view);
-	DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.projection);
+	DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&view);
+	DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&projection);
 	DirectX::XMMATRIX VP = V * P;
 
 	// プリミティブ設定
@@ -393,20 +449,24 @@ void ShapeRenderer::Render(const RenderContext& rc, const Mesh& mesh, const Dire
 	UINT offset = 0;
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	// 頂点バッファ設定
-	dc->IASetVertexBuffers(0, 1, mesh.vertexBuffer.GetAddressOf(), &stride, &offset);
+	for (const Instance& instance : instances)
+	{
+		// 頂点バッファ設定
+		dc->IASetVertexBuffers(0, 1, instance.mesh->vertexBuffer.GetAddressOf(), &stride, &offset);
 
-	// ワールドビュープロジェクション行列作成
-	DirectX::XMMATRIX W = DirectX::XMLoadFloat4x4(&transform);
-	DirectX::XMMATRIX WVP = W * VP;
+		// ワールドビュープロジェクション行列作成
+		DirectX::XMMATRIX W = DirectX::XMLoadFloat4x4(&instance.worldTransform);
+		DirectX::XMMATRIX WVP = W * VP;
 
-	// 定数バッファ更新
-	CbMesh cbMesh;
-	DirectX::XMStoreFloat4x4(&cbMesh.worldViewProjection, WVP);
-	cbMesh.color = color;
+		// 定数バッファ更新
+		CbMesh cbMesh;
+		DirectX::XMStoreFloat4x4(&cbMesh.worldViewProjection, WVP);
+		cbMesh.color = instance.color;
 
-	dc->UpdateSubresource(constantBuffer.Get(), 0, 0, &cbMesh, 0, 0);
+		dc->UpdateSubresource(constantBuffer.Get(), 0, 0, &cbMesh, 0, 0);
 
-	// 描画
-	dc->Draw(mesh.vertexCount, 0);
+		// 描画
+		dc->Draw(instance.mesh->vertexCount, 0);
+	}
+	instances.clear();
 }

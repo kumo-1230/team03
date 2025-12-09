@@ -37,5 +37,9 @@ void Stage::Update(float elapsedTime, const Player* player)
 void Stage::Render(const RenderContext& rc, ModelRenderer* renderer)
 {
 	//ƒŒƒ“ƒ_ƒ‰‚Éƒ‚ƒfƒ‹‚ð•`‰æ‚µ‚Ä‚à‚ç‚¤
-	renderer->Render(rc, transform, model.get(), ShaderId::Lambert);
+	//renderer->Render(rc, transform, model.get(), ShaderId::Lambert);
+
+	// VRenderer‚Ì‘‚«•û
+	renderer->Draw(ShaderId::Lambert, model);
+
 }

@@ -9,7 +9,7 @@
 class Obj
 {
 protected:
-	std::unique_ptr<Model> model = nullptr;
+	std::shared_ptr<Model> model = nullptr;
 	DirectX::XMFLOAT3	position = { 0,0,0 };
 	DirectX::XMFLOAT3	angle = { 0,0,0 };
 	DirectX::XMFLOAT3	scale = { 1,1,1 };

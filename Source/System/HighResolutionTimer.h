@@ -117,14 +117,14 @@ public:
 	}
 
 private:
-	double seconds_per_count{};
-	double delta_time{};
+	double seconds_per_count;
+	double delta_time;
 
-	LONGLONG base_time{};
-	LONGLONG paused_time{};
-	LONGLONG stop_time{};
-	LONGLONG last_time{};
-	LONGLONG this_time{};
+	LONGLONG base_time;
+	LONGLONG paused_time;
+	LONGLONG stop_time;
+	LONGLONG last_time;
+	LONGLONG this_time;
 
-	bool stopped{};
+	bool stopped;
 };

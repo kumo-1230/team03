@@ -8,8 +8,8 @@ BasicShader::BasicShader(ID3D11Device* device)
 	GpuResourceUtils::LoadVertexShader(
 		device,
 		"Data/Shader/BasicVS.cso",
-		ModelResource::InputElementDescs.data(),
-		static_cast<UINT>(ModelResource::InputElementDescs.size()),
+		Model::InputElementDescs.data(),
+		static_cast<UINT>(Model::InputElementDescs.size()),
 		inputLayout.GetAddressOf(),
 		vertexShader.GetAddressOf());
 
@@ -19,11 +19,11 @@ BasicShader::BasicShader(ID3D11Device* device)
 		"Data/Shader/BasicPS.cso",
 		pixelShader.GetAddressOf());
 
-	// マテリアル用定数バッファ
+	// メッシュ用定数バッファ
 	GpuResourceUtils::CreateConstantBuffer(
 		device,
-		sizeof(CbMaterial),
-		constantBuffer.GetAddressOf());
+		sizeof(CbMesh),
+		meshConstantBuffer.GetAddressOf());
 }
 
 // 開始処理
@@ -39,25 +39,25 @@ void BasicShader::Begin(const RenderContext& rc)
 	// 定数バッファ設定
 	ID3D11Buffer* cbs[] =
 	{
-		constantBuffer.Get(),
+		meshConstantBuffer.Get(), 
 	};
-	dc->PSSetConstantBuffers(1, _countof(cbs), cbs);
+	dc->PSSetConstantBuffers(0, _countof(cbs), cbs);
 }
 
 // 更新処理
-void BasicShader::Update(const RenderContext& rc, const ModelResource::Material& material)
+void BasicShader::Update(const RenderContext& rc, const Model::Mesh& mesh)
 {
 	ID3D11DeviceContext* dc = rc.deviceContext;
 
-	// マテリアル用定数バッファ更新
-	CbMaterial cbMaterial{};
-	cbMaterial.materialColor = material.color;
-	dc->UpdateSubresource(constantBuffer.Get(), 0, 0, &cbMaterial, 0, 0);
+	// メッシュ用定数バッファ更新
+	CbMesh cbMesh{};
+	cbMesh.materialColor = mesh.material->baseColor;
+	dc->UpdateSubresource(meshConstantBuffer.Get(), 0, 0, &cbMesh, 0, 0);
 
 	// シェーダーリソースビュー設定
 	ID3D11ShaderResourceView* srvs[] =
 	{
-		material.shaderResourceView.Get(),
+		mesh.material->baseMap.Get(),
 	};
 	dc->PSSetShaderResources(0, _countof(srvs), srvs);
 }

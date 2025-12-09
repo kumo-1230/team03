@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 #include <System/Sprite.h>
 #include "render_layer.h"
+#include <d3d11_1.h>
 
 enum class UiRenderMode {
     kNormal,           // í èÌï\é¶
@@ -23,7 +24,7 @@ public:
 
     virtual ~UiElement() = default;
 
-    virtual void Render(const RenderContext& rc);
+    virtual void Render(ID3D11DeviceContext* dc);
 
     DirectX::XMFLOAT2 GetPosition() const { return position_; }
     DirectX::XMFLOAT2 GetSize() const { return size_; }
