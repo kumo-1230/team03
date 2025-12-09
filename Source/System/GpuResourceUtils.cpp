@@ -16,6 +16,8 @@ HRESULT GpuResourceUtils::LoadVertexShader(
 	// ファイルを開く
 	FILE* fp = nullptr;
 	fopen_s(&fp, filename, "rb");
+	OutputDebugStringA(filename);
+	OutputDebugStringA("\n");
 	_ASSERT_EXPR_A(fp, "Vertex Shader File not found");
 
 	// ファイルのサイズを求める

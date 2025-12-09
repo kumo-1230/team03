@@ -119,6 +119,7 @@
     <ClInclude Include="External\imgui-docking\imstb_rectpack.h" />
     <ClInclude Include="External\imgui-docking\imstb_textedit.h" />
     <ClInclude Include="External\imgui-docking\imstb_truetype.h" />
+    <ClInclude Include="Source\PBRShader.h" />
     <ClInclude Include="Source\render_layer.h" />
     <ClInclude Include="Source\System\GLTFImporter.h" />
     <ClInclude Include="Source\System\Light.h" />
@@ -188,6 +189,7 @@
     <ClCompile Include="External\imgui-docking\imgui_impl_dx11.cpp" />
     <ClCompile Include="External\imgui-docking\imgui_impl_win32.cpp" />
     <ClCompile Include="External\imgui-docking\imgui_widgets.cpp" />
+    <ClCompile Include="Source\PBRShader.cpp" />
     <ClCompile Include="Source\System\GLTFImporter.cpp" />
     <ClCompile Include="Source\ui_button.cpp">
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MultiThreadedDebug</RuntimeLibrary>
@@ -242,6 +244,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Basic.hlsli" />
+    <None Include="Shader\bidirectional_reflectance_distribution_function.hlsli" />
     <None Include="Shader\Lambert.hlsli" />
     <None Include="Shader\Scene.hlsli" />
     <None Include="Shader\ShapeRenderer.hlsli" />
@@ -264,6 +267,14 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Shader\LambertVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shader\pbr_model_ps.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shader\pbr_model_vs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>

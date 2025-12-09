@@ -55,6 +55,9 @@
     <Filter Include="Source\MySystem\Cursor">
       <UniqueIdentifier>{11fa53de-0a9f-429f-9d15-c774596c80e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\PBR">
+      <UniqueIdentifier>{faa288b8-4844-4209-8e34-dd56ab8f4b6d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\imgui-docking\imconfig.h">
@@ -270,6 +273,9 @@
     <ClInclude Include="Source\System\Light.h">
       <Filter>Source\System</Filter>
     </ClInclude>
+    <ClInclude Include="Source\PBRShader.h">
+      <Filter>Source\PBR</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui-docking\imgui.cpp">
@@ -437,6 +443,9 @@
     <ClCompile Include="Source\System\GLTFImporter.cpp">
       <Filter>Source\System</Filter>
     </ClCompile>
+    <ClCompile Include="Source\PBRShader.cpp">
+      <Filter>Source\PBR</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Sprite.hlsli">
@@ -461,6 +470,9 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shader\sky_map.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\bidirectional_reflectance_distribution_function.hlsli">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -502,6 +514,12 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="Shader\sky_box_ps.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\pbr_model_ps.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\pbr_model_vs.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>
