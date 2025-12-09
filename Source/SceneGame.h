@@ -18,6 +18,7 @@ private:
 	bool H = false;//デバッグ
 
 
+	std::shared_ptr<Model> test_model_ = nullptr;
 	std::unique_ptr<Player> player = nullptr;
 	std::unique_ptr<Camera> camera = nullptr;
 	std::unique_ptr<CameraController> cameraController = nullptr;
@@ -28,6 +29,9 @@ private:
 	AudioSource* BGM = nullptr;
 
 	float gameLimit = 200.0f;
+
+	LightManager lightManager;
+
 public:
 	SceneGame();
 	//~SceneGame() {};

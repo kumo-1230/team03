@@ -26,7 +26,7 @@
 
 #define RINGDISTNACE		(800)
 
-#define Player_StartPosX	(7000)
+#define Player_StartPosX	(0)
 
 //ƒvƒŒƒCƒ„[
 class Player : public Character

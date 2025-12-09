@@ -135,6 +135,21 @@ void SceneTitle::Update(float elapsedTime) {
     }
 }
 
+// 描画順序とレンダーステートの使い分け:
+//
+// 1. 3Dオブジェクト（不透明）
+//    - DepthState::TestAndWrite（深度テスト有効、書き込み有効）
+//    - BlendState::Opaque（ブレンド無効）
+//
+// 2. 3Dオブジェクト（透明）
+//    - DepthState::TestOnly（深度テスト有効、書き込み無効）
+//    - BlendState::Transparency（透明度ブレンド有効）
+//    - カメラから遠い順にソートして描画
+//
+// 3. 2D UI要素（スプライト）
+//    - DepthState::NoTestNoWrite（深度テスト無効、書き込み無効）
+//    - BlendState::Transparency（透明度ブレンド有効）
+//    - 最後に描画（常に手前に表示される）
 void SceneTitle::Render() {
     Graphics& graphics = Graphics::Instance();
     ID3D11DeviceContext* dc = graphics.GetDeviceContext();
@@ -147,11 +162,11 @@ void SceneTitle::Render() {
     rc.lightManager = &lightManager;
 
     dc->RSSetState(rs->GetRasterizerState(RasterizerState::SolidCullNone));
-    dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestOnly), 0);
+    dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestAndWrite), 0);
     ID3D11SamplerState* s = rs->GetSamplerState(SamplerState::LinearClamp);
     dc->PSSetSamplers(0, 1, &s);
     const float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
+    dc->OMSetBlendState(rs->GetBlendState(BlendState::Opaque), blendFactor, 0xffffffff);
 
     DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.camera->GetView());
     DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.camera->GetProjection());
@@ -162,9 +177,15 @@ void SceneTitle::Render() {
 
     skyMap->blit(rc, vp, { Cpos.x, Cpos.y, Cpos.z, 1.0f });
 
+    // Sprite 
+    dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
+    dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
+
     sprTitle->Render(dc, 50, 50, 0, 656, 188, 0, 1, 1, 1, 1);
     titleStartMenu->Render(dc, MenuBackgroundMode::kBackgroundVisible, false);
     Cursor::Instance().Render(dc);
 }
+
+
 
 void SceneTitle::DrawGUI() {}
