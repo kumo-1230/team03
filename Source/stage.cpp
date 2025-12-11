@@ -1,5 +1,5 @@
 #include "stage.h"
-#include "Player.h"
+#include "PlayerOld.h"
 
 //コンストラクタ
 Stage::Stage()
@@ -29,7 +29,7 @@ void Stage::UpdateTransform()
 	DirectX::XMStoreFloat4x4(&transform, W);
 }
 
-void Stage::Update(float elapsedTime, const Player* player)
+void Stage::Update(float elapsedTime, const PlayerOld* player)
 {
 }
 

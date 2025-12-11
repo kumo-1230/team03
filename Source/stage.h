@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-class Player;
+class PlayerOld;
 
 class Stage
 {
@@ -54,7 +54,7 @@ public:
 
 	virtual void RenderDebug(RenderContext& rc, ShapeRenderer* renderer) {};
 
-	virtual void MakeUpdate(float elapsedTime,const Player* player) {};
+	virtual void MakeUpdate(float elapsedTime,const PlayerOld* player) {};
 
 	virtual void stopEffect() {};
 protected:
@@ -62,7 +62,7 @@ protected:
 public:
 
 	//XVˆ—
-	virtual void Update(float elapsedTime,const Player* player);
+	virtual void Update(float elapsedTime,const PlayerOld* player);
 
 	//•`‰æˆ—
 	virtual void Render(const RenderContext& rc, ModelRenderer* renderer);

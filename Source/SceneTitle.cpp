@@ -54,8 +54,6 @@ void SceneTitle::Initialize() {
         true
     ));
 
-    //titleStartMenu->SetPosition({ 200, 200 });
-
     clickSE = Audio::Instance().LoadAudioSource("Data/Sound/title/SE_title_click.wav");
     onCursorSE = Audio::Instance().LoadAudioSource("Data/Sound/title/SE_title_cursor.wav");
     onStartSE = Audio::Instance().LoadAudioSource("Data/Sound/title/SE_title_zoom.wav");

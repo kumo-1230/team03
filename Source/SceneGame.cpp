@@ -1,7 +1,7 @@
 ﻿#include "System/Graphics.h"
 
 #include "SceneGame.h"
-#include "Player.h"
+#include "PlayerOld.h"
 #include "common.h"
 #include "System/Input.h"
 #include "SceneManager.h"
@@ -17,6 +17,10 @@
 #include "EffectManager.h"
 #include "Cursor.h"
 #include <KeyInput.h>
+#include <PBRShader.h>
+#include <world.h>
+#include <System/ResourceManager.h>
+#include <Player.h>
 
 SceneGame::SceneGame()
 {
@@ -26,86 +30,124 @@ SceneGame::SceneGame()
 // 初期化
 void SceneGame::Initialize()
 {
+	World& world = World::Instance();
+	world.Clear();
+
 	Graphics& graphics = Graphics::Instance();
 	auto* dv = graphics.GetDevice();
 	//ステージ初期化
 	//スプライト初期化
 
+
 	BGM = Audio::Instance().LoadAudioSource("Data/Sound/Game/BGM_game.wav");
 
 	BGM->SetVolume(0.4f);
 
+	player_ = world.CreateObject<Player>();
+
+	// カメラ初期化
+	{
+		camera = std::make_unique <Camera>();
+		//cameraController = std::make_unique<CameraController>();
+		//カメラコントローラー初期化
+		//カメラ初期化
+
+		DirectX::XMFLOAT3 eye = player_->GetPosition();
+		DirectX::XMFLOAT3 focus{};
+		focus.x = sinf(player_->GetAngle().y);
+		focus.z = cosf(player_->GetAngle().y);
+
+		float fov = 80.0f;
+		camera->SetLookAt(
+			eye,
+			focus,
+			DirectX::XMFLOAT3(0, 1, 0)
+		);
+		camera->SetPerspectiveFov(
+			DirectX::XMConvertToRadians(fov),
+			graphics.GetScreenWidth() / graphics.GetScreenHeight(),
+			0.1f,
+			100000.0f
+		);
+	}
+
 	skyMap = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
-	player = std::make_unique<Player>();
-	//カメラコントローラー初期化
-	cameraController = std::make_unique<CameraController>();
-	//カメラ初期化
-	camera = std::make_unique <Camera>();
 
-	DirectX::XMFLOAT3 eye = player->GetPosition();
-	DirectX::XMFLOAT3 focus{};
-	focus.x = sinf(player->GetAngle().y);
-	focus.z = cosf(player->GetAngle().y);
+	player_->SetCamera(camera.get());
 
-	float fov = 80.0f;
-	camera->SetLookAt(
-		eye,
-		focus,
-		DirectX::XMFLOAT3(0, 1, 0)
-	);
-	camera->SetPerspectiveFov(
-		DirectX::XMConvertToRadians(fov),
-		graphics.GetScreenWidth() / graphics.GetScreenHeight(),
-		0.1f,
-		100000.0f
-	);
+	obj = world.CreateObject("Data/Model/mech_drone/mech_drone.glb");
+	obj->SetPosition(0, -1, 0);
 
-	//test_model_ = std::make_shared<Model>(dv, "Data/Model/Slime/Slime.fbx");
-	test_model_ = std::make_shared<Model>(dv, "Data/Model/mech_drone/mech_drone.glb");
+	{
+		//world.CreateObject("Data/Model/2.glb");
+	}
+
+
+
+	//world.CreateObject("Data/Model/mech_drone/mech_drone.glb", {0, -1, 0});
+	//world.CreateObject()->SetModel("Data/Model/mech_drone/mech_drone.glb"); しても同じ
+	// (ResourceManager経由で読み込まれるので、同じモデルは一度しか読み込まれない)
+	//obj = と変数に保存しておく必要はない 後にScene::Update（）で操作したいときのみ使用
+
+	// 親子関係の使用例 (InitでSetParentするだけでだけで、毎フレーム座標追従処理は自動)
+	if (0) {
+		// 親オブジェクト
+		auto* car = World::Instance().CreateObject("car.glb");
+		car->SetPosition(10, 0, 5); // ワールド座標 (10, 0, 5)
+
+		// 子オブジェクト（タイヤ）
+		auto* wheel = World::Instance().CreateObject("wheel.glb");
+		wheel->SetLocalPosition(1, 0, 1); // 車体からの相対位置
+		wheel->SetParent(car, false); // 現在の座標をローカル座標として扱う
+
+		// または、既にワールド座標にあるオブジェクトを親に設定
+		auto* weapon = World::Instance().CreateObject("gun.glb");
+		weapon->SetPosition(11, 1, 5); // ワールド座標
+		weapon->SetParent(car, true); // ワールド座標を維持（自動的にローカル座標に変換）
+
+		// 後からワールド座標で設定
+		wheel->SetWorldPosition(15, 0, 10); // ワールド座標で指定→自動的にローカル座標に変換される
+
+		// 親を動かすと子も連動
+		car->SetPosition(20, 0, 10);
+		// wheel のワールド座標は自動的に (21, 0, 11) になる
+	}
 
 	Pose::Instance().SetTutorial(false);
 
 	// ライト設定(毎シーン行う)
 	{
 		DirectionalLight directionalLight;
-		directionalLight.direction = { 0, -1, -1 };
-		directionalLight.color = { 1, 1, 1 };
-		lightManager.SetDirectionalLight(directionalLight);
+
+		DirectX::XMFLOAT3 dir = { 0.3f, -1.0f, 0.3f };
+		DirectX::XMVECTOR Dir = DirectX::XMLoadFloat3(&dir);
+		Dir = DirectX::XMVector3Normalize(Dir);
+		DirectX::XMStoreFloat3(&directionalLight.direction, Dir);
+
+		directionalLight.color = { 2.5f, 2.5f, 2.5f };
+
+
+		lightManager_.SetDirectionalLight(directionalLight);
 	}
 }
 
 // 終了化
 void SceneGame::Finalize()
 {
-	player->Finalize();
+	//player_->Finalize();
 	BGM->Stop();
 
 	EffectManager::Instance().Initialize();
 
 	delete BGM;
+
+	World::Instance().Clear();
 }
 
 // 更新処理
 void SceneGame::Update(float elapsedTime)
 {
-
-	{
-		//DirectX::XMFLOAT4X4 matWorld;
-		//DirectX::XMMATRIX world = DirectX::XMMatrixTranslation(3.0f, 0.0f, 0.0f);
-		//DirectX::XMStoreFloat4x4(&matWorld, world);
-		//test_model_->UpdateTransform(matWorld);
-		// Update()でモデル位置をデバッグ
-		DirectX::XMFLOAT3 camPos = camera->GetEye();
-		// カメラの前方5mに配置
-		DirectX::XMFLOAT4X4 matWorld;
-		DirectX::XMMATRIX world = DirectX::XMMatrixTranslation(
-			camPos.x,
-			camPos.y,
-			camPos.z + 5.0f  // カメラの前方（Z+方向）
-		);
-		DirectX::XMStoreFloat4x4(&matWorld, world);
-		test_model_->UpdateTransform(matWorld);
-	}
+	//obj->SetPosition(0, MathUtils::RandomRangeFloat(0, 2.0f), 0);
 
 	if (gameLimit < 0)
 	{
@@ -128,52 +170,13 @@ void SceneGame::Update(float elapsedTime)
 		BGM->SetVolume(0.4f);
 	}
 
+	World::Instance().Update(elapsedTime);
+
 	GamePad& gamePad = Input::Instance().GetGamePad();
 
 	static float velocity = 0.0f;
 
 	{
-		//カメラコントローラー更新処理
-		//DirectX::XMFLOAT3 target = player->GetPosition();
-
-		DirectX::XMFLOAT3 PPos = player->GetPosition();
-		cameraController->SetEye(PPos);
-		cameraController->SetTarget(PPos);
-
-		POINT center;
-		center.x = static_cast<LONG>(SCREEN_W * 0.5f);
-		center.y = static_cast<LONG>(SCREEN_H * 0.5f);
-
-		//現在のカーソル位置を取得
-		POINT cursor;
-		GetCursorPos(&cursor);
-
-		//クライアント座標に変換
-		ScreenToClient(Graphics::Instance().GetWindowHandle(), &cursor);
-
-		float sensitivity = 0.0f;
-		if (Pose::Instance().GetSenitivity() == static_cast<int>(Pose::SENSITIVITY_TYPE::LOW)) sensitivity = 0.1f;
-		if (Pose::Instance().GetSenitivity() == static_cast<int>(Pose::SENSITIVITY_TYPE::NORMALE)) sensitivity = 0.25f;
-		if (Pose::Instance().GetSenitivity() == static_cast<int>(Pose::SENSITIVITY_TYPE::HIGH)) sensitivity = 0.5f;
-
-		float ax = (float)(cursor.x - center.x) * sensitivity;
-		float ay = (float)(cursor.y - center.y) * sensitivity;
-
-		//cameraController->Update(elapsedTime, camera.get(), ax, ay);
-
-		{
-			cameraController->Update(elapsedTime, camera.get(), ax, ay);
-		}
-
-		{
-			CursorManager::ChangeCursorShow(false);
-		}
-		// カーソルを中央に戻す
-		{
-			POINT screenCenter{ (LONG)(SCREEN_W / 2), (LONG)(SCREEN_H / 2) };
-			ClientToScreen(Graphics::Instance().GetWindowHandle(), &screenCenter);
-			SetCursorPos(screenCenter.x, screenCenter.y);
-		}
 
 		{
 			if (KeyInput::Instance().GetKeyHold(VK_LBUTTON))
@@ -184,21 +187,22 @@ void SceneGame::Update(float elapsedTime)
 			else
 				gameLimit -= 1 * elapsedTime;
 
-			player->Update(elapsedTime, camera.get());
+			//player_->Update(elapsedTime, camera.get());
 		}
 
 		//エネミー更新処理
-		//enemyManager->Update(elapsedTime, player.get(), stageManager->GetFloor());
+		//enemyManager->Update(elapsedTime, player_.get(), stageManager->GetFloor());
 		//starManager->Update(elapsedTime);
 
 		EffectManager::Instance().Update(elapsedTime);
 	}
+
 }
 
 // 描画処理
 void SceneGame::Render()
 {
-	/*if (gameLimit < 0 || player->GetHP() <= 0.0f)
+	/*if (gameLimit < 0 || player_->GetHP() <= 0.0f)
 	{
 		return;
 	}*/
@@ -232,7 +236,7 @@ void SceneGame::Render()
 	rc.deviceContext = dc;
 	rc.renderState = rs;
 	rc.camera = camera.get();
-	rc.lightManager = &lightManager;
+	rc.lightManager = &lightManager_;
 
 	dc->RSSetState(rs->GetRasterizerState(RasterizerState::SolidCullNone));
 	dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestAndWrite), 0);
@@ -249,7 +253,7 @@ void SceneGame::Render()
 	DirectX::XMFLOAT3 Cpos = camera->GetEye();
 
 	//スカイマップ描画
-	//skyMap->blit(rc, vp, { Cpos.x,Cpos.y,Cpos.z,1.0f });
+	skyMap->blit(rc, vp, { Cpos.x,Cpos.y,Cpos.z,1.0f });
 
 	// 3Dモデル描画
 	{
@@ -258,9 +262,7 @@ void SceneGame::Render()
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestAndWrite), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Opaque), blendFactor, 0xffffffff);
 
-		modelRenderer->Draw(ShaderId::PBR, test_model_);
-
-		player->Render(rc, modelRenderer);
+		World::Instance().Render(rc, modelRenderer);
 
 		// エフェクトは透明オブジェクトなので このState
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestOnly), 0);
@@ -281,42 +283,62 @@ void SceneGame::Render()
 }
 
 // GUI描画
+//void SceneGame::DrawGUI()
+//{
+//#ifdef _DEBUG
+//	ImGui::Begin("GameDebug");
+//	ImGui::Text("camera x, y, z: %.2f, %.2f, %.2f", camera->GetEye().x, camera->GetEye().y, camera->GetEye().z);
+//
+//	//model pos
+//	ImGui::End();
+//#endif
+//	//プレイヤーデバッグ描画
+//	//player_->DrawDebugGUI();
+////	player_->DrawDebugGUI();
+////#ifdef DEBUG
+////	//なんかのポジションを取ってくる
+////	ImVec2 pos = ImGui::GetMainViewport()->GetWorkPos();
+////	//表示場所
+////	ImGui::SetNextWindowPos(ImVec2(pos.x, pos.y), ImGuiCond_Once);
+////	//大きさ
+////	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_FirstUseEver);
+////
+////	if (ImGui::Begin("PlayerOld", nullptr, ImGuiWindowFlags_None))
+////	{
+////		//トランスフォーム
+////		if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+////		{
+////			ImGui::InputFloat("UIAngle", &UIangle);
+////
+////			ImGui::InputFloat("mapX", &mapx);
+////			ImGui::InputFloat("mapY", &mapy);
+////
+////			ImGui::InputFloat("mapOffsetX", &mapOffsetX);
+////			ImGui::InputFloat("mapOffsetY", &mapOffsetY);
+////
+////			ImGui::InputFloat2("fiverPos", &fiverPos.x);
+////		}
+////	}
+////	ImGui::End();
+////#endif
+//}
+
 void SceneGame::DrawGUI()
 {
 #ifdef _DEBUG
-	ImGui::Begin("GameDebug");
-	ImGui::Text("camera x, y, z: %.2f, %.2f, %.2f", camera->GetEye().x, camera->GetEye().y, camera->GetEye().z);
+	ImGui::Begin("GameDebug", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
-	//model pos
+	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
+		DirectX::XMFLOAT3 camPos = camera->GetEye();
+		ImGui::Text("Position: %.2f, %.2f, %.2f", camPos.x, camPos.y, camPos.z);
+
+		DirectX::XMFLOAT3 camTarget = camera->focus;
+		ImGui::Text("Target: %.2f, %.2f, %.2f", camTarget.x, camTarget.y, camTarget.z);
+
+		DirectX::XMFLOAT3 camFront = camera->GetFront();
+		ImGui::Text("Front: %.2f, %.2f, %.2f", camFront.x, camFront.y, camFront.z);
+	}
+
 	ImGui::End();
 #endif
-	//プレイヤーデバッグ描画
-	//player->DrawDebugGUI();
-//	player->DrawDebugGUI();
-//#ifdef DEBUG
-//	//なんかのポジションを取ってくる
-//	ImVec2 pos = ImGui::GetMainViewport()->GetWorkPos();
-//	//表示場所
-//	ImGui::SetNextWindowPos(ImVec2(pos.x, pos.y), ImGuiCond_Once);
-//	//大きさ
-//	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_FirstUseEver);
-//
-//	if (ImGui::Begin("Player", nullptr, ImGuiWindowFlags_None))
-//	{
-//		//トランスフォーム
-//		if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
-//		{
-//			ImGui::InputFloat("UIAngle", &UIangle);
-//
-//			ImGui::InputFloat("mapX", &mapx);
-//			ImGui::InputFloat("mapY", &mapy);
-//
-//			ImGui::InputFloat("mapOffsetX", &mapOffsetX);
-//			ImGui::InputFloat("mapOffsetY", &mapOffsetY);
-//
-//			ImGui::InputFloat2("fiverPos", &fiverPos.x);
-//		}
-//	}
-//	ImGui::End();
-//#endif
 }

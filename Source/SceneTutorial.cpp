@@ -1,5 +1,5 @@
 #include "System/Graphics.h"
-#include "Player.h"
+#include "PlayerOld.h"
 #include "common.h"
 #include "System/Input.h"
 #include "SceneManager.h"
@@ -28,7 +28,7 @@ void SceneTutorial::Initialize() {
 
     skyMap = std::make_unique<sky_map>(graphics.GetDevice(),
         L"Data/SkyMapSprite/game_background3.hdr");
-    player = std::make_unique<Player>();
+    player = std::make_unique<PlayerOld>();
 
     cameraController = std::make_unique<CameraController>();
 

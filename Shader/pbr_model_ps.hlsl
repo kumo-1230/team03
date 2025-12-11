@@ -173,5 +173,12 @@ float4 main(VS_OUT pin) : SV_TARGET
     specular = lerp(specular, specular * occlusion_factor, occlusion_strength);
     
     float3 Lo = diffuse + specular + emmisive;
+
+    // ŠÂ‹«Œõ‚ğ’Ç‰ÁiˆÃ‚·‚¬‚éê‡‚Ì‘Îôj
+    {
+        float3 ambient = basecolor_factor.rgb * 0.3; // 10%‚ÌŠÂ‹«Œõ
+        Lo += ambient;
+    }
+
     return float4(Lo, basecolor_factor.a);
 }

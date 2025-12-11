@@ -5,7 +5,7 @@
 #include "CameraController.h"
 #include "sky_map.h"
 #include "System/AudioSource.h"
-#include "Player.h"
+#include "PlayerOld.h"
 #include <memory>
 
 class SceneTutorial : public Scene {
@@ -24,7 +24,7 @@ private:
 	std::unique_ptr<Camera> camera{ nullptr };
 	std::unique_ptr<CameraController> cameraController{ nullptr };
 	std::unique_ptr<sky_map> skyMap{ nullptr };
-	std::unique_ptr<Player> player{ nullptr };
+	std::unique_ptr<PlayerOld> player{ nullptr };
 
 	AudioSource* BGMTutorial{ nullptr };
 };

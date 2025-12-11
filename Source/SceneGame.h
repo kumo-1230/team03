@@ -4,12 +4,15 @@
 #include "Scene.h"
 #include "Camera.h"
 #include <memory>
-#include "Player.h"
+#include "PlayerOld.h"
 #include <vector>
 #include "sky_map.h"
 #include "Lerp.h"
 #include "math.h"
 #include "System/AudioSource.h"
+#include "PBRShader.h"
+#include <game_object.h>
+#include "player.h"
 
 // ゲームシーン
 class SceneGame : public Scene
@@ -18,19 +21,20 @@ private:
 	bool H = false;//デバッグ
 
 
-	std::shared_ptr<Model> test_model_ = nullptr;
-	std::unique_ptr<Player> player = nullptr;
+	Player* player_ = nullptr;
 	std::unique_ptr<Camera> camera = nullptr;
-	std::unique_ptr<CameraController> cameraController = nullptr;
+	//std::unique_ptr<CameraController> cameraController = nullptr;
 	//std::unique_ptr<starmanager> starManager			= nullptr;
 
 	std::unique_ptr<sky_map> skyMap = nullptr;
+
+	GameObject* obj = nullptr;
 
 	AudioSource* BGM = nullptr;
 
 	float gameLimit = 200.0f;
 
-	LightManager lightManager;
+	LightManager lightManager_;
 
 public:
 	SceneGame();

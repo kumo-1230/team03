@@ -58,6 +58,12 @@
     <Filter Include="Source\PBR">
       <UniqueIdentifier>{faa288b8-4844-4209-8e34-dd56ab8f4b6d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Object">
+      <UniqueIdentifier>{63cad932-b083-4e09-ac49-b591f62c04d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Object\System">
+      <UniqueIdentifier>{b34d16ac-726a-4c6a-a84a-80f130183d53}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\imgui-docking\imconfig.h">
@@ -174,7 +180,7 @@
     <ClInclude Include="Source\Character.h">
       <Filter>Source\Character</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Player.h">
+    <ClInclude Include="Source\PlayerOld.h">
       <Filter>Source\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Collision.h">
@@ -276,6 +282,18 @@
     <ClInclude Include="Source\PBRShader.h">
       <Filter>Source\PBR</Filter>
     </ClInclude>
+    <ClInclude Include="Source\PBRMaterialConstants.h">
+      <Filter>Source\PBR</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\game_object.h">
+      <Filter>Source\Object\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\world.h">
+      <Filter>Source\Object\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\player.h">
+      <Filter>Source\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui-docking\imgui.cpp">
@@ -374,7 +392,7 @@
     <ClCompile Include="Source\Character.cpp">
       <Filter>Source\Character</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Player.cpp">
+    <ClCompile Include="Source\PlayerOld.cpp">
       <Filter>Source\Character</Filter>
     </ClCompile>
     <ClCompile Include="Source\Collision.cpp">
@@ -424,9 +442,6 @@
     </ClCompile>
     <ClCompile Include="Source\Pose.cpp">
       <Filter>Source\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cursor.cpp">
-      <Filter>Source\MySystem\Cursor</Filter>
     </ClCompile>
     <ClCompile Include="Source\Dialog.cpp">
       <Filter>Source\MySystem</Filter>

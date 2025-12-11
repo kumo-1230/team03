@@ -1,5 +1,5 @@
 #include "star.h"
-#include "Player.h"
+#include "PlayerOld.h"
 
 void Star::Initialize(int type)
 {

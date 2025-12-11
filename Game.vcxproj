@@ -119,7 +119,10 @@
     <ClInclude Include="External\imgui-docking\imstb_rectpack.h" />
     <ClInclude Include="External\imgui-docking\imstb_textedit.h" />
     <ClInclude Include="External\imgui-docking\imstb_truetype.h" />
+    <ClInclude Include="Source\game_object.h" />
+    <ClInclude Include="Source\PBRMaterialConstants.h" />
     <ClInclude Include="Source\PBRShader.h" />
+    <ClInclude Include="Source\player.h" />
     <ClInclude Include="Source\render_layer.h" />
     <ClInclude Include="Source\System\GLTFImporter.h" />
     <ClInclude Include="Source\System\Light.h" />
@@ -142,7 +145,7 @@
     <ClInclude Include="Source\ui_panel.h" />
     <ClInclude Include="Source\Obj.h" />
     <ClInclude Include="Source\ParentChild.h" />
-    <ClInclude Include="Source\Player.h" />
+    <ClInclude Include="Source\PlayerOld.h" />
     <ClInclude Include="Source\Pose.h" />
     <ClInclude Include="Source\RayCast.h" />
     <ClInclude Include="Source\Scene.h" />
@@ -181,6 +184,7 @@
     <ClInclude Include="Source\star.h" />
     <ClInclude Include="Source\DirectXCommon.h" />
     <ClInclude Include="Source\ui_element.h" />
+    <ClInclude Include="Source\world.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui-docking\imgui.cpp" />
@@ -198,7 +202,6 @@
     <ClCompile Include="Source\CameraController.cpp" />
     <ClCompile Include="Source\Character.cpp" />
     <ClCompile Include="Source\Collision.cpp" />
-    <ClCompile Include="Source\Cursor.cpp" />
     <ClCompile Include="Source\Dialog.cpp" />
     <ClCompile Include="Source\Effect.cpp" />
     <ClCompile Include="Source\EffectManager.cpp" />
@@ -208,7 +211,7 @@
     <ClCompile Include="Source\ui_panel.cpp" />
     <ClCompile Include="Source\Obj.cpp" />
     <ClCompile Include="Source\ParentChild.cpp" />
-    <ClCompile Include="Source\Player.cpp" />
+    <ClCompile Include="Source\PlayerOld.cpp" />
     <ClCompile Include="Source\Pose.cpp" />
     <ClCompile Include="Source\RayCast.cpp" />
     <ClCompile Include="Source\Scene.cpp" />
