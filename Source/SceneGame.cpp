@@ -30,107 +30,78 @@ SceneGame::SceneGame()
 // 初期化
 void SceneGame::Initialize()
 {
+	OutputDebugStringA("=== SceneGame::Initialize START ===\n");
+
 	World& world = World::Instance();
 	world.Clear();
+	OutputDebugStringA("World cleared\n");
 
 	Graphics& graphics = Graphics::Instance();
 	auto* dv = graphics.GetDevice();
-	//ステージ初期化
-	//スプライト初期化
 
-
+	OutputDebugStringA("About to load BGM\n");
 	BGM = Audio::Instance().LoadAudioSource("Data/Sound/Game/BGM_game.wav");
-
 	BGM->SetVolume(0.4f);
+	OutputDebugStringA("BGM loaded\n");
 
+	OutputDebugStringA("Creating player\n");
 	player_ = world.CreateObject<Player>();
+	OutputDebugStringA("Player created\n");
 
 	// カメラ初期化
 	{
-		camera = std::make_unique <Camera>();
-		//cameraController = std::make_unique<CameraController>();
-		//カメラコントローラー初期化
-		//カメラ初期化
-
+		OutputDebugStringA("Initializing camera\n");
+		camera = std::make_unique<Camera>();
 		DirectX::XMFLOAT3 eye = player_->GetPosition();
 		DirectX::XMFLOAT3 focus{};
 		focus.x = sinf(player_->GetAngle().y);
 		focus.z = cosf(player_->GetAngle().y);
 
 		float fov = 80.0f;
-		camera->SetLookAt(
-			eye,
-			focus,
-			DirectX::XMFLOAT3(0, 1, 0)
-		);
+		camera->SetLookAt(eye, focus, DirectX::XMFLOAT3(0, 1, 0));
 		camera->SetPerspectiveFov(
 			DirectX::XMConvertToRadians(fov),
 			graphics.GetScreenWidth() / graphics.GetScreenHeight(),
 			0.1f,
 			100000.0f
 		);
+		OutputDebugStringA("Camera initialized\n");
 	}
 
+	OutputDebugStringA("Loading skymap\n");
 	skyMap = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
+	OutputDebugStringA("Skymap loaded\n");
 
 	player_->SetCamera(camera.get());
+	OutputDebugStringA("Camera set to player\n");
 
+	OutputDebugStringA("Loading first model\n");
 	obj = world.CreateObject("Data/Model/mech_drone/mech_drone.glb");
+	OutputDebugStringA("First model loaded\n");
+
 	obj->SetPosition(0, -1, 0);
+	OutputDebugStringA("First model position set\n");
 
-
-	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{0, 0, 0});
-	{
-		//world.CreateObject("Data/Model/2.glb");
-	}
-
-
-
-	//world.CreateObject("Data/Model/mech_drone/mech_drone.glb", {0, -1, 0});
-	//world.CreateObject()->SetModel("Data/Model/mech_drone/mech_drone.glb"); しても同じ
-	// (ResourceManager経由で読み込まれるので、同じモデルは一度しか読み込まれない)
-	//obj = と変数に保存しておく必要はない 後にScene::Update（）で操作したいときのみ使用
-
-	// 親子関係の使用例 (InitでSetParentするだけでだけで、毎フレーム座標追従処理は自動)
-	if (0) {
-		// 親オブジェクト
-		auto* car = World::Instance().CreateObject("car.glb");
-		car->SetPosition(10, 0, 5); // ワールド座標 (10, 0, 5)
-
-		// 子オブジェクト（タイヤ）
-		auto* wheel = World::Instance().CreateObject("wheel.glb");
-		wheel->SetLocalPosition(1, 0, 1); // 車体からの相対位置
-		wheel->SetParent(car, false); // 現在の座標をローカル座標として扱う
-
-		// または、既にワールド座標にあるオブジェクトを親に設定
-		auto* weapon = World::Instance().CreateObject("gun.glb");
-		weapon->SetPosition(11, 1, 5); // ワールド座標
-		weapon->SetParent(car, true); // ワールド座標を維持（自動的にローカル座標に変換）
-
-		// 後からワールド座標で設定
-		wheel->SetWorldPosition(15, 0, 10); // ワールド座標で指定→自動的にローカル座標に変換される
-
-		// 親を動かすと子も連動
-		car->SetPosition(20, 0, 10);
-		// wheel のワールド座標は自動的に (21, 0, 11) になる
-	}
+	OutputDebugStringA("Loading second model\n");
+	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 0 });
+	OutputDebugStringA("Second model loaded\n");
 
 	Pose::Instance().SetTutorial(false);
+	OutputDebugStringA("Pose tutorial disabled\n");
 
-	// ライト設定(毎シーン行う)
+	// ライト設定
 	{
+		OutputDebugStringA("Setting directional light\n");
 		DirectionalLight directionalLight;
-
 		DirectX::XMFLOAT3 dir = { 0.3f, -1.0f, 0.3f };
 		DirectX::XMVECTOR Dir = DirectX::XMLoadFloat3(&dir);
 		Dir = DirectX::XMVector3Normalize(Dir);
 		DirectX::XMStoreFloat3(&directionalLight.direction, Dir);
-
 		directionalLight.color = { 1.5f, 1.5f, 1.5f };
-
-
 		lightManager_.SetDirectionalLight(directionalLight);
+		OutputDebugStringA("Directional light set\n");
 
+		OutputDebugStringA("Adding point light\n");
 		PointLight mapLight;
 		mapLight.position = { 0, 1, 0 };
 		mapLight.range = 12.0f;
@@ -138,24 +109,23 @@ void SceneGame::Initialize()
 		mapLight.intensity = 8.0f;
 		mapLight.priority = 10;
 		lightManager_.AddPointLight(mapLight);
+		OutputDebugStringA("Point light added\n");
 
+		OutputDebugStringA("Setting player spot light\n");
 		DirectX::XMFLOAT3 playerPos = player_->GetPosition();
 		playerPos.y += 1.0f;
-
 		DirectX::XMFLOAT3 spotDirection = camera->GetFront();
 
 		lightManager_.SetPlayerSpotLight(
-			playerPos,           // 位置
-			spotDirection,       // 方向（カメラの向き）
-			20.0f,              // 範囲
-			25.0f,              // 内側角度（明るい部分）
-			40.0f,              // 外側角度（減衰部分）
-			{ 1.0f, 0.95f, 0.85f }, // 色（やや黄色）
-			8.0f                // 強度
+			playerPos, spotDirection,
+			20.0f, 25.0f, 40.0f,
+			{ 1.0f, 0.95f, 0.85f }, 8.0f
 		);
+		OutputDebugStringA("Player spot light set\n");
 	}
-}
 
+	OutputDebugStringA("=== SceneGame::Initialize END ===\n");
+}
 // 終了化
 void SceneGame::Finalize()
 {

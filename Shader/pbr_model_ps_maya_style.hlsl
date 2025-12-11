@@ -17,6 +17,18 @@ struct PointLight
     float intensity;
 };
 
+struct SpotLight
+{
+    float3 position;
+    float range;
+    float3 direction;
+    float inner_cone_angle;
+    float3 color;
+    float outer_cone_angle;
+    float intensity;
+    float3 pad;
+};
+
 cbuffer SCENE_CONSTANT_BUFFER : register(b1)
 {
     row_major float4x4 view_projection;
@@ -25,51 +37,52 @@ cbuffer SCENE_CONSTANT_BUFFER : register(b1)
     float ambient_intensity;
     float exposure;
     int point_light_count;
-    float pad_scene;
+    int spot_light_count;
     PointLight point_lights[8];
+    SpotLight spot_lights[4];
 };
 
-struct texture_info
+struct TextureInfo
 {
     int index;
     int texcoord;
 };
 
-struct normal_texture_info
+struct NormalTextureInfo
 {
     int index;
     int texcoord;
     float scale;
 };
 
-struct occlusion_texture_info
+struct OcclusionTextureInfo
 {
     int index;
     int texcoord;
     float strength;
 };
 
-struct pbr_metallic_roughness
+struct PbrMetallicRoughness
 {
     float4 basecolor_factor;
-    texture_info basecolor_texture;
+    TextureInfo basecolor_texture;
     float metallic_factor;
     float roughness_factor;
-    texture_info metallic_roughness_texture;
+    TextureInfo metallic_roughness_texture;
 };
 
-struct material_constants
+struct MaterialConstants
 {
     float3 emissive_factor;
     int alpha_mode;
     float alpha_cutoff;
     int double_sided;
     
-    pbr_metallic_roughness pbr_metallic_roughness;
+    PbrMetallicRoughness pbr_metallic_roughness;
     
-    normal_texture_info normal_texture;
-    occlusion_texture_info occlusion_texture;
-    texture_info emissive_texture;
+    NormalTextureInfo normal_texture;
+    OcclusionTextureInfo occlusion_texture;
+    TextureInfo emissive_texture;
 };
 
 cbuffer PRIMITIVE_CONSTANT_BUFFER : register(b0)
@@ -81,7 +94,7 @@ cbuffer PRIMITIVE_CONSTANT_BUFFER : register(b0)
     int pad;
 };
 
-StructuredBuffer<material_constants> materials : register(t0);
+StructuredBuffer<MaterialConstants> materials : register(t0);
 
 #define BASECOLOR_TEXTURE 0
 #define METALLIC_ROUGHNESS_TEXTURE 1
@@ -95,7 +108,7 @@ Texture2D<float4> material_textures[5] : register(t1);
 #define ANISOTROPIC 2
 SamplerState sampler_states[3] : register(s0);
 
-float3 tone_mapping_aces(float3 x)
+float3 ToneMappingAces(float3 x)
 {
     const float a = 2.51;
     const float b = 0.03;
@@ -105,7 +118,7 @@ float3 tone_mapping_aces(float3 x)
     return saturate((x * (a * x + b)) / (x * (c * x + d) + e));
 }
 
-float3 calculate_ambient_ibl(float3 N, float3 V, float3 basecolor, float metallic, float roughness, float intensity)
+float3 CalculateAmbientIbl(float3 N, float3 V, float3 basecolor, float metallic, float roughness, float intensity)
 {
     const float3 ambient_sky = float3(0.15, 0.18, 0.22);
     const float3 ambient_ground = float3(0.05, 0.04, 0.03);
@@ -126,7 +139,7 @@ float3 calculate_ambient_ibl(float3 N, float3 V, float3 basecolor, float metalli
     return (diffuse_ibl + specular_ibl) * intensity;
 }
 
-float3 calculate_rim_light(float3 N, float3 V, float3 basecolor, float intensity)
+float3 CalculateRimLight(float3 N, float3 V, float3 basecolor, float intensity)
 {
     float rim = 1.0 - max(0.0, dot(N, V));
     rim = pow(rim, 4.0);
@@ -137,7 +150,7 @@ float4 main(VS_OUT pin) : SV_TARGET
 {
     const float GAMMA = 2.2;
     
-    const material_constants m = materials[material];
+    const MaterialConstants m = materials[material];
     
     float4 basecolor_factor = m.pbr_metallic_roughness.basecolor_factor;
     const int basecolor_texture = m.pbr_metallic_roughness.basecolor_texture.index;
@@ -148,13 +161,13 @@ float4 main(VS_OUT pin) : SV_TARGET
         basecolor_factor *= sampled;
     }
     
-    float3 emmisive_factor = m.emissive_factor;
+    float3 emissive_factor = m.emissive_factor;
     const int emissive_texture = m.emissive_texture.index;
     if (emissive_texture > -1)
     {
         float4 sampled = material_textures[EMISSIVE_TEXTURE].Sample(sampler_states[ANISOTROPIC], pin.texcoord);
         sampled.rgb = pow(sampled.rgb, GAMMA);
-        emmisive_factor *= sampled.rgb;
+        emissive_factor *= sampled.rgb;
     }
     
     float roughness_factor = m.pbr_metallic_roughness.roughness_factor;
@@ -203,6 +216,7 @@ float4 main(VS_OUT pin) : SV_TARGET
     float3 diffuse = 0;
     float3 specular = 0;
     
+    // ディレクショナルライト
     float3 L = normalize(-light_direction.xyz);
     float3 Li = float3(1.0, 1.0, 1.0);
     const float NoL = max(0.0, dot(N, L));
@@ -217,6 +231,7 @@ float4 main(VS_OUT pin) : SV_TARGET
         specular += Li * NoL * brdf_specular_ggx(f0, f90, alpha_roughness, HoV, NoL, NoV, NoH);
     }
     
+    // ポイントライト
     for (int i = 0; i < point_light_count; ++i)
     {
         float3 light_vec = point_lights[i].position - P;
@@ -242,17 +257,53 @@ float4 main(VS_OUT pin) : SV_TARGET
         }
     }
     
-    float3 ambient_ibl = calculate_ambient_ibl(N, V, basecolor_factor.rgb, metallic_factor, roughness_factor, ambient_intensity);
-    float3 rim_light = calculate_rim_light(N, V, basecolor_factor.rgb, ambient_intensity);
+    // スポットライト
+    for (int j = 0; j < spot_light_count; ++j)
+    {
+        float3 light_vec = spot_lights[j].position - P;
+        float distance = length(light_vec);
+        
+        if (distance < spot_lights[j].range)
+        {
+            float3 spot_L = normalize(light_vec);
+            float3 spot_dir = normalize(spot_lights[j].direction);
+            
+            float theta = dot(spot_L, -spot_dir);
+            float inner_cutoff = cos(spot_lights[j].inner_cone_angle);
+            float outer_cutoff = cos(spot_lights[j].outer_cone_angle);
+            
+            float epsilon = inner_cutoff - outer_cutoff;
+            float spot_intensity = saturate((theta - outer_cutoff) / epsilon);
+            
+            float attenuation = saturate(1.0 - (distance / spot_lights[j].range));
+            attenuation *= attenuation;
+            
+            float3 spot_Li = spot_lights[j].color * spot_lights[j].intensity * attenuation * spot_intensity;
+            
+            const float spot_NoL = max(0.0, dot(N, spot_L));
+            if (spot_NoL > 0.0 && spot_intensity > 0.0)
+            {
+                const float3 spot_H = normalize(V + spot_L);
+                const float spot_NoH = max(0.0, dot(N, spot_H));
+                const float spot_HoV = max(0.0, dot(spot_H, V));
+                
+                diffuse += spot_Li * spot_NoL * brdf_lambertian(f0, f90, c_diff, spot_HoV);
+                specular += spot_Li * spot_NoL * brdf_specular_ggx(f0, f90, alpha_roughness, spot_HoV, spot_NoL, NoV, spot_NoH);
+            }
+        }
+    }
     
-    float3 emmisive = emmisive_factor;
+    float3 ambient_ibl = CalculateAmbientIbl(N, V, basecolor_factor.rgb, metallic_factor, roughness_factor, ambient_intensity);
+    float3 rim_light = CalculateRimLight(N, V, basecolor_factor.rgb, ambient_intensity);
+    
+    float3 emissive = emissive_factor;
     diffuse = lerp(diffuse, diffuse * occlusion_factor, occlusion_strength);
     specular = lerp(specular, specular * occlusion_factor, occlusion_strength);
     ambient_ibl = lerp(ambient_ibl, ambient_ibl * occlusion_factor, occlusion_strength);
     
-    float3 Lo = (diffuse + specular + ambient_ibl + rim_light + emmisive) * exposure;
+    float3 Lo = (diffuse + specular + ambient_ibl + rim_light + emissive) * exposure;
     
-    Lo = tone_mapping_aces(Lo);
+    Lo = ToneMappingAces(Lo);
     Lo = pow(Lo, 1.0 / GAMMA);
     
     return float4(Lo, basecolor_factor.a);

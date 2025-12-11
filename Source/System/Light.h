@@ -1,7 +1,8 @@
 #pragma once
+
 #include <DirectXMath.h>
 #include <vector>
-#include <algorithm>
+#include <algorithm>  // std::sortのために必要
 
 struct DirectionalLight {
     DirectX::XMFLOAT3 direction = { 0, -1, 0 };
@@ -27,7 +28,9 @@ struct SpotLight {
     float intensity = 1.0f;
     int priority = 0;
     bool enabled = true;
-    float pad;
+
+    // パディング用のダミーメンバー（実際にはシェーダーに送る際に別構造体を使用）
+    float pad = 0.0f;
 };
 
 class LightManager {
@@ -46,7 +49,7 @@ public:
     }
 
     void RemovePointLight(int index) {
-        if (index >= 0 && index < pointLights.size()) {
+        if (index >= 0 && index < static_cast<int>(pointLights.size())) {
             pointLights.erase(pointLights.begin() + index);
             if (playerLightIndex == index) {
                 playerLightIndex = -1;
@@ -58,7 +61,7 @@ public:
     }
 
     void UpdatePointLight(int index, const PointLight& light) {
-        if (index >= 0 && index < pointLights.size()) {
+        if (index >= 0 && index < static_cast<int>(pointLights.size())) {
             pointLights[index] = light;
         }
     }
@@ -69,7 +72,7 @@ public:
     }
 
     void RemoveSpotLight(int index) {
-        if (index >= 0 && index < spotLights.size()) {
+        if (index >= 0 && index < static_cast<int>(spotLights.size())) {
             spotLights.erase(spotLights.begin() + index);
             if (playerSpotLightIndex == index) {
                 playerSpotLightIndex = -1;
@@ -81,7 +84,7 @@ public:
     }
 
     void UpdateSpotLight(int index, const SpotLight& light) {
-        if (index >= 0 && index < spotLights.size()) {
+        if (index >= 0 && index < static_cast<int>(spotLights.size())) {
             spotLights[index] = light;
         }
     }
@@ -109,7 +112,7 @@ public:
         float range = 20.0f, float innerAngle = 25.0f, float outerAngle = 40.0f,
         const DirectX::XMFLOAT3& color = { 1.0f, 0.95f, 0.85f },
         float intensity = 8.0f) {
-        SpotLight light;
+        SpotLight light = {};  // ゼロ初期化
         light.position = position;
         light.direction = direction;
         light.range = range;
@@ -119,6 +122,7 @@ public:
         light.intensity = intensity;
         light.priority = 1000;
         light.enabled = true;
+        light.pad = 0.0f;
 
         if (playerSpotLightIndex == -1) {
             playerSpotLightIndex = AddSpotLight(light);
@@ -129,13 +133,13 @@ public:
     }
 
     void SetPlayerLightEnabled(bool enabled) {
-        if (playerLightIndex >= 0 && playerLightIndex < pointLights.size()) {
+        if (playerLightIndex >= 0 && playerLightIndex < static_cast<int>(pointLights.size())) {
             pointLights[playerLightIndex].enabled = enabled;
         }
     }
 
     void SetPlayerSpotLightEnabled(bool enabled) {
-        if (playerSpotLightIndex >= 0 && playerSpotLightIndex < spotLights.size()) {
+        if (playerSpotLightIndex >= 0 && playerSpotLightIndex < static_cast<int>(spotLights.size())) {
             spotLights[playerSpotLightIndex].enabled = enabled;
         }
     }
@@ -149,7 +153,7 @@ public:
         std::vector<LightDistance> distances;
         distances.reserve(pointLights.size());
 
-        for (int i = 0; i < pointLights.size(); ++i) {
+        for (size_t i = 0; i < pointLights.size(); ++i) {
             if (!pointLights[i].enabled) continue;
 
             DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(&position);
@@ -164,7 +168,7 @@ public:
             float priorityWeight = static_cast<float>(pointLights[i].priority) * 100.0f;
             float effectiveDistance = distance - priorityWeight;
 
-            distances.push_back({ effectiveDistance, i });
+            distances.push_back({ effectiveDistance, static_cast<int>(i) });
         }
 
         std::sort(distances.begin(), distances.end(),
@@ -173,7 +177,7 @@ public:
             });
 
         std::vector<PointLight> result;
-        int count = min(maxCount, static_cast<int>(distances.size()));
+        const int count = (maxCount < static_cast<int>(distances.size())) ? maxCount : static_cast<int>(distances.size());
         result.reserve(count);
 
         for (int i = 0; i < count; ++i) {
@@ -192,7 +196,7 @@ public:
         std::vector<LightDistance> distances;
         distances.reserve(spotLights.size());
 
-        for (int i = 0; i < spotLights.size(); ++i) {
+        for (size_t i = 0; i < spotLights.size(); ++i) {
             if (!spotLights[i].enabled) continue;
 
             DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(&position);
@@ -207,7 +211,7 @@ public:
             float priorityWeight = static_cast<float>(spotLights[i].priority) * 100.0f;
             float effectiveDistance = distance - priorityWeight;
 
-            distances.push_back({ effectiveDistance, i });
+            distances.push_back({ effectiveDistance, static_cast<int>(i) });
         }
 
         std::sort(distances.begin(), distances.end(),
@@ -216,7 +220,7 @@ public:
             });
 
         std::vector<SpotLight> result;
-        int count = min(maxCount, static_cast<int>(distances.size()));
+        const int count = (maxCount < static_cast<int>(distances.size())) ? maxCount : static_cast<int>(distances.size());
         result.reserve(count);
 
         for (int i = 0; i < count; ++i) {
