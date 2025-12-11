@@ -347,9 +347,6 @@
     <ClCompile Include="Source\System\Model.cpp">
       <Filter>Source\System</Filter>
     </ClCompile>
-    <ClCompile Include="Source\System\ModelRenderer.cpp">
-      <Filter>Source\System</Filter>
-    </ClCompile>
     <ClCompile Include="Source\System\ModelResource.cpp">
       <Filter>Source\System</Filter>
     </ClCompile>
@@ -459,6 +456,9 @@
       <Filter>Source\System</Filter>
     </ClCompile>
     <ClCompile Include="Source\PBRShader.cpp">
+      <Filter>Source\PBR</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\System\ModelRenderer.cpp">
       <Filter>Source\PBR</Filter>
     </ClCompile>
   </ItemGroup>

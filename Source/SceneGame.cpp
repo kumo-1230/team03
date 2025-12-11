@@ -39,18 +39,13 @@ void SceneGame::Initialize()
 	Graphics& graphics = Graphics::Instance();
 	auto* dv = graphics.GetDevice();
 
-	OutputDebugStringA("About to load BGM\n");
 	BGM = Audio::Instance().LoadAudioSource("Data/Sound/Game/BGM_game.wav");
 	BGM->SetVolume(0.4f);
-	OutputDebugStringA("BGM loaded\n");
 
-	OutputDebugStringA("Creating player\n");
 	player_ = world.CreateObject<Player>();
-	OutputDebugStringA("Player created\n");
 
 	// カメラ初期化
 	{
-		OutputDebugStringA("Initializing camera\n");
 		camera = std::make_unique<Camera>();
 		DirectX::XMFLOAT3 eye = player_->GetPosition();
 		DirectX::XMFLOAT3 focus{};
@@ -65,37 +60,17 @@ void SceneGame::Initialize()
 			0.1f,
 			100000.0f
 		);
-		OutputDebugStringA("Camera initialized\n");
 	}
 
-	OutputDebugStringA("Loading skymap\n");
 	skyMap = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
-	OutputDebugStringA("Skymap loaded\n");
 
 	player_->SetCamera(camera.get());
-	OutputDebugStringA("Camera set to player\n");
 
-	OutputDebugStringA("Loading first model\n");
 	obj = world.CreateObject("Data/Model/mech_drone/mech_drone.glb");
-	OutputDebugStringA("First model loaded\n");
+	obj->SetPosition(0, 0, 1);
 
-	obj->SetPosition(0, -1, 0);
-	OutputDebugStringA("First model position set\n");
-
-<<<<<<< Updated upstream
-	OutputDebugStringA("Loading second model\n");
-	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 0 });
-	OutputDebugStringA("Second model loaded\n");
-=======
-	//{
-	//	auto aaa = world.CreateObject("Data/Model/mech_drone/aaa.glb");
-	//	aaa->SetPosition(0, 1, 0);
-	//}
-
-	{
-		//world.CreateObject("Data/Model/2.glb");
-	}
-
+	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 2 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f })
+		->SetParent(obj);
 
 
 	//world.CreateObject("Data/Model/mech_drone/mech_drone.glb", {0, -1, 0});
@@ -126,7 +101,6 @@ void SceneGame::Initialize()
 		car->SetPosition(20, 0, 10);
 		// wheel のワールド座標は自動的に (21, 0, 11) になる
 	}
->>>>>>> Stashed changes
 
 	Pose::Instance().SetTutorial(false);
 	OutputDebugStringA("Pose tutorial disabled\n");
@@ -143,11 +117,10 @@ void SceneGame::Initialize()
 		lightManager_.SetDirectionalLight(directionalLight);
 		OutputDebugStringA("Directional light set\n");
 
-		OutputDebugStringA("Adding point light\n");
 		PointLight mapLight;
 		mapLight.position = { 0, 1, 0 };
 		mapLight.range = 12.0f;
-		mapLight.color = { 1.0f, 0.1f, 0.1f };
+		mapLight.color = { 0.0f, 0.0f, 1.0f };
 		mapLight.intensity = 8.0f;
 		mapLight.priority = 10;
 		lightManager_.AddPointLight(mapLight);
@@ -232,12 +205,7 @@ void SceneGame::Update(float elapsedTime)
 			else
 				gameLimit -= 1 * elapsedTime;
 
-			//player_->Update(elapsedTime, camera.get());
 		}
-
-		//エネミー更新処理
-		//enemyManager->Update(elapsedTime, player_.get(), stageManager->GetFloor());
-		//starManager->Update(elapsedTime);
 
 		EffectManager::Instance().Update(elapsedTime);
 	}
@@ -327,46 +295,6 @@ void SceneGame::Render()
 	}
 }
 
-// GUI描画
-//void SceneGame::DrawGUI()
-//{
-//#ifdef _DEBUG
-//	ImGui::Begin("GameDebug");
-//	ImGui::Text("camera x, y, z: %.2f, %.2f, %.2f", camera->GetEye().x, camera->GetEye().y, camera->GetEye().z);
-//
-//	//model pos
-//	ImGui::End();
-//#endif
-//	//プレイヤーデバッグ描画
-//	//player_->DrawDebugGUI();
-////	player_->DrawDebugGUI();
-////#ifdef DEBUG
-////	//なんかのポジションを取ってくる
-////	ImVec2 pos = ImGui::GetMainViewport()->GetWorkPos();
-////	//表示場所
-////	ImGui::SetNextWindowPos(ImVec2(pos.x, pos.y), ImGuiCond_Once);
-////	//大きさ
-////	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_FirstUseEver);
-////
-////	if (ImGui::Begin("PlayerOld", nullptr, ImGuiWindowFlags_None))
-////	{
-////		//トランスフォーム
-////		if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
-////		{
-////			ImGui::InputFloat("UIAngle", &UIangle);
-////
-////			ImGui::InputFloat("mapX", &mapx);
-////			ImGui::InputFloat("mapY", &mapy);
-////
-////			ImGui::InputFloat("mapOffsetX", &mapOffsetX);
-////			ImGui::InputFloat("mapOffsetY", &mapOffsetY);
-////
-////			ImGui::InputFloat2("fiverPos", &fiverPos.x);
-////		}
-////	}
-////	ImGui::End();
-////#endif
-//}
 
 void SceneGame::DrawGUI()
 {

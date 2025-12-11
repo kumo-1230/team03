@@ -19,31 +19,46 @@ static const int syncInterval = 1;
 //static SceneGame sceneGame;
 
 // コンストラクタ
+// Framework.cpp のコンストラクタ
 Framework::Framework(HWND hWnd)
 	: hWnd(hWnd)
 {
+	OutputDebugStringA("Framework constructor START\n");
+
 	//オーディオ初期化
+	OutputDebugStringA("Initializing Audio\n");
 	Audio::Instance().Initialize();
+	OutputDebugStringA("Audio initialized\n");
 
 	// インプット初期化
+	OutputDebugStringA("Initializing Input\n");
 	Input::Instance().Initialize(hWnd);
+	OutputDebugStringA("Input initialized\n");
 
 	// グラフィックス初期化
+	OutputDebugStringA("Initializing Graphics\n");
 	Graphics::Instance().Initialize(hWnd);
+	OutputDebugStringA("Graphics initialized\n");
 
 	// IMGUI初期化
+	OutputDebugStringA("Initializing ImGui\n");
 	ImGuiRenderer::Initialize(hWnd, Graphics::Instance().GetDevice(), Graphics::Instance().GetDeviceContext());
+	OutputDebugStringA("ImGui initialized\n");
 
 	//エフェクトマネージャー初期化
+	OutputDebugStringA("Initializing EffectManager\n");
 	EffectManager::Instance().Initialize();
+	OutputDebugStringA("EffectManager initialized\n");
 
 	// シーン初期化
-	//sceneGame.Initialize();
+	OutputDebugStringA("Initializing SceneManager\n");
 	SceneManager::Instance().ChangeScene(new SceneTitle);
+	OutputDebugStringA("SceneManager initialized\n");
 
 	srand((unsigned int)time(NULL));
-}
 
+	OutputDebugStringA("Framework constructor END\n");
+}
 // デストラクタ
 Framework::~Framework()
 {

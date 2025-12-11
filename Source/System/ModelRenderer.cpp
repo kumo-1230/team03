@@ -7,22 +7,37 @@
 #include "GpuResourceUtils.h"
 #include <algorithm>
 
+// ModelRenderer.cpp のコンストラクタを修正
 ModelRenderer::ModelRenderer(ID3D11Device* device)
     : device(device)
 {
+    OutputDebugStringA("ModelRenderer constructor START\n");
+
     GpuResourceUtils::CreateConstantBuffer(
         device,
         sizeof(CbScene),
         sceneConstantBuffer.GetAddressOf());
+    OutputDebugStringA("Scene constant buffer created\n");
 
     GpuResourceUtils::CreateConstantBuffer(
         device,
         sizeof(CbSkeleton),
         skeletonConstantBuffer.GetAddressOf());
+    OutputDebugStringA("Skeleton constant buffer created\n");
 
+    OutputDebugStringA("Creating BasicShader\n");
     shaders[static_cast<int>(ShaderId::Basic)] = std::make_unique<BasicShader>(device);
+    OutputDebugStringA("BasicShader created\n");
+
+    OutputDebugStringA("Creating LambertShader\n");
     shaders[static_cast<int>(ShaderId::Lambert)] = std::make_unique<LambertShader>(device);
+    OutputDebugStringA("LambertShader created\n");
+
+    OutputDebugStringA("Creating PBRShader\n");
     shaders[static_cast<int>(ShaderId::PBR)] = std::make_unique<PBRShader>(device);
+    OutputDebugStringA("PBRShader created\n");
+
+    OutputDebugStringA("ModelRenderer constructor END\n");
 }
 
 void ModelRenderer::Draw(ShaderId shaderId, std::shared_ptr<Model> model)
@@ -103,10 +118,13 @@ void ModelRenderer::Draw(ShaderId shaderId, std::shared_ptr<Model> model)
 
             materialStructuredBuffers[modelPtr] = buffer;
             materialStructuredBufferSRVs[modelPtr] = srv;
+
+            PBRShader* pbrShader = static_cast<PBRShader*>(shaders[static_cast<int>(ShaderId::PBR)].get());
+            pbrShader->SetMaterialBufferSRV(srv);
+            OutputDebugStringA("Material SRV set to PBRShader\n");
         }
     }
 }
-
 void ModelRenderer::Render(const RenderContext& rc)
 {
     ID3D11DeviceContext* dc = rc.deviceContext;

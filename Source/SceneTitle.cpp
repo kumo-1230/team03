@@ -86,10 +86,39 @@ void SceneTitle::Initialize() {
 
     lastHoveredButtonId = -1;
 
-    //DirectionalLight directionalLight;
-    //directionalLight.direction = { 0, -1, -1 };
-    //directionalLight.color = { 1, 1, 1 };
-    //lightManager.SetDirectionalLight(directionalLight);
+    {
+        OutputDebugStringA("Setting directional light\n");
+        DirectionalLight directionalLight;
+        DirectX::XMFLOAT3 dir = { 0.3f, -1.0f, 0.3f };
+        DirectX::XMVECTOR Dir = DirectX::XMLoadFloat3(&dir);
+        Dir = DirectX::XMVector3Normalize(Dir);
+        DirectX::XMStoreFloat3(&directionalLight.direction, Dir);
+        directionalLight.color = { 1.5f, 1.5f, 1.5f };
+        lightManager.SetDirectionalLight(directionalLight);
+        OutputDebugStringA("Directional light set\n");
+
+        OutputDebugStringA("Adding point light\n");
+        PointLight mapLight;
+        mapLight.position = { 0, 1, 0 };
+        mapLight.range = 12.0f;
+        mapLight.color = { 1.0f, 0.1f, 0.1f };
+        mapLight.intensity = 8.0f;
+        mapLight.priority = 10;
+        lightManager.AddPointLight(mapLight);
+        OutputDebugStringA("Point light added\n");
+
+        OutputDebugStringA("Setting player spot light\n");
+        DirectX::XMFLOAT3 playerPos = { 0, 0, 0 };
+        playerPos.y += 1.0f;
+        DirectX::XMFLOAT3 spotDirection = camera->GetFront();
+
+        lightManager.SetPlayerSpotLight(
+            playerPos, spotDirection,
+            20.0f, 25.0f, 40.0f,
+            { 1.0f, 0.95f, 0.85f }, 8.0f
+        );
+        OutputDebugStringA("Player spot light set\n");
+    }
 }
 
 void SceneTitle::Finalize() {

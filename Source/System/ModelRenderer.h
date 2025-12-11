@@ -22,7 +22,17 @@ class ModelRenderer
 {
 public:
     ModelRenderer(ID3D11Device* device);
-    ~ModelRenderer() = default;
+    ~ModelRenderer()
+    {
+        OutputDebugStringA("ModelRenderer destructor START\n");
+
+        // shaders‚Ì‰ð•ú
+        for (auto& shader : shaders) {
+            shader.reset();  // –¾Ž¦“I‚ÉƒŠƒZƒbƒg
+        }
+
+        OutputDebugStringA("ModelRenderer destructor END\n");
+    }
 
     // •`‰æ—\–ñ
     void Draw(ShaderId shaderId, std::shared_ptr<Model> model);
