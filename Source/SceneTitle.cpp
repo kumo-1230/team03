@@ -86,10 +86,10 @@ void SceneTitle::Initialize() {
 
     lastHoveredButtonId = -1;
 
-    DirectionalLight directionalLight;
-    directionalLight.direction = { 0, -1, -1 };
-    directionalLight.color = { 1, 1, 1 };
-    lightManager.SetDirectionalLight(directionalLight);
+    //DirectionalLight directionalLight;
+    //directionalLight.direction = { 0, -1, -1 };
+    //directionalLight.color = { 1, 1, 1 };
+    //lightManager.SetDirectionalLight(directionalLight);
 }
 
 void SceneTitle::Finalize() {

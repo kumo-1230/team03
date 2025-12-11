@@ -82,9 +82,51 @@ void SceneGame::Initialize()
 	obj->SetPosition(0, -1, 0);
 	OutputDebugStringA("First model position set\n");
 
+<<<<<<< Updated upstream
 	OutputDebugStringA("Loading second model\n");
 	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 0 });
 	OutputDebugStringA("Second model loaded\n");
+=======
+	//{
+	//	auto aaa = world.CreateObject("Data/Model/mech_drone/aaa.glb");
+	//	aaa->SetPosition(0, 1, 0);
+	//}
+
+	{
+		//world.CreateObject("Data/Model/2.glb");
+	}
+
+
+
+	//world.CreateObject("Data/Model/mech_drone/mech_drone.glb", {0, -1, 0});
+	//world.CreateObject()->SetModel("Data/Model/mech_drone/mech_drone.glb"); しても同じ
+	// (ResourceManager経由で読み込まれるので、同じモデルは一度しか読み込まれない)
+	//obj = と変数に保存しておく必要はない 後にScene::Update（）で操作したいときのみ使用
+
+	// 親子関係の使用例 (InitでSetParentするだけでだけで、毎フレーム座標追従処理は自動)
+	if (0) {
+		// 親オブジェクト
+		auto* car = World::Instance().CreateObject("car.glb");
+		car->SetPosition(10, 0, 5); // ワールド座標 (10, 0, 5)
+
+		// 子オブジェクト（タイヤ）
+		auto* wheel = World::Instance().CreateObject("wheel.glb");
+		wheel->SetLocalPosition(1, 0, 1); // 車体からの相対位置
+		wheel->SetParent(car, false); // 現在の座標をローカル座標として扱う
+
+		// または、既にワールド座標にあるオブジェクトを親に設定
+		auto* weapon = World::Instance().CreateObject("gun.glb");
+		weapon->SetPosition(11, 1, 5); // ワールド座標
+		weapon->SetParent(car, true); // ワールド座標を維持（自動的にローカル座標に変換）
+
+		// 後からワールド座標で設定
+		wheel->SetWorldPosition(15, 0, 10); // ワールド座標で指定→自動的にローカル座標に変換される
+
+		// 親を動かすと子も連動
+		car->SetPosition(20, 0, 10);
+		// wheel のワールド座標は自動的に (21, 0, 11) になる
+	}
+>>>>>>> Stashed changes
 
 	Pose::Instance().SetTutorial(false);
 	OutputDebugStringA("Pose tutorial disabled\n");
