@@ -59,7 +59,7 @@ PBRShader::PBRShader(ID3D11Device* device) {
 
     GpuResourceUtils::LoadPixelShader(
         device,
-        "Data/Shader/pbr_model_ps.cso",
+        "Data/Shader/pbr_model_ps_maya_style.cso",
         pixelShader.GetAddressOf()
     );
 
@@ -105,7 +105,7 @@ void PBRShader::Begin(const RenderContext& rc) {
     dc->PSSetShader(pixelShader.Get(), nullptr, 0);
     dc->IASetInputLayout(inputLayout.Get());
 
-    CbScene cbScene;
+    CbScene cbScene = {};
 
     DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.camera->GetView());
     DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.camera->GetProjection());
@@ -127,6 +127,43 @@ void PBRShader::Begin(const RenderContext& rc) {
 
     DirectX::XMFLOAT3 eye = rc.camera->GetEye();
     cbScene.cameraPosition = DirectX::XMFLOAT4(eye.x, eye.y, eye.z, 1.0f);
+
+    cbScene.ambientIntensity = 0.2f;
+    cbScene.exposure = 0.8f;
+
+    if (rc.lightManager) {
+        std::vector<PointLight> nearestLights = rc.lightManager->GetNearestPointLights(eye, 8);
+        cbScene.pointLightCount = static_cast<int>(nearestLights.size());
+
+        for (size_t i = 0; i < nearestLights.size() && i < 8; ++i) {
+            cbScene.pointLights[i].position = nearestLights[i].position;
+            cbScene.pointLights[i].range = nearestLights[i].range;
+            cbScene.pointLights[i].color = nearestLights[i].color;
+            cbScene.pointLights[i].intensity = nearestLights[i].intensity;
+        }
+
+        std::vector<SpotLight> nearestSpotLights = rc.lightManager->GetNearestSpotLights(eye, 4);
+        cbScene.spotLightCount = static_cast<int>(nearestSpotLights.size());
+
+        for (size_t i = 0; i < nearestSpotLights.size() && i < 4; ++i) {
+            cbScene.spotLights[i].position = nearestSpotLights[i].position;
+            cbScene.spotLights[i].range = nearestSpotLights[i].range;
+            cbScene.spotLights[i].direction = nearestSpotLights[i].direction;
+            cbScene.spotLights[i].innerConeAngle = DirectX::XMConvertToRadians(nearestSpotLights[i].innerConeAngle);
+            cbScene.spotLights[i].color = nearestSpotLights[i].color;
+            cbScene.spotLights[i].outerConeAngle = DirectX::XMConvertToRadians(nearestSpotLights[i].outerConeAngle);
+            cbScene.spotLights[i].intensity = nearestSpotLights[i].intensity;
+            cbScene.spotLights[i].pad = DirectX::XMFLOAT3(0, 0, 0);
+        }
+    }
+    else {
+        cbScene.pointLightCount = 0;
+        cbScene.spotLightCount = 0;
+    }
+
+    char buffer[256];
+    sprintf_s(buffer, "CbScene size: %zu bytes\n", sizeof(CbScene));
+    OutputDebugStringA(buffer);
 
     dc->UpdateSubresource(sceneConstantBuffer.Get(), 0, 0, &cbScene, 0, 0);
     dc->VSSetConstantBuffers(1, 1, sceneConstantBuffer.GetAddressOf());

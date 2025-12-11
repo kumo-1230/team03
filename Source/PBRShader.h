@@ -7,6 +7,7 @@
 #include "System/Shader.h"
 #include "System/Model.h"
 #include <memory>
+#include "System/Light.h"
 
 class PBRShader : public Shader {
 public:
@@ -31,15 +32,38 @@ private:
     };
     Microsoft::WRL::ComPtr<ID3D11Buffer> meshConstantBuffer;
 
+    struct CbPointLight {
+        DirectX::XMFLOAT3 position;
+        float range;
+        DirectX::XMFLOAT3 color;
+        float intensity;
+    };
+
+    struct CbSpotLight {
+        DirectX::XMFLOAT3 position;
+        float range;
+        DirectX::XMFLOAT3 direction;
+        float innerConeAngle;
+        DirectX::XMFLOAT3 color;
+        float outerConeAngle;
+        float intensity;
+        DirectX::XMFLOAT3 pad;
+    };
+
     struct CbScene {
         DirectX::XMFLOAT4X4 viewProjection;
         DirectX::XMFLOAT4 lightDirection;
         DirectX::XMFLOAT4 cameraPosition;
+        float ambientIntensity;
+        float exposure;
+        int pointLightCount;
+        int spotLightCount;
+        CbPointLight pointLights[8];
+        CbSpotLight spotLights[4];
     };
     Microsoft::WRL::ComPtr<ID3D11Buffer> sceneConstantBuffer;
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> materialStructuredBuffer;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> materialStructuredBufferSRV;
-
     Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStates[3];
 };

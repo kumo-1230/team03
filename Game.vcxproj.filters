@@ -276,9 +276,6 @@
     <ClInclude Include="Source\System\GLTFImporter.h">
       <Filter>Source\System</Filter>
     </ClInclude>
-    <ClInclude Include="Source\System\Light.h">
-      <Filter>Source\System</Filter>
-    </ClInclude>
     <ClInclude Include="Source\PBRShader.h">
       <Filter>Source\PBR</Filter>
     </ClInclude>
@@ -293,6 +290,9 @@
     </ClInclude>
     <ClInclude Include="Source\player.h">
       <Filter>Source\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\System\Light.h">
+      <Filter>Source\PBR</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -535,6 +535,9 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="Shader\pbr_model_vs.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\pbr_model_ps_maya_style.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>

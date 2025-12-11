@@ -78,6 +78,8 @@ void SceneGame::Initialize()
 	obj = world.CreateObject("Data/Model/mech_drone/mech_drone.glb");
 	obj->SetPosition(0, -1, 0);
 
+
+	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{0, 0, 0});
 	{
 		//world.CreateObject("Data/Model/2.glb");
 	}
@@ -124,10 +126,33 @@ void SceneGame::Initialize()
 		Dir = DirectX::XMVector3Normalize(Dir);
 		DirectX::XMStoreFloat3(&directionalLight.direction, Dir);
 
-		directionalLight.color = { 2.5f, 2.5f, 2.5f };
+		directionalLight.color = { 1.5f, 1.5f, 1.5f };
 
 
 		lightManager_.SetDirectionalLight(directionalLight);
+
+		PointLight mapLight;
+		mapLight.position = { 0, 1, 0 };
+		mapLight.range = 12.0f;
+		mapLight.color = { 1.0f, 0.1f, 0.1f };
+		mapLight.intensity = 8.0f;
+		mapLight.priority = 10;
+		lightManager_.AddPointLight(mapLight);
+
+		DirectX::XMFLOAT3 playerPos = player_->GetPosition();
+		playerPos.y += 1.0f;
+
+		DirectX::XMFLOAT3 spotDirection = camera->GetFront();
+
+		lightManager_.SetPlayerSpotLight(
+			playerPos,           // 位置
+			spotDirection,       // 方向（カメラの向き）
+			20.0f,              // 範囲
+			25.0f,              // 内側角度（明るい部分）
+			40.0f,              // 外側角度（減衰部分）
+			{ 1.0f, 0.95f, 0.85f }, // 色（やや黄色）
+			8.0f                // 強度
+		);
 	}
 }
 
@@ -175,6 +200,14 @@ void SceneGame::Update(float elapsedTime)
 	GamePad& gamePad = Input::Instance().GetGamePad();
 
 	static float velocity = 0.0f;
+
+	// 自機ライティング更新
+	{
+		DirectX::XMFLOAT3 playerPos = player_->GetPosition();
+		playerPos.y += 1.0f;
+		lightManager_.SetPlayerLight(playerPos, 15.0f, { 1.0f, 0.9f, 0.8f }, 5.0f);
+	}
+
 
 	{
 
