@@ -146,8 +146,8 @@ void PBRShader::Begin(const RenderContext& rc) {
     cbScene.cameraPosition = DirectX::XMFLOAT4(eye.x, eye.y, eye.z, 1.0f);
 
     // アンビエントとエクスポージャーの設定
-    cbScene.ambientIntensity = 0.2f;
-    cbScene.exposure = 0.8f;
+    cbScene.ambientIntensity = 0.02f;
+    cbScene.exposure = 0.3f;
 
     // ライトの設定
     if (rc.lightManager) {

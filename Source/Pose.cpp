@@ -10,7 +10,7 @@
 #include "System/Graphics.h"
 
 Pose::Pose() {
-    Initializer();
+    Initialize();
 }
 
 Pose::~Pose() {
@@ -19,7 +19,7 @@ Pose::~Pose() {
     delete pauseSelectSE;
 }
 
-void Pose::Initializer() {
+void Pose::Initialize() {
 	auto* device = Graphics::Instance().GetDevice();
     sprSettingBack = std::make_unique<Sprite>(device, "./Data/Sprite/setting_default.png");
     sprPoseBack = std::make_unique<Sprite>(device, "./Data/Sprite/pause_default.png");
@@ -121,7 +121,7 @@ void Pose::Initializer() {
         DirectX::XMFLOAT2{ 0, 0 },
         0, 1,
         [this]() {
-            sensitivity = static_cast<int>(SENSITIVITY_TYPE::NORMALE);
+            sensitivity = static_cast<int>(SENSITIVITY_TYPE::NORMAL);
             buttonSensitivity = 1;
         },
         true
@@ -257,7 +257,7 @@ void Pose::Initializer() {
 
     settingMenu->SetActive(false);
 
-    sensitivity = static_cast<int>(SENSITIVITY_TYPE::NORMALE);
+    sensitivity = static_cast<int>(SENSITIVITY_TYPE::NORMAL);
     fov = static_cast<int>(FOV_TYPE::NORMALE);
     shake = static_cast<int>(SHAKE_TYPE::ON);
     drunkenness = static_cast<int>(DRUNKENNESS_TYPE::NONE);

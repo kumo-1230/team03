@@ -275,16 +275,22 @@ void SceneGame::Render()
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestAndWrite), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Opaque), blendFactor, 0xffffffff);
 
-		World::Instance().Render(rc, modelRenderer);
+		//World::Instance().Render(rc, modelRenderer);
 
 		// エフェクトは透明オブジェクトなので このState
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestOnly), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
-		EffectManager::Instance().Render(rc.camera->view, rc.camera->projection);
+		//ID3D11SamplerState* sampler = rs->GetSamplerState(SamplerState::LinearClamp);
+		//dc->PSSetSamplers(0, 1, &sampler);
+		//EffectManager::Instance().Render(rc.camera->view, rc.camera->projection);
 	}
 
 	// 3Dデバッグ描画
 	{
+		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
+		dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
+		lightManager_.DrawDebugSpheres(shapeRenderer);
+		shapeRenderer->Render(dc, rc.camera->GetView(), rc.camera->GetProjection());
 	}
 
 	// 2Dスプライト描画
@@ -313,5 +319,7 @@ void SceneGame::DrawGUI()
 	}
 
 	ImGui::End();
+
+	lightManager_.DrawGUI();
 #endif
 }

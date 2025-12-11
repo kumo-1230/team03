@@ -7,7 +7,7 @@ class Pose {
 public:
     enum class SENSITIVITY_TYPE {
         LOW = 0,
-        NORMALE,
+        NORMAL,
         HIGH,
     };
     enum class FOV_TYPE {
@@ -43,7 +43,7 @@ public:
 private:
     Pose();
     ~Pose();
-    void Initializer();
+    void Initialize();
     bool PoseOff();
 
     bool onPose{ false };

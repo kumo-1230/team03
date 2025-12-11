@@ -1,5 +1,28 @@
 #include "bidirectional_reflectance_distribution_function.hlsli"
 
+#define GAMMA 2.2
+
+#define AMBIENT_SKY_R 0.01
+#define AMBIENT_SKY_G 0.015
+#define AMBIENT_SKY_B 0.02
+
+#define AMBIENT_GROUND_R 0.005
+#define AMBIENT_GROUND_G 0.005
+#define AMBIENT_GROUND_B 0.008
+
+#define RIM_LIGHT_POWER 4.0
+#define RIM_LIGHT_INTENSITY 0.05
+
+#define DIRECTIONAL_LIGHT_R 0.05
+#define DIRECTIONAL_LIGHT_G 0.05
+#define DIRECTIONAL_LIGHT_B 0.08
+
+#define TONE_MAPPING_A 2.51
+#define TONE_MAPPING_B 0.03
+#define TONE_MAPPING_C 2.43
+#define TONE_MAPPING_D 0.59
+#define TONE_MAPPING_E 0.14
+
 struct VS_OUT
 {
     float4 position : SV_POSITION;
@@ -110,18 +133,13 @@ SamplerState sampler_states[3] : register(s0);
 
 float3 ToneMappingAces(float3 x)
 {
-    const float a = 2.51;
-    const float b = 0.03;
-    const float c = 2.43;
-    const float d = 0.59;
-    const float e = 0.14;
-    return saturate((x * (a * x + b)) / (x * (c * x + d) + e));
+    return saturate((x * (TONE_MAPPING_A * x + TONE_MAPPING_B)) / (x * (TONE_MAPPING_C * x + TONE_MAPPING_D) + TONE_MAPPING_E));
 }
 
 float3 CalculateAmbientIbl(float3 N, float3 V, float3 basecolor, float metallic, float roughness, float intensity)
 {
-    const float3 ambient_sky = float3(0.15, 0.18, 0.22);
-    const float3 ambient_ground = float3(0.05, 0.04, 0.03);
+    const float3 ambient_sky = float3(AMBIENT_SKY_R, AMBIENT_SKY_G, AMBIENT_SKY_B);
+    const float3 ambient_ground = float3(AMBIENT_GROUND_R, AMBIENT_GROUND_G, AMBIENT_GROUND_B);
     
     float sky_factor = N.y * 0.5 + 0.5;
     float3 ambient_color = lerp(ambient_ground, ambient_sky, sky_factor);
@@ -142,14 +160,12 @@ float3 CalculateAmbientIbl(float3 N, float3 V, float3 basecolor, float metallic,
 float3 CalculateRimLight(float3 N, float3 V, float3 basecolor, float intensity)
 {
     float rim = 1.0 - max(0.0, dot(N, V));
-    rim = pow(rim, 4.0);
-    return basecolor * rim * intensity * 0.3;
+    rim = pow(rim, RIM_LIGHT_POWER);
+    return basecolor * rim * intensity * RIM_LIGHT_INTENSITY;
 }
 
 float4 main(VS_OUT pin) : SV_TARGET
 {
-    const float GAMMA = 2.2;
-    
     const MaterialConstants m = materials[material];
     
     float4 basecolor_factor = m.pbr_metallic_roughness.basecolor_factor;
@@ -216,9 +232,8 @@ float4 main(VS_OUT pin) : SV_TARGET
     float3 diffuse = 0;
     float3 specular = 0;
     
-    // ディレクショナルライト
     float3 L = normalize(-light_direction.xyz);
-    float3 Li = float3(1.0, 1.0, 1.0);
+    float3 Li = float3(DIRECTIONAL_LIGHT_R, DIRECTIONAL_LIGHT_G, DIRECTIONAL_LIGHT_B);
     const float NoL = max(0.0, dot(N, L));
     const float NoV = max(0.0, dot(N, V));
     if (NoL > 0.0 || NoV > 0.0)
@@ -231,7 +246,6 @@ float4 main(VS_OUT pin) : SV_TARGET
         specular += Li * NoL * brdf_specular_ggx(f0, f90, alpha_roughness, HoV, NoL, NoV, NoH);
     }
     
-    // ポイントライト
     for (int i = 0; i < point_light_count; ++i)
     {
         float3 light_vec = point_lights[i].position - P;
@@ -257,7 +271,6 @@ float4 main(VS_OUT pin) : SV_TARGET
         }
     }
     
-    // スポットライト
     for (int j = 0; j < spot_light_count; ++j)
     {
         float3 light_vec = spot_lights[j].position - P;

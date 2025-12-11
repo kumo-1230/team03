@@ -2,7 +2,9 @@
 
 #include <DirectXMath.h>
 #include <vector>
-#include <algorithm>  // std::sortのために必要
+#include <algorithm>
+#include "imgui.h"
+#include "ShapeRenderer.h"
 
 struct DirectionalLight {
     DirectX::XMFLOAT3 direction = { 0, -1, 0 };
@@ -28,8 +30,6 @@ struct SpotLight {
     float intensity = 1.0f;
     int priority = 0;
     bool enabled = true;
-
-    // パディング用のダミーメンバー（実際にはシェーダーに送る際に別構造体を使用）
     float pad = 0.0f;
 };
 
@@ -112,7 +112,7 @@ public:
         float range = 20.0f, float innerAngle = 25.0f, float outerAngle = 40.0f,
         const DirectX::XMFLOAT3& color = { 1.0f, 0.95f, 0.85f },
         float intensity = 8.0f) {
-        SpotLight light = {};  // ゼロ初期化
+        SpotLight light = {};
         light.position = position;
         light.direction = direction;
         light.range = range;
@@ -246,6 +246,112 @@ public:
     void ClearSpotLights() {
         spotLights.clear();
         playerSpotLightIndex = -1;
+    }
+
+    void DrawDebugSpheres(ShapeRenderer* shapeRenderer) const {
+        for (const auto& light : pointLights) {
+            if (!light.enabled) continue;
+
+            DirectX::XMFLOAT4 rangeColor(light.color.x, light.color.y, light.color.z, 0.3f);
+            shapeRenderer->DrawSphere(light.position, light.range, rangeColor);
+
+            DirectX::XMFLOAT4 markerColor(1.0f, 1.0f, 0.0f, 1.0f);
+            shapeRenderer->DrawSphere(light.position, 0.2f, markerColor);
+        }
+
+        //for (const auto& light : spotLights) {
+        //    if (!light.enabled) continue;
+
+        //    DirectX::XMFLOAT4 rangeColor(light.color.x, light.color.y, light.color.z, 0.3f);
+        //    shapeRenderer->DrawSphere(light.position, light.range, rangeColor);
+
+        //    DirectX::XMFLOAT4 markerColor(1.0f, 0.5f, 0.0f, 1.0f);
+        //    shapeRenderer->DrawSphere(light.position, 0.2f, markerColor);
+        //}
+    }
+
+    void DrawGUI() const {
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 400, 20), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(380, 500), ImGuiCond_FirstUseEver);
+
+        if (ImGui::Begin("Light Debug")) {
+            ImGui::Text("Directional Light");
+            ImGui::Separator();
+            ImGui::Text("Direction: (%.2f, %.2f, %.2f)",
+                directionalLight.direction.x,
+                directionalLight.direction.y,
+                directionalLight.direction.z);
+            ImGui::Text("Color: (%.2f, %.2f, %.2f)",
+                directionalLight.color.x,
+                directionalLight.color.y,
+                directionalLight.color.z);
+
+            ImGui::Spacing();
+            ImGui::Text("Point Lights: %d", static_cast<int>(pointLights.size()));
+            ImGui::Separator();
+
+            for (size_t i = 0; i < pointLights.size(); ++i) {
+                const auto& light = pointLights[i];
+
+                ImGui::PushID(static_cast<int>(i));
+
+                bool isPlayerLight = (static_cast<int>(i) == playerLightIndex);
+                if (isPlayerLight) {
+                    ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.3f, 0.7f, 0.3f, 0.8f));
+                }
+
+                char label[64];
+                snprintf(label, sizeof(label), "Point Light %d %s",
+                    static_cast<int>(i),
+                    isPlayerLight ? "[Player]" : "");
+
+                if (ImGui::CollapsingHeader(label, ImGuiTreeNodeFlags_DefaultOpen)) {
+                    ImGui::Text("Enabled: %s", light.enabled ? "Yes" : "No");
+                    ImGui::Text("Position: (%.2f, %.2f, %.2f)",
+                        light.position.x, light.position.y, light.position.z);
+                    ImGui::Text("Range: %.2f", light.range);
+                    ImGui::Text("Intensity: %.2f", light.intensity);
+                    ImGui::Text("Priority: %d", light.priority);
+                    ImGui::ColorEdit3("Color", (float*)&light.color, ImGuiColorEditFlags_NoInputs);
+                }
+
+                if (isPlayerLight) {
+                    ImGui::PopStyleColor();
+                }
+
+                ImGui::PopID();
+            }
+
+            ImGui::Spacing();
+            ImGui::Text("Spot Lights: %d", static_cast<int>(spotLights.size()));
+            ImGui::Separator();
+
+            for (size_t i = 0; i < spotLights.size(); ++i) {
+                const auto& light = spotLights[i];
+
+                ImGui::PushID(static_cast<int>(i) + 10000);
+
+                bool isPlayerLight = (static_cast<int>(i) == playerSpotLightIndex);
+                if (isPlayerLight) {
+                    ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.7f, 0.5f, 0.3f, 0.8f));
+                }
+
+                char label[64];
+                snprintf(label, sizeof(label), "Spot Light %d %s",
+                    static_cast<int>(i),
+                    isPlayerLight ? "[Player]" : "");
+
+                if (ImGui::CollapsingHeader(label, ImGuiTreeNodeFlags_DefaultOpen)) {
+
+                    if (isPlayerLight) {
+                        ImGui::PopStyleColor();
+                    }
+
+                    ImGui::PopID();
+                }
+            }
+            ImGui::End();
+        }
     }
 
 private:
