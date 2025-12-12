@@ -62,21 +62,21 @@ void SceneGame::Initialize()
 		);
 	}
 
-	skyMap = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
+	sky_map_ = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
 
 	player_->SetCamera(camera.get());
 
-	obj = world.CreateObject("Data/Model/mech_drone/mech_drone.glb");
-	obj->SetPosition(0, 0, 1);
+	obj_ = world.CreateObject("Data/Model/mech_drone/mech_drone.glb");
+	obj_->SetPosition(0, 0, 1);
 
 	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 2 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f })
-		->SetParent(obj);
+		->SetParent(obj_);
 
 
 	//world.CreateObject("Data/Model/mech_drone/mech_drone.glb", {0, -1, 0});
 	//world.CreateObject()->SetModel("Data/Model/mech_drone/mech_drone.glb"); しても同じ
 	// (ResourceManager経由で読み込まれるので、同じモデルは一度しか読み込まれない)
-	//obj = と変数に保存しておく必要はない 後にScene::Update（）で操作したいときのみ使用
+	//obj_ = と変数に保存しておく必要はない 後にScene::Update（）で操作したいときのみ使用
 
 	// 親子関係の使用例 (InitでSetParentするだけでだけで、毎フレーム座標追従処理は自動)
 	if (0) {
@@ -157,7 +157,7 @@ void SceneGame::Finalize()
 // 更新処理
 void SceneGame::Update(float elapsedTime)
 {
-	//obj->SetPosition(0, MathUtils::RandomRangeFloat(0, 2.0f), 0);
+	//obj_->SetPosition(0, MathUtils::RandomRangeFloat(0, 2.0f), 0);
 
 	if (gameLimit < 0)
 	{
@@ -266,7 +266,7 @@ void SceneGame::Render()
 	DirectX::XMFLOAT3 Cpos = camera->GetEye();
 
 	//スカイマップ描画
-	skyMap->blit(rc, vp, { Cpos.x,Cpos.y,Cpos.z,1.0f });
+	sky_map_->blit(rc, vp, { Cpos.x,Cpos.y,Cpos.z,1.0f });
 
 	// 3Dモデル描画
 	{
@@ -275,14 +275,12 @@ void SceneGame::Render()
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestAndWrite), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Opaque), blendFactor, 0xffffffff);
 
-		//World::Instance().Render(rc, modelRenderer);
+		World::Instance().Render(rc, modelRenderer);
 
 		// エフェクトは透明オブジェクトなので このState
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestOnly), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
-		//ID3D11SamplerState* sampler = rs->GetSamplerState(SamplerState::LinearClamp);
-		//dc->PSSetSamplers(0, 1, &sampler);
-		//EffectManager::Instance().Render(rc.camera->view, rc.camera->projection);
+		EffectManager::Instance().Render(rc.camera->view, rc.camera->projection);
 	}
 
 	// 3Dデバッグ描画

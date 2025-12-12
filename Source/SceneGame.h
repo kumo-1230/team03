@@ -26,9 +26,9 @@ private:
 	//std::unique_ptr<CameraController> cameraController = nullptr;
 	//std::unique_ptr<starmanager> starManager			= nullptr;
 
-	std::unique_ptr<sky_map> skyMap = nullptr;
+	std::unique_ptr<sky_map> sky_map_ = nullptr;
 
-	GameObject* obj = nullptr;
+	GameObject* obj_ = nullptr;
 
 	AudioSource* BGM = nullptr;
 

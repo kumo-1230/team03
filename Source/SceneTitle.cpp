@@ -181,32 +181,28 @@ void SceneTitle::Render() {
     Graphics& graphics = Graphics::Instance();
     ID3D11DeviceContext* dc = graphics.GetDeviceContext();
     RenderState* rs = graphics.GetRenderState();
-
     RenderContext rc;
     rc.deviceContext = dc;
     rc.renderState = rs;
     rc.camera = camera.get();
     rc.lightManager = &lightManager;
-
     dc->RSSetState(rs->GetRasterizerState(RasterizerState::SolidCullNone));
     dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestAndWrite), 0);
     ID3D11SamplerState* s = rs->GetSamplerState(SamplerState::LinearClamp);
     dc->PSSetSamplers(0, 1, &s);
     const float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
     dc->OMSetBlendState(rs->GetBlendState(BlendState::Opaque), blendFactor, 0xffffffff);
-
     DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.camera->GetView());
     DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.camera->GetProjection());
     DirectX::XMMATRIX VP = V * P;
     DirectX::XMFLOAT4X4 vp;
     DirectX::XMStoreFloat4x4(&vp, VP);
     DirectX::XMFLOAT3 Cpos = camera->GetEye();
-
     skyMap->blit(rc, vp, { Cpos.x, Cpos.y, Cpos.z, 1.0f });
 
-    // Sprite 
     dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
     dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
+    dc->PSSetSamplers(0, 1, &s);
 
     sprTitle->Render(dc, 50, 50, 0, 656, 188, 0, 1, 1, 1, 1);
     titleStartMenu->Render(dc, MenuBackgroundMode::kBackgroundVisible, false);
