@@ -201,6 +201,12 @@ private:
             const std::vector<Collider*>& colliders_a = obj_a->GetColliders();
             if (colliders_a.empty()) continue;
 
+            // 累積補正ベクトルと衝突情報を保存
+            DirectX::XMFLOAT3 total_correction = { 0.0f, 0.0f, 0.0f };
+            DirectX::XMFLOAT3 average_normal = { 0.0f, 0.0f, 0.0f };
+            int collision_count = 0;
+            bool has_any_collision = false;
+
             for (size_t j = i + 1; j < game_objects_.size(); ++j) {
                 GameObject* obj_b = game_objects_[j].get();
                 if (!obj_b || !obj_b->IsActive()) continue;
@@ -219,15 +225,12 @@ private:
                         DirectX::XMFLOAT3 correction;
                         GameObject* other = nullptr;
                         if (col_a->CheckRigidbodyCollision(col_b, correction, other)) {
-                            // 位置補正
-                            DirectX::XMFLOAT3 current_pos = obj_a->GetWorldPosition();
-                            obj_a->SetWorldPosition(
-                                current_pos.x + correction.x,
-                                current_pos.y + correction.y,
-                                current_pos.z + correction.z);
+                            // 補正ベクトルを累積
+                            total_correction.x += correction.x;
+                            total_correction.y += correction.y;
+                            total_correction.z += correction.z;
 
-                            // 速度反射（反発係数と摩擦を考慮）
-                            DirectX::XMFLOAT3 velocity = obj_a->GetVelocity();
+                            // 法線ベクトルを累積（後で速度反射に使用）
                             DirectX::XMVECTOR correction_vec = DirectX::XMLoadFloat3(&correction);
                             float correction_length = DirectX::XMVectorGetX(DirectX::XMVector3Length(correction_vec));
 
@@ -236,55 +239,97 @@ private:
                                 DirectX::XMFLOAT3 normal;
                                 DirectX::XMStoreFloat3(&normal, normal_vec);
 
-                                float dot = velocity.x * normal.x +
-                                    velocity.y * normal.y +
-                                    velocity.z * normal.z;
-
-                                if (dot < 0.0f) {
-                                    float bounciness = rb_a->GetBounciness();
-                                    float reflection_factor = -(1.0f + bounciness) * dot;
-
-                                    velocity.x += normal.x * reflection_factor;
-                                    velocity.y += normal.y * reflection_factor;
-                                    velocity.z += normal.z * reflection_factor;
-
-                                    // 摩擦の適用
-                                    float friction = rb_a->GetFriction();
-                                    if (friction > 0.0f) {
-                                        float normal_velocity = velocity.x * normal.x +
-                                            velocity.y * normal.y +
-                                            velocity.z * normal.z;
-
-                                        DirectX::XMFLOAT3 tangent_velocity = {
-                                            velocity.x - normal.x * normal_velocity,
-                                            velocity.y - normal.y * normal_velocity,
-                                            velocity.z - normal.z * normal_velocity };
-
-                                        float friction_factor = 1.0f - friction;
-                                        velocity.x = normal.x * normal_velocity + tangent_velocity.x * friction_factor;
-                                        velocity.y = normal.y * normal_velocity + tangent_velocity.y * friction_factor;
-                                        velocity.z = normal.z * normal_velocity + tangent_velocity.z * friction_factor;
-                                    }
-
-                                    // 速度が非常に小さい場合は0にする（安定化）
-                                    float speed_sq = velocity.x * velocity.x +
-                                        velocity.y * velocity.y +
-                                        velocity.z * velocity.z;
-                                    if (speed_sq < 0.0001f) {
-                                        velocity = { 0.0f, 0.0f, 0.0f };
-                                    }
-
-                                    obj_a->SetVelocity(velocity);
-                                    rb_a->ClampVelocity();
-                                }
+                                average_normal.x += normal.x;
+                                average_normal.y += normal.y;
+                                average_normal.z += normal.z;
+                                collision_count++;
                             }
+
+                            has_any_collision = true;
+                        }
+                    }
+                }
+            }
+
+            // 衝突があった場合、累積した補正と速度反射を適用
+            if (has_any_collision) {
+                // 位置補正（累積した補正ベクトルを一度に適用）
+                DirectX::XMFLOAT3 current_pos = obj_a->GetWorldPosition();
+                obj_a->SetWorldPosition(
+                    current_pos.x + total_correction.x,
+                    current_pos.y + total_correction.y,
+                    current_pos.z + total_correction.z);
+
+                // 速度反射（平均法線ベクトルを使用）
+                if (collision_count > 0) {
+                    // 平均法線を計算
+                    average_normal.x /= static_cast<float>(collision_count);
+                    average_normal.y /= static_cast<float>(collision_count);
+                    average_normal.z /= static_cast<float>(collision_count);
+
+                    // 正規化
+                    DirectX::XMVECTOR avg_normal_vec = DirectX::XMLoadFloat3(&average_normal);
+                    float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(avg_normal_vec));
+
+                    if (length > 0.0001f) {
+                        avg_normal_vec = DirectX::XMVector3Normalize(avg_normal_vec);
+                        DirectX::XMStoreFloat3(&average_normal, avg_normal_vec);
+
+                        // 速度反射処理
+                        DirectX::XMFLOAT3 velocity = obj_a->GetVelocity();
+
+                        // 法線方向の速度成分を計算
+                        float dot = velocity.x * average_normal.x +
+                            velocity.y * average_normal.y +
+                            velocity.z * average_normal.z;
+
+                        if (dot < 0.0f) {
+                            // 反発係数を適用した反射
+                            float bounciness = rb_a->GetBounciness();
+                            float reflection_factor = -(1.0f + bounciness) * dot;
+
+                            velocity.x += average_normal.x * reflection_factor;
+                            velocity.y += average_normal.y * reflection_factor;
+                            velocity.z += average_normal.z * reflection_factor;
+
+                            // 摩擦の適用
+                            float friction = rb_a->GetFriction();
+                            if (friction > 0.0f) {
+                                // 反射後の法線方向速度を再計算
+                                float normal_velocity = velocity.x * average_normal.x +
+                                    velocity.y * average_normal.y +
+                                    velocity.z * average_normal.z;
+
+                                // 接線方向の速度を計算
+                                DirectX::XMFLOAT3 tangent_velocity = {
+                                    velocity.x - average_normal.x * normal_velocity,
+                                    velocity.y - average_normal.y * normal_velocity,
+                                    velocity.z - average_normal.z * normal_velocity
+                                };
+
+                                // 摩擦係数を適用
+                                float friction_factor = 1.0f - friction;
+                                velocity.x = average_normal.x * normal_velocity + tangent_velocity.x * friction_factor;
+                                velocity.y = average_normal.y * normal_velocity + tangent_velocity.y * friction_factor;
+                                velocity.z = average_normal.z * normal_velocity + tangent_velocity.z * friction_factor;
+                            }
+
+                            // 速度が非常に小さい場合は0にする（安定化）
+                            float speed_sq = velocity.x * velocity.x +
+                                velocity.y * velocity.y +
+                                velocity.z * velocity.z;
+                            if (speed_sq < 0.0001f) {  // 速度の二乗が0.01以下（速度0.1以下）
+                                velocity = { 0.0f, 0.0f, 0.0f };
+                            }
+
+                            obj_a->SetVelocity(velocity);
+                            rb_a->ClampVelocity();
                         }
                     }
                 }
             }
         }
     }
-
     std::vector<std::unique_ptr<GameObject>> game_objects_;
     DirectX::XMFLOAT3 gravity_;
 };

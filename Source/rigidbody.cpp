@@ -49,6 +49,7 @@ void Rigidbody::ResolveCollisions() {
     // 個別に他のオブジェクトのコライダーと判定する場合は外部から呼び出す
 }
 
+// rigidbody.cpp
 void Rigidbody::ResolveCollision(const Collider* my_collider, const Collider* other_collider) {
     if (!is_enabled_ || is_kinematic_ || !owner_ || !my_collider || !other_collider) return;
 
@@ -59,11 +60,6 @@ void Rigidbody::ResolveCollision(const Collider* my_collider, const Collider* ot
     if (!my_collider->CheckRigidbodyCollision(other_collider, correction, other)) return;
 
     DirectX::XMFLOAT3 my_velocity = owner_->GetVelocity();
-
-    // 速度の二乗を計算（静止判定）
-    float my_speed_sq = my_velocity.x * my_velocity.x +
-        my_velocity.y * my_velocity.y +
-        my_velocity.z * my_velocity.z;
 
     // 位置補正を適用
     DirectX::XMFLOAT3 current_pos = owner_->GetWorldPosition();
@@ -98,35 +94,26 @@ void Rigidbody::ResolveCollision(const Collider* my_collider, const Collider* ot
 
         // 摩擦を適用（接線方向の速度を減衰）
         if (friction_ > 0.0f) {
-            // 接線方向の速度を計算
-            DirectX::XMFLOAT3 tangent_velocity;
-            tangent_velocity.x = my_velocity.x - normal.x * (my_velocity.x * normal.x +
+            // 反射後の法線方向速度を再計算
+            float normal_velocity = my_velocity.x * normal.x +
                 my_velocity.y * normal.y +
-                my_velocity.z * normal.z);
-            tangent_velocity.y = my_velocity.y - normal.y * (my_velocity.x * normal.x +
-                my_velocity.y * normal.y +
-                my_velocity.z * normal.z);
-            tangent_velocity.z = my_velocity.z - normal.z * (my_velocity.x * normal.x +
-                my_velocity.y * normal.y +
-                my_velocity.z * normal.z);
+                my_velocity.z * normal.z;
 
-            // 摩擦による減衰を適用
+            // 接線方向の速度を計算
+            DirectX::XMFLOAT3 tangent_velocity = {
+                my_velocity.x - normal.x * normal_velocity,
+                my_velocity.y - normal.y * normal_velocity,
+                my_velocity.z - normal.z * normal_velocity
+            };
+
+            // 摩擦係数を適用
             float friction_factor = 1.0f - friction_;
-            my_velocity.x = normal.x * (my_velocity.x * normal.x +
-                my_velocity.y * normal.y +
-                my_velocity.z * normal.z) +
-                tangent_velocity.x * friction_factor;
-            my_velocity.y = normal.y * (my_velocity.x * normal.x +
-                my_velocity.y * normal.y +
-                my_velocity.z * normal.z) +
-                tangent_velocity.y * friction_factor;
-            my_velocity.z = normal.z * (my_velocity.x * normal.x +
-                my_velocity.y * normal.y +
-                my_velocity.z * normal.z) +
-                tangent_velocity.z * friction_factor;
+            my_velocity.x = normal.x * normal_velocity + tangent_velocity.x * friction_factor;
+            my_velocity.y = normal.y * normal_velocity + tangent_velocity.y * friction_factor;
+            my_velocity.z = normal.z * normal_velocity + tangent_velocity.z * friction_factor;
         }
 
-        // 速度を低速時は0にする（安定化）
+        // 速度が低速時は0にする（安定化）
         float final_speed_sq = my_velocity.x * my_velocity.x +
             my_velocity.y * my_velocity.y +
             my_velocity.z * my_velocity.z;
