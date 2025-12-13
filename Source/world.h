@@ -42,6 +42,75 @@ public:
         return ptr;
     }
 
+    // モデルパスと初期位置を指定して作成
+    GameObject* CreateObject(const char* model_path, const DirectX::XMFLOAT3& position) {
+        auto obj = std::make_unique<GameObject>();
+        GameObject* ptr = obj.get();
+        ptr->SetModel(model_path);
+        ptr->SetLocalPosition(position);
+        game_objects_.emplace_back(std::move(obj));
+        return ptr;
+    }
+
+    GameObject* CreateObject(const char* model_path, float x, float y, float z) {
+        return CreateObject(model_path, DirectX::XMFLOAT3(x, y, z));
+    }
+
+    GameObject* CreateObject(const char* model_path, DirectX::FXMVECTOR position) {
+        DirectX::XMFLOAT3 pos;
+        DirectX::XMStoreFloat3(&pos, position);
+        return CreateObject(model_path, pos);
+    }
+
+    // カスタム型と初期位置を指定して作成
+    template<typename T>
+    T* CreateObject(const DirectX::XMFLOAT3& position) {
+        static_assert(std::is_base_of<GameObject, T>::value,
+            "基底クラスがGameObjectであるオブジェクトを<>で指定してください");
+        auto obj = std::make_unique<T>();
+        T* ptr = obj.get();
+        ptr->SetLocalPosition(position);
+        game_objects_.emplace_back(std::move(obj));
+        return ptr;
+    }
+
+    template<typename T>
+    T* CreateObject(float x, float y, float z) {
+        return CreateObject<T>(DirectX::XMFLOAT3(x, y, z));
+    }
+
+    template<typename T>
+    T* CreateObject(DirectX::FXMVECTOR position) {
+        DirectX::XMFLOAT3 pos;
+        DirectX::XMStoreFloat3(&pos, position);
+        return CreateObject<T>(pos);
+    }
+
+    // カスタム型、モデルパス、初期位置を指定して作成
+    template<typename T>
+    T* CreateObject(const char* model_path, const DirectX::XMFLOAT3& position) {
+        static_assert(std::is_base_of<GameObject, T>::value,
+            "基底クラスがGameObjectであるオブジェクトを<>で指定してください");
+        auto obj = std::make_unique<T>();
+        T* ptr = obj.get();
+        ptr->SetModel(model_path);
+        ptr->SetLocalPosition(position);
+        game_objects_.emplace_back(std::move(obj));
+        return ptr;
+    }
+
+    template<typename T>
+    T* CreateObject(const char* model_path, float x, float y, float z) {
+        return CreateObject<T>(model_path, DirectX::XMFLOAT3(x, y, z));
+    }
+
+    template<typename T>
+    T* CreateObject(const char* model_path, DirectX::FXMVECTOR position) {
+        DirectX::XMFLOAT3 pos;
+        DirectX::XMStoreFloat3(&pos, position);
+        return CreateObject<T>(model_path, pos);
+    }
+
     void Update(float elapsed_time) {
         ApplyPhysics(elapsed_time);
 

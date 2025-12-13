@@ -166,12 +166,6 @@ DirectX::XMMATRIX GameObject::GetWorldTransformM() const {
     return local_transform;
 }
 
-void GameObject::SetPosition(DirectX::FXMVECTOR v) {
-    DirectX::XMFLOAT3 pos;
-    DirectX::XMStoreFloat3(&pos, v);
-    SetLocalPosition(pos);
-}
-
 void GameObject::SetLocalPosition(const DirectX::XMFLOAT3& pos) {
     position_ = pos;
     UpdateTransform();
@@ -179,6 +173,11 @@ void GameObject::SetLocalPosition(const DirectX::XMFLOAT3& pos) {
 
 void GameObject::SetLocalPosition(float x, float y, float z) {
     position_ = { x, y, z };
+    UpdateTransform();
+}
+
+void GameObject::SetLocalPosition(DirectX::FXMVECTOR v) {
+    DirectX::XMStoreFloat3(&position_, v);
     UpdateTransform();
 }
 
@@ -197,6 +196,12 @@ void GameObject::SetWorldPosition(const DirectX::XMFLOAT3& world_pos) {
 
 void GameObject::SetWorldPosition(float x, float y, float z) {
     SetWorldPosition(DirectX::XMFLOAT3(x, y, z));
+}
+
+void GameObject::SetWorldPosition(DirectX::FXMVECTOR v) {
+    DirectX::XMFLOAT3 pos;
+    DirectX::XMStoreFloat3(&pos, v);
+    SetWorldPosition(pos);
 }
 
 void GameObject::SetAngle(DirectX::FXMVECTOR v) {
@@ -295,6 +300,17 @@ void GameObject::SetRigidbody(Rigidbody* rigidbody) {
     if (rigidbody_) {
         rigidbody_->SetOwner(this);
     }
+}
+
+Rigidbody* GameObject::AddRigidbody() {
+    if (rigidbody_) {
+        delete rigidbody_;
+    }
+
+    rigidbody_ = new Rigidbody();
+    rigidbody_->SetOwner(this);
+
+    return rigidbody_;
 }
 
 void GameObject::RemoveRigidbody() {

@@ -24,6 +24,67 @@ enum class HierarchyType {
 class GameObject {
 public:
     GameObject() = default;
+
+    // モデルパスのみ
+    explicit GameObject(const char* model_filepath) {
+        if (model_filepath) SetModel(model_filepath);
+    }
+
+    // モデルパス + 位置（XMFLOAT3）
+    GameObject(const char* model_filepath, const DirectX::XMFLOAT3& pos) {
+        if (model_filepath) SetModel(model_filepath);
+        SetLocalPosition(pos);
+    }
+
+    // モデルパス + 位置（float x3）
+    GameObject(const char* model_filepath, float x, float y, float z) {
+        if (model_filepath) SetModel(model_filepath);
+        SetLocalPosition(x, y, z);
+    }
+
+    // モデルパス + 位置（XMVECTOR）
+    GameObject(const char* model_filepath, DirectX::FXMVECTOR pos) {
+        if (model_filepath) SetModel(model_filepath);
+        SetLocalPosition(pos);
+    }
+
+    // モデルパス + 位置 + 回転（XMFLOAT3）
+    GameObject(const char* model_filepath, const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rotation) {
+        if (model_filepath) SetModel(model_filepath);
+        SetLocalPosition(pos);
+        angle_ = rotation;
+        UpdateTransform();
+    }
+
+    // モデルパス + 位置 + 回転 + スケール（XMFLOAT3）
+    GameObject(const char* model_filepath, const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale) {
+        if (model_filepath) SetModel(model_filepath);
+        SetLocalPosition(pos);
+        angle_ = rotation;
+        scale_ = scale;
+        UpdateTransform();
+    }
+
+    // モデルパス + 位置（float x3） + 回転（float x3）
+    GameObject(const char* model_filepath, float px, float py, float pz, float rx, float ry, float rz) {
+        if (model_filepath) SetModel(model_filepath);
+        SetLocalPosition(px, py, pz);
+        angle_ = { rx, ry, rz };
+        UpdateTransform();
+    }
+
+    // モデルパス + 位置（float x3） + 回転（float x3） + スケール（float x3）
+    GameObject(const char* model_filepath,
+        float px, float py, float pz,
+        float rx, float ry, float rz,
+        float sx, float sy, float sz) {
+        if (model_filepath) SetModel(model_filepath);
+        SetLocalPosition(px, py, pz);
+        angle_ = { rx, ry, rz };
+        scale_ = { sx, sy, sz };
+        UpdateTransform();
+    }
+
     virtual ~GameObject();
 
     // 更新処理
@@ -50,12 +111,16 @@ public:
     // ローカル座標
     void SetLocalPosition(const DirectX::XMFLOAT3& pos);
     void SetLocalPosition(float x, float y, float z);
-    void SetPosition(DirectX::FXMVECTOR v);
+    void SetLocalPosition(DirectX::FXMVECTOR v);
+    void SetPosition(const DirectX::XMFLOAT3& pos) { SetLocalPosition(pos); }
+    void SetPosition(float x, float y, float z) { SetLocalPosition(x, y, z); }
+    void SetPosition(DirectX::FXMVECTOR v) { SetLocalPosition(v); }
     const DirectX::XMFLOAT3& GetLocalPosition() const { return position_; }
 
     // ワールド座標
     void SetWorldPosition(const DirectX::XMFLOAT3& world_pos);
     void SetWorldPosition(float x, float y, float z);
+    void SetWorldPosition(DirectX::FXMVECTOR v);
     DirectX::XMFLOAT3 GetWorldPosition() const;
 
     // 回転（ラジアン）
@@ -172,22 +237,7 @@ public:
     // ========================================
     // リジッドボディ
     // ========================================
-    template<typename T = Rigidbody, typename... Args>
-    T* AddRigidbody(Args&&... args) {
-        static_assert(std::is_base_of<Rigidbody, T>::value,
-            "T must be derived from Rigidbody");
-
-        if (rigidbody_) {
-            delete rigidbody_;
-        }
-
-        T* rigidbody = new T(std::forward<Args>(args)...);
-        rigidbody->SetOwner(this);
-        rigidbody_ = rigidbody;
-
-        return rigidbody;
-    }
-
+    Rigidbody* AddRigidbody();
     void SetRigidbody(Rigidbody* rigidbody);
     Rigidbody* GetRigidbody() const { return rigidbody_; }
     void RemoveRigidbody();
