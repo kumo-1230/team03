@@ -294,6 +294,12 @@
     <ClInclude Include="Source\System\Light.h">
       <Filter>Source\PBR</Filter>
     </ClInclude>
+    <ClInclude Include="Source\collider.h">
+      <Filter>Source\Object\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\rigidbody.h">
+      <Filter>Source\Object\System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui-docking\imgui.cpp">
@@ -460,6 +466,15 @@
     </ClCompile>
     <ClCompile Include="Source\System\ModelRenderer.cpp">
       <Filter>Source\PBR</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\collider.cpp">
+      <Filter>Source\Object\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\game_object.cpp">
+      <Filter>Source\Object\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\rigidbody.cpp">
+      <Filter>Source\Object\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -20,45 +20,31 @@ class SceneGame : public Scene
 private:
 	bool H = false;//デバッグ
 
-
 	Player* player_ = nullptr;
-	std::unique_ptr<Camera> camera = nullptr;
-	//std::unique_ptr<CameraController> cameraController = nullptr;
-	//std::unique_ptr<starmanager> starManager			= nullptr;
-
+	std::unique_ptr<Camera> camera_ = nullptr;
 	std::unique_ptr<sky_map> sky_map_ = nullptr;
-
 	GameObject* obj_ = nullptr;
-
-	AudioSource* BGM = nullptr;
-
-	float gameLimit = 200.0f;
-
-	LightManager lightManager_;
+	AudioSource* bgm_ = nullptr;
+	float game_limit_ = 200.0f;
+	LightManager light_manager_;
 
 public:
 	SceneGame();
-	//~SceneGame() {};
 	~SceneGame() override {}
 
 	// 初期化
-	//void Initialize();
 	void Initialize() override;
 
 	// 終了化
-	//void Finalize();
 	void Finalize() override;
 
 	// 更新処理
-	//void Update(float elapsedTime);
 	void Update(float elapsedTime) override;
 
 	// 描画処理
-	//void Render();
 	void Render() override;
 
 	// GUI描画
-	//void DrawGUI();
 	void DrawGUI() override;
 
 

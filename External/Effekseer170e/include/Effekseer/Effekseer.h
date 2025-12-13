@@ -3875,7 +3875,7 @@ public:
 
 		/**
 			@brief
-			\~English A direction of camera
+			\~English A direction of camera_
 			\~Japanese カメラの方向
 			@note
 			\~English It means that the direction is normalize(focus - position)
@@ -3895,7 +3895,7 @@ public:
 
 		/**
 			@brief
-			\~English Whether effects should be sorted by camera position and direction
+			\~English Whether effects should be sorted by camera_ position and direction
 			\~Japanese エフェクトをカメラの位置と方向でソートするかどうか
 		*/
 		bool IsSortingEffectsEnabled = false;
@@ -3914,7 +3914,7 @@ public:
 			@brief
 			\~English
 			Position of effects viewer to calculate distance of Level of Details system.
-			Normally should be set the same position which is passed in translation of camera matrix.
+			Normally should be set the same position which is passed in translation of camera_ matrix.
 			\~Japanese
 			LODシステムで使用される視点の位置。
 			通常はカメラの位置と同じ値を指定する。
@@ -4654,7 +4654,7 @@ public:
 
 	/**
 		@brief
-		\~English	Get a camera's culling mask to show all effects
+		\~English	Get a camera_'s culling mask to show all effects
 		\~Japanese	全てのエフェクトを表示するためのカメラのカリングマスクを取得する。
 	*/
 	virtual int GetCameraCullingMaskToShowAllEffects() = 0;

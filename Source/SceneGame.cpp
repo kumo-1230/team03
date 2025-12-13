@@ -39,22 +39,22 @@ void SceneGame::Initialize()
 	Graphics& graphics = Graphics::Instance();
 	auto* dv = graphics.GetDevice();
 
-	BGM = Audio::Instance().LoadAudioSource("Data/Sound/Game/BGM_game.wav");
-	BGM->SetVolume(0.4f);
+	bgm_ = Audio::Instance().LoadAudioSource("Data/Sound/Game/BGM_game.wav");
+	bgm_->SetVolume(0.4f);
 
 	player_ = world.CreateObject<Player>();
 
 	// カメラ初期化
 	{
-		camera = std::make_unique<Camera>();
+		camera_ = std::make_unique<Camera>();
 		DirectX::XMFLOAT3 eye = player_->GetPosition();
 		DirectX::XMFLOAT3 focus{};
 		focus.x = sinf(player_->GetAngle().y);
 		focus.z = cosf(player_->GetAngle().y);
 
 		float fov = 80.0f;
-		camera->SetLookAt(eye, focus, DirectX::XMFLOAT3(0, 1, 0));
-		camera->SetPerspectiveFov(
+		camera_->SetLookAt(eye, focus, DirectX::XMFLOAT3(0, 1, 0));
+		camera_->SetPerspectiveFov(
 			DirectX::XMConvertToRadians(fov),
 			graphics.GetScreenWidth() / graphics.GetScreenHeight(),
 			0.1f,
@@ -64,7 +64,7 @@ void SceneGame::Initialize()
 
 	sky_map_ = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
 
-	player_->SetCamera(camera.get());
+	player_->SetCamera(camera_.get());
 
 	obj_ = world.CreateObject("Data/Model/mech_drone/mech_drone.glb");
 	obj_->SetPosition(0, 0, 1);
@@ -114,7 +114,7 @@ void SceneGame::Initialize()
 		Dir = DirectX::XMVector3Normalize(Dir);
 		DirectX::XMStoreFloat3(&directionalLight.direction, Dir);
 		directionalLight.color = { 1.5f, 1.5f, 1.5f };
-		lightManager_.SetDirectionalLight(directionalLight);
+		light_manager_.SetDirectionalLight(directionalLight);
 		OutputDebugStringA("Directional light set\n");
 
 		PointLight mapLight;
@@ -123,15 +123,15 @@ void SceneGame::Initialize()
 		mapLight.color = { 0.0f, 0.0f, 1.0f };
 		mapLight.intensity = 8.0f;
 		mapLight.priority = 10;
-		lightManager_.AddPointLight(mapLight);
+		light_manager_.AddPointLight(mapLight);
 		OutputDebugStringA("Point light added\n");
 
 		OutputDebugStringA("Setting player spot light\n");
 		DirectX::XMFLOAT3 playerPos = player_->GetPosition();
 		playerPos.y += 1.0f;
-		DirectX::XMFLOAT3 spotDirection = camera->GetFront();
+		DirectX::XMFLOAT3 spotDirection = camera_->GetFront();
 
-		lightManager_.SetPlayerSpotLight(
+		light_manager_.SetPlayerSpotLight(
 			playerPos, spotDirection,
 			20.0f, 25.0f, 40.0f,
 			{ 1.0f, 0.95f, 0.85f }, 8.0f
@@ -145,11 +145,11 @@ void SceneGame::Initialize()
 void SceneGame::Finalize()
 {
 	//player_->Finalize();
-	BGM->Stop();
+	bgm_->Stop();
 
 	EffectManager::Instance().Initialize();
 
-	delete BGM;
+	delete bgm_;
 
 	World::Instance().Clear();
 }
@@ -159,7 +159,7 @@ void SceneGame::Update(float elapsedTime)
 {
 	//obj_->SetPosition(0, MathUtils::RandomRangeFloat(0, 2.0f), 0);
 
-	if (gameLimit < 0)
+	if (game_limit_ < 0)
 	{
 		{
 			SceneManager::Instance().ChangeScene(new SceneTitle());
@@ -171,13 +171,13 @@ void SceneGame::Update(float elapsedTime)
 
 	if (Pose::Instance().GetPose())
 	{
-		BGM->SetVolume(0.05f);
+		bgm_->SetVolume(0.05f);
 		Cursor::Instance().Update(elapsedTime);
 		return;
 	}
 	else
 	{
-		BGM->SetVolume(0.4f);
+		bgm_->SetVolume(0.4f);
 	}
 
 	World::Instance().Update(elapsedTime);
@@ -190,7 +190,7 @@ void SceneGame::Update(float elapsedTime)
 	{
 		DirectX::XMFLOAT3 playerPos = player_->GetPosition();
 		playerPos.y += 1.0f;
-		lightManager_.SetPlayerLight(playerPos, 15.0f, { 1.0f, 0.9f, 0.8f }, 5.0f);
+		light_manager_.SetPlayerLight(playerPos, 15.0f, { 1.0f, 0.9f, 0.8f }, 5.0f);
 	}
 
 
@@ -200,10 +200,10 @@ void SceneGame::Update(float elapsedTime)
 			if (KeyInput::Instance().GetKeyHold(VK_LBUTTON))
 			{
 
-				gameLimit -= 1 * elapsedTime * 0.2f;
+				game_limit_ -= 1 * elapsedTime * 0.2f;
 			}
 			else
-				gameLimit -= 1 * elapsedTime;
+				game_limit_ -= 1 * elapsedTime;
 
 		}
 
@@ -215,7 +215,7 @@ void SceneGame::Update(float elapsedTime)
 // 描画処理
 void SceneGame::Render()
 {
-	/*if (gameLimit < 0 || player_->GetHP() <= 0.0f)
+	/*if (game_limit_ < 0 || player_->GetHP() <= 0.0f)
 	{
 		return;
 	}*/
@@ -248,8 +248,8 @@ void SceneGame::Render()
 	RenderContext rc;
 	rc.deviceContext = dc;
 	rc.renderState = rs;
-	rc.camera = camera.get();
-	rc.lightManager = &lightManager_;
+	rc.camera = camera_.get();
+	rc.lightManager = &light_manager_;
 
 	dc->RSSetState(rs->GetRasterizerState(RasterizerState::SolidCullNone));
 	dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestAndWrite), 0);
@@ -263,7 +263,7 @@ void SceneGame::Render()
 	DirectX::XMMATRIX VP = V * P;
 	DirectX::XMFLOAT4X4 vp;
 	DirectX::XMStoreFloat4x4(&vp, VP);
-	DirectX::XMFLOAT3 Cpos = camera->GetEye();
+	DirectX::XMFLOAT3 Cpos = camera_->GetEye();
 
 	//スカイマップ描画
 	sky_map_->blit(rc, vp, { Cpos.x,Cpos.y,Cpos.z,1.0f });
@@ -287,7 +287,7 @@ void SceneGame::Render()
 	{
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
-		lightManager_.DrawDebugSpheres(shapeRenderer);
+		light_manager_.DrawDebugSpheres(shapeRenderer);
 		shapeRenderer->Render(dc, rc.camera->GetView(), rc.camera->GetProjection());
 	}
 
@@ -306,18 +306,18 @@ void SceneGame::DrawGUI()
 	ImGui::Begin("GameDebug", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
 	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
-		DirectX::XMFLOAT3 camPos = camera->GetEye();
+		DirectX::XMFLOAT3 camPos = camera_->GetEye();
 		ImGui::Text("Position: %.2f, %.2f, %.2f", camPos.x, camPos.y, camPos.z);
 
-		DirectX::XMFLOAT3 camTarget = camera->focus;
+		DirectX::XMFLOAT3 camTarget = camera_->focus;
 		ImGui::Text("Target: %.2f, %.2f, %.2f", camTarget.x, camTarget.y, camTarget.z);
 
-		DirectX::XMFLOAT3 camFront = camera->GetFront();
+		DirectX::XMFLOAT3 camFront = camera_->GetFront();
 		ImGui::Text("Front: %.2f, %.2f, %.2f", camFront.x, camFront.y, camFront.z);
 	}
 
 	ImGui::End();
 
-	lightManager_.DrawGUI();
+	light_manager_.DrawGUI();
 #endif
 }
