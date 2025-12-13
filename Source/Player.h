@@ -13,8 +13,8 @@ public:
         camera_(nullptr),
         camera_height_(1.0f),
         mouse_sensitivity_(0.25f),
-        screen_width_(1920),
-        screen_height_(1080),
+        screen_width_(static_cast<int>(Graphics::Instance().GetScreenWidth())),
+        screen_height_(static_cast<int>(Graphics::Instance().GetScreenHeight())),
         window_handle_(Graphics::Instance().GetWindowHandle()),
         camera_follow_enabled_(true),
         camera_yaw_(0.0f),
@@ -27,8 +27,8 @@ public:
         camera_(nullptr),
         camera_height_(1.0f),
         mouse_sensitivity_(0.25f),
-        screen_width_(1920),
-        screen_height_(1080),
+        screen_width_(static_cast<int>(Graphics::Instance().GetScreenWidth())),
+        screen_height_(static_cast<int>(Graphics::Instance().GetScreenHeight())),
         window_handle_(Graphics::Instance().GetWindowHandle()),
         camera_follow_enabled_(true),
         camera_yaw_(0.0f),
@@ -170,7 +170,7 @@ private:
             SetCursorPos(screenCenter.x, screenCenter.y);
         }
 
-        DirectX::XMFLOAT3 playerPos = GetPosition();
+        DirectX::XMFLOAT3 playerPos = GetWorldPosition();
 
         camera_->eye.x = playerPos.x;
         camera_->eye.y = playerPos.y + camera_height_;

@@ -47,7 +47,7 @@ void SceneGame::Initialize()
 	// カメラ初期化
 	{
 		camera_ = std::make_unique<Camera>();
-		DirectX::XMFLOAT3 eye = player_->GetPosition();
+		DirectX::XMFLOAT3 eye = player_->GetWorldPosition();
 		DirectX::XMFLOAT3 focus{};
 		focus.x = sinf(player_->GetAngle().y);
 		focus.z = cosf(player_->GetAngle().y);
@@ -127,7 +127,7 @@ void SceneGame::Initialize()
 		OutputDebugStringA("Point light added\n");
 
 		OutputDebugStringA("Setting player spot light\n");
-		DirectX::XMFLOAT3 playerPos = player_->GetPosition();
+		DirectX::XMFLOAT3 playerPos = player_->GetWorldPosition();
 		playerPos.y += 1.0f;
 		DirectX::XMFLOAT3 spotDirection = camera_->GetFront();
 
@@ -188,7 +188,7 @@ void SceneGame::Update(float elapsedTime)
 
 	// 自機ライティング更新
 	{
-		DirectX::XMFLOAT3 playerPos = player_->GetPosition();
+		DirectX::XMFLOAT3 playerPos = player_->GetWorldPosition();
 		playerPos.y += 1.0f;
 		light_manager_.SetPlayerLight(playerPos, 15.0f, { 1.0f, 0.9f, 0.8f }, 5.0f);
 	}

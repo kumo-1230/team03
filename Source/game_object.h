@@ -125,6 +125,8 @@ public:
 
     // 回転（ラジアン）
     void SetAngle(DirectX::FXMVECTOR v);
+    void SetAngle(const DirectX::XMFLOAT3& angle);
+    void SetAngle(float x, float y, float z);
     const DirectX::XMFLOAT3& GetAngle() const { return angle_; }
 
     // 回転（度数法）
@@ -230,9 +232,6 @@ public:
         return index < colliders_.size() ? colliders_[index] : nullptr;
     }
     size_t GetColliderCount() const { return colliders_.size(); }
-
-    // 後方互換性のため
-    void SetCollider(Collider* collider);
 
     // ========================================
     // リジッドボディ

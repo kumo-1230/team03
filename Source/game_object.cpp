@@ -209,6 +209,19 @@ void GameObject::SetAngle(DirectX::FXMVECTOR v) {
     UpdateTransform();
 }
 
+void GameObject::SetAngle(const DirectX::XMFLOAT3& angle) {
+    angle_ = angle;
+    UpdateTransform();
+}
+
+void GameObject::SetAngle(float x, float y, float z) {
+    angle_.x = x;
+    angle_.y = y;
+    angle_.z = z;
+
+    UpdateTransform();
+}
+
 void GameObject::SetAngleDegree(const DirectX::XMFLOAT3& deg) {
     angle_.x = DirectX::XMConvertToRadians(deg.x);
     angle_.y = DirectX::XMConvertToRadians(deg.y);
@@ -265,14 +278,6 @@ void GameObject::SetModel(const char* filepath) {
 void GameObject::SetModel(const std::shared_ptr<Model>& model) {
     model_ = model;
     UpdateTransform();
-}
-
-void GameObject::SetCollider(Collider* collider) {
-    if (collider) {
-        RemoveAllColliders();
-        collider->SetOwner(this);
-        colliders_.push_back(collider);
-    }
 }
 
 void GameObject::RemoveCollider(Collider* collider) {

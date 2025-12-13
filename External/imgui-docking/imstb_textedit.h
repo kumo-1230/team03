@@ -126,21 +126,21 @@
 //    STB_TEXTEDIT_STRING               the type of object representing a string being edited,
 //                                      typically this is a wrapper object with other data you need
 //
-//    STB_TEXTEDIT_STRINGLEN(obj_)       the length of the string (ideally O(1))
-//    STB_TEXTEDIT_LAYOUTROW(&r,obj_,n)  returns the results of laying out a line of characters
+//    STB_TEXTEDIT_STRINGLEN(obj)       the length of the string (ideally O(1))
+//    STB_TEXTEDIT_LAYOUTROW(&r,obj,n)  returns the results of laying out a line of characters
 //                                        starting from character #n (see discussion below)
-//    STB_TEXTEDIT_GETWIDTH(obj_,n,i)    returns the pixel delta from the xpos of the i'th character
+//    STB_TEXTEDIT_GETWIDTH(obj,n,i)    returns the pixel delta from the xpos of the i'th character
 //                                        to the xpos of the i+1'th char for a line of characters
 //                                        starting at character #n (i.e. accounts for kerning
 //                                        with previous char)
 //    STB_TEXTEDIT_KEYTOTEXT(k)         maps a keyboard input to an insertable character
 //                                        (return type is int, -1 means not valid to insert)
-//    STB_TEXTEDIT_GETCHAR(obj_,i)       returns the i'th character of obj_, 0-based
+//    STB_TEXTEDIT_GETCHAR(obj,i)       returns the i'th character of obj, 0-based
 //    STB_TEXTEDIT_NEWLINE              the character returned by _GETCHAR() we recognize
 //                                        as manually wordwrapping for end-of-line positioning
 //
-//    STB_TEXTEDIT_DELETECHARS(obj_,i,n)      delete n characters starting at i
-//    STB_TEXTEDIT_INSERTCHARS(obj_,i,c*,n)   insert n characters at i (pointed to by STB_TEXTEDIT_CHARTYPE*)
+//    STB_TEXTEDIT_DELETECHARS(obj,i,n)      delete n characters starting at i
+//    STB_TEXTEDIT_INSERTCHARS(obj,i,c*,n)   insert n characters at i (pointed to by STB_TEXTEDIT_CHARTYPE*)
 //
 //    STB_TEXTEDIT_K_SHIFT       a power of two that is or'd in to a keyboard input to represent the shift key
 //
@@ -163,8 +163,8 @@
 //    STB_TEXTEDIT_K_INSERT              keyboard input to toggle insert mode
 //    STB_TEXTEDIT_IS_SPACE(ch)          true if character is whitespace (e.g. 'isspace'),
 //                                          required for default WORDLEFT/WORDRIGHT handlers
-//    STB_TEXTEDIT_MOVEWORDLEFT(obj_,i)   custom handler for WORDLEFT, returns index to move cursor to
-//    STB_TEXTEDIT_MOVEWORDRIGHT(obj_,i)  custom handler for WORDRIGHT, returns index to move cursor to
+//    STB_TEXTEDIT_MOVEWORDLEFT(obj,i)   custom handler for WORDLEFT, returns index to move cursor to
+//    STB_TEXTEDIT_MOVEWORDRIGHT(obj,i)  custom handler for WORDRIGHT, returns index to move cursor to
 //    STB_TEXTEDIT_K_WORDLEFT            keyboard input to move cursor left one word // e.g. ctrl-LEFT
 //    STB_TEXTEDIT_K_WORDRIGHT           keyboard input to move cursor right one word // e.g. ctrl-RIGHT
 //    STB_TEXTEDIT_K_LINESTART2          secondary keyboard input to move cursor to start of line
