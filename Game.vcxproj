@@ -121,6 +121,7 @@
     <ClInclude Include="External\imgui-docking\imstb_truetype.h" />
     <ClInclude Include="Source\collider.h" />
     <ClInclude Include="Source\game_object.h" />
+    <ClInclude Include="Source\imgui_logger.h" />
     <ClInclude Include="Source\input_manager.h" />
     <ClInclude Include="Source\k_cursor.h" />
     <ClInclude Include="Source\k_lerp.h" />
@@ -190,6 +191,7 @@
     <ClInclude Include="Source\star.h" />
     <ClInclude Include="Source\DirectXCommon.h" />
     <ClInclude Include="Source\ui_element.h" />
+    <ClInclude Include="Source\vault.h" />
     <ClInclude Include="Source\world.h" />
   </ItemGroup>
   <ItemGroup>

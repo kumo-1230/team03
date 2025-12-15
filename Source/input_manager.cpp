@@ -79,17 +79,6 @@ void InputManager::UpdateMouseButtons() {
     }
 }
 
-InputManager::KeyState& InputManager::GetOrCreateKeyState(int vkey) {
-    auto it = key_states_.find(vkey);
-    if (it != key_states_.end()) {
-        return it->second;
-    }
-
-    // V‚µ‚¢ƒL[‚ğ“o˜^
-    key_states_[vkey] = KeyState{};
-    return key_states_[vkey];
-}
-
 bool InputManager::IsMouseButtonDown(int button) const {
     if (button < 0 || button >= 3) return false;
     return mouse_buttons_[button].down;
@@ -105,33 +94,24 @@ bool InputManager::IsMouseButtonHeld(int button) const {
     return mouse_buttons_[button].held;
 }
 
-bool InputManager::IsKeyDown(int vkey) const {
-    auto it = key_states_.find(vkey);
-    if (it != key_states_.end()) {
-        return it->second.down;
-    }
-
-    // –¢“o˜^‚ÌƒL[‚Í©“®“o˜^‚µ‚Ä‚©‚çæ“¾
-    const_cast<InputManager*>(this)->GetOrCreateKeyState(vkey);
-    return false; // ‰‰ñ‚Í•K‚¸false
+bool InputManager::IsKeyDown(int virtual_key) {
+    return GetOrCreateKeyState(virtual_key).down;
 }
 
-bool InputManager::IsKeyUp(int vkey) const {
-    auto it = key_states_.find(vkey);
-    if (it != key_states_.end()) {
-        return it->second.up;
-    }
-
-    const_cast<InputManager*>(this)->GetOrCreateKeyState(vkey);
-    return false;
+bool InputManager::IsKeyUp(int virtual_key) {
+    return GetOrCreateKeyState(virtual_key).up;
 }
 
-bool InputManager::IsKeyHeld(int vkey) const {
-    auto it = key_states_.find(vkey);
-    if (it != key_states_.end()) {
-        return it->second.held;
-    }
+bool InputManager::IsKeyHeld(int virtual_key) {
+    return GetOrCreateKeyState(virtual_key).held;
+}
 
-    const_cast<InputManager*>(this)->GetOrCreateKeyState(vkey);
-    return false;
+InputManager::KeyState& InputManager::GetOrCreateKeyState(int virtual_key) {
+    auto it = key_states_.find(virtual_key);
+    if (it != key_states_.end()) {
+        return it->second;
+    }
+    // V‚µ‚¢ƒL[‚ğ“o˜^
+    key_states_[virtual_key] = KeyState{};
+    return key_states_[virtual_key];
 }

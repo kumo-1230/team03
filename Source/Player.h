@@ -7,6 +7,7 @@
 #include <collider.h>
 #include "rigidbody.h"
 #include "System/Graphics.h"
+#include "k_lerp.h"
 
 class Player : public GameObject {
 public:
@@ -92,6 +93,20 @@ public:
         return camera_follow_enabled_;
     }
 
+    void EaseExam() {
+        auto* tween = TweenManager::Instance().AddTween<FloatTween>(
+            &this->position_.z,
+            0.0f,
+            5.0f,
+            2.5f,
+            EaseType::EaseInBounce
+        );
+
+        tween->SetOnComplete([this]() {
+            position_.y = 3.0f;
+            });
+    }
+
 private:
     void HandleInput(float elapsed_time) {
         DirectX::XMFLOAT3 moveDirection = { 0.0f, 0.0f, 0.0f };
@@ -157,7 +172,7 @@ private:
 
         // === à íuèÓïÒ ===
         if (ImGui::CollapsingHeader("Position", ImGuiTreeNodeFlags_DefaultOpen)) {
-            DirectX::XMFLOAT3 local_pos = GetLocalPosition();
+            DirectX::XMFLOAT3 local_pos = GetLocalPositionFloat3();
             ImGui::Text("Local Position:");
             ImGui::Indent();
             ImGui::Text("X: %.3f", local_pos.x);
@@ -165,7 +180,7 @@ private:
             ImGui::Text("Z: %.3f", local_pos.z);
             ImGui::Unindent();
 
-            DirectX::XMFLOAT3 world_pos = GetWorldPosition();
+            DirectX::XMFLOAT3 world_pos = GetWorldPositionFloat3();
             ImGui::Text("World Position:");
             ImGui::Indent();
             ImGui::Text("X: %.3f", world_pos.x);
@@ -206,7 +221,7 @@ private:
 
         // === ë¨ìxèÓïÒ ===
         if (ImGui::CollapsingHeader("Velocity", ImGuiTreeNodeFlags_DefaultOpen)) {
-            DirectX::XMFLOAT3 velocity = GetVelocity();
+            DirectX::XMFLOAT3 velocity = GetVelocityFloat3();
             ImGui::Text("Velocity:");
             ImGui::Indent();
             ImGui::Text("X: %.3f", velocity.x);
@@ -256,7 +271,7 @@ private:
             if (!children.empty() && ImGui::TreeNode("Children List")) {
                 for (size_t i = 0; i < children.size(); ++i) {
                     if (children[i]) {
-                        DirectX::XMFLOAT3 child_pos = children[i]->GetWorldPosition();
+                        DirectX::XMFLOAT3 child_pos = children[i]->GetWorldPositionFloat3();
                         ImGui::Text("[%zu] Pos(%.1f, %.1f, %.1f)",
                             i, child_pos.x, child_pos.y, child_pos.z);
                     }
@@ -382,7 +397,7 @@ private:
             }
             ImGui::Unindent();
 
-            DirectX::XMFLOAT4X4 world_transform = GetWorldTransform();
+            DirectX::XMFLOAT4X4 world_transform = GetWorldTransformFloat4X4();
             ImGui::Text("World Transform:");
             ImGui::Indent();
             for (int row = 0; row < 4; ++row) {
@@ -433,7 +448,7 @@ private:
             SetCursorPos(screenCenter.x, screenCenter.y);
         }
 
-        DirectX::XMFLOAT3 playerPos = GetWorldPosition();
+        DirectX::XMFLOAT3 playerPos = GetWorldPositionFloat3();
 
         camera_->eye.x = playerPos.x;
         camera_->eye.y = playerPos.y + camera_height_;
@@ -452,7 +467,7 @@ private:
         DirectX::XMFLOAT3 up(0.0f, 1.0f, 0.0f);
         camera_->SetLookAt(camera_->eye, camera_->focus, up);
 
-        ShowCursor(FALSE);
+        //ShowCursor(FALSE);
     }
 
     float move_speed_;

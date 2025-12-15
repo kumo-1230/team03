@@ -5,7 +5,7 @@
 void Rigidbody::ApplyGravity(float elapsed_time, const DirectX::XMFLOAT3& gravity) {
     if (!is_enabled_ || is_kinematic_ || !use_gravity_ || !owner_) return;
 
-    DirectX::XMFLOAT3 velocity = owner_->GetVelocity();
+    DirectX::XMFLOAT3 velocity = owner_->GetVelocityFloat3();
     velocity.x += gravity.x * elapsed_time;
     velocity.y += gravity.y * elapsed_time;
     velocity.z += gravity.z * elapsed_time;
@@ -15,7 +15,7 @@ void Rigidbody::ApplyGravity(float elapsed_time, const DirectX::XMFLOAT3& gravit
 void Rigidbody::ApplyDrag(float elapsed_time) {
     if (!is_enabled_ || is_kinematic_ || !owner_ || drag_ <= 0.0f) return;
 
-    DirectX::XMFLOAT3 velocity = owner_->GetVelocity();
+    DirectX::XMFLOAT3 velocity = owner_->GetVelocityFloat3();
     float drag_factor = 1.0f / (1.0f + drag_ * elapsed_time);
     velocity.x *= drag_factor;
     velocity.y *= drag_factor;
@@ -26,7 +26,7 @@ void Rigidbody::ApplyDrag(float elapsed_time) {
 void Rigidbody::ClampVelocity() {
     if (!owner_ || max_speed_ < 0.0f) return;
 
-    DirectX::XMFLOAT3 velocity = owner_->GetVelocity();
+    DirectX::XMFLOAT3 velocity = owner_->GetVelocityFloat3();
     DirectX::XMVECTOR velocity_vec = DirectX::XMLoadFloat3(&velocity);
     float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(velocity_vec));
 
@@ -59,10 +59,10 @@ void Rigidbody::ResolveCollision(const Collider* my_collider, const Collider* ot
     // 衝突判定と補正ベクトルを取得
     if (!my_collider->CheckRigidbodyCollision(other_collider, correction, other)) return;
 
-    DirectX::XMFLOAT3 my_velocity = owner_->GetVelocity();
+    DirectX::XMFLOAT3 my_velocity = owner_->GetVelocityFloat3();
 
     // 位置補正を適用
-    DirectX::XMFLOAT3 current_pos = owner_->GetWorldPosition();
+    DirectX::XMFLOAT3 current_pos = owner_->GetWorldPositionFloat3();
     owner_->SetWorldPosition(
         current_pos.x + correction.x,
         current_pos.y + correction.y,

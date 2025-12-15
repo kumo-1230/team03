@@ -124,20 +124,41 @@ public:
         elapsed_time_ += delta_time;
 
         if (elapsed_time_ >= duration_) {
-            if (loop_) {
-                if (yoyo_) {
-                    going_forward_ = !going_forward_;
+            elapsed_time_ = duration_;
+
+            if (yoyo_) {
+                if (going_forward_) {
+                    going_forward_ = false;
                     elapsed_time_ = 0.0f;
                 }
                 else {
-                    elapsed_time_ = 0.0f;
+                    if (on_complete_) {
+                        on_complete_();
+                    }
+
+                    if (loop_) {
+                        going_forward_ = true;
+                        elapsed_time_ = 0.0f;
+                    }
+                    else {
+                        is_complete_ = true;
+                    }
                 }
             }
             else {
-                elapsed_time_ = duration_;
-                is_complete_ = true;
+                if (on_complete_) {
+                    on_complete_();
+                }
+
+                if (loop_) {
+                    elapsed_time_ = 0.0f;
+                }
+                else {
+                    is_complete_ = true;
+                }
             }
         }
+
 
         float t = duration_ > 0.0f ? elapsed_time_ / duration_ : 1.0f;
         t = std::clamp(t, 0.0f, 1.0f);
@@ -149,9 +170,10 @@ public:
         float eased_t = Easing::Apply(ease_type_, t);
         ApplyTween(eased_t);
 
-        if (is_complete_ && on_complete_) {
-            on_complete_();
-        }
+        //if (is_complete_ && on_complete_) {
+        //    on_complete_();
+        //    on_complete_ = nullptr;
+        //}
     }
 
     virtual void ApplyTween(float t) = 0;

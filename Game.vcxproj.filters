@@ -309,13 +309,19 @@
     <ClInclude Include="Source\input_manager.h">
       <Filter>Source\KLib</Filter>
     </ClInclude>
-    <ClInclude Include="Source\k_lerp.h">
-      <Filter>Source\KLib\Lerp</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ui_event.h">
       <Filter>Source\KLib\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\k_cursor.h">
+      <Filter>Source\KLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\vault.h">
+      <Filter>Source\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\k_lerp.h">
+      <Filter>Source\KLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\imgui_logger.h">
       <Filter>Source\KLib</Filter>
     </ClInclude>
   </ItemGroup>

@@ -59,7 +59,7 @@ void Pose::Initialize() {
 }
 
 void Pose::Update(float elapsedTime) {
-    const auto& input = InputManager::Instance();
+    auto& input = InputManager::Instance();
 
     // ƒ|[ƒY‚ÌØ‚è‘Ö‚¦
     {

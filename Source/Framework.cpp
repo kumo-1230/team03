@@ -13,6 +13,8 @@
 #include "System/Audio.h"
 #include "KeyInput.h"
 #include <k_cursor.h>
+#include <input_manager.h>
+#include "imgui_logger.h"
 
 // 垂直同期間隔設定
 static const int syncInterval = 1;
@@ -86,10 +88,15 @@ Framework::~Framework()
 // 更新処理
 void Framework::Update(float elapsedTime)
 {
-	// インプット更新処理
-	Input::Instance().Update();
+	// トゥイーン更新処理 (lerpに必須なので絶対最初に更新)
+	TweenManager::Instance().Update(elapsedTime);
 
-	KeyInput::Instance().Update();
+	// インプット更新処理
+	//Input::Instance().Update();
+
+	//KeyInput::Instance().Update();
+
+	InputManager::Instance().Update();
 
 	// IMGUIフレーム開始処理	
 	ImGuiRenderer::NewFrame();
@@ -128,8 +135,13 @@ void Framework::Render(float elapsedTime)
 	// IMGUIデモウインドウ描画（IMGUI機能テスト用）
 	ImGui::ShowDemoWindow();
 #endif
+
+#ifdef _DEBUG
+	ImGuiLogger::Instance().Render();
 	// IMGUI描画
 	ImGuiRenderer::Render(dc);
+#endif
+
 
 	// 画面表示
 	Graphics::Instance().Present(syncInterval);

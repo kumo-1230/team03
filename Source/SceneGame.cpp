@@ -23,6 +23,7 @@
 #include <Player.h>
 #include <k_lerp.h>
 #include <input_manager.h>
+#include <vault.h>
 
 SceneGame::SceneGame()
 {
@@ -49,7 +50,7 @@ void SceneGame::Initialize()
 	// カメラ初期化
 	{
 		camera_ = std::make_unique<Camera>();
-		DirectX::XMFLOAT3 eye = player_->GetWorldPosition();
+		DirectX::XMFLOAT3 eye = player_->GetWorldPositionFloat3();
 		DirectX::XMFLOAT3 focus{};
 		focus.x = sinf(player_->GetAngle().y);
 		focus.z = cosf(player_->GetAngle().y);
@@ -68,12 +69,11 @@ void SceneGame::Initialize()
 
 	player_->SetCamera(camera_.get());
 
-	obj_ = world.CreateObject("Data/Model/mech_drone/mech_drone.glb");
+	obj_ = world.CreateObject<Vault>("Data/Model/mech_drone/mech_drone.glb");
 	obj_->SetPosition(0, 0, 1);
 
 	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 2 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f })
 		->SetParent(obj_);
-
 
 	//world.CreateObject("Data/Model/mech_drone/mech_drone.glb", {0, -1, 0});
 	//world.CreateObject()->SetModel("Data/Model/mech_drone/mech_drone.glb"); しても同じ
@@ -129,7 +129,7 @@ void SceneGame::Initialize()
 		OutputDebugStringA("Point light added\n");
 
 		OutputDebugStringA("Setting player spot light\n");
-		DirectX::XMFLOAT3 playerPos = player_->GetWorldPosition();
+		DirectX::XMFLOAT3 playerPos = player_->GetWorldPositionFloat3();
 		playerPos.y += 1.0f;
 		DirectX::XMFLOAT3 spotDirection = camera_->GetFront();
 
@@ -158,8 +158,7 @@ void SceneGame::Finalize()
 // 更新処理
 void SceneGame::Update(float elapsed_time)
 {
-	TweenManager::Instance().Update(elapsed_time);
-	InputManager::Instance().Update();
+
 
 	//obj_->SetPosition(0, MathUtils::RandomRangeFloat(0, 2.0f), 0);
 
@@ -192,7 +191,7 @@ void SceneGame::Update(float elapsed_time)
 
 	// 自機ライティング更新
 	{
-		DirectX::XMFLOAT3 playerPos = player_->GetWorldPosition();
+		DirectX::XMFLOAT3 playerPos = player_->GetWorldPositionFloat3();
 		playerPos.y += 1.0f;
 		//light_manager_.SetPlayerSpotLight(playerPos, player_->GetAngle(), 15.0f, {1.0f, 0.9f, 0.8f}, 50.0f);
 	}

@@ -5,7 +5,7 @@
 DirectX::XMFLOAT3 Collider::GetWorldCenter() const {
     if (!owner_) return offset_;
 
-    DirectX::XMMATRIX world_transform = owner_->GetWorldTransformM();
+    DirectX::XMMATRIX world_transform = owner_->GetWorldTransformMatrix();
     DirectX::XMVECTOR offset_vec = DirectX::XMLoadFloat3(&offset_);
     DirectX::XMVECTOR world_center = DirectX::XMVector3TransformCoord(offset_vec, world_transform);
 
@@ -30,7 +30,7 @@ std::vector<DirectX::XMFLOAT3> BoxCollider::GetWorldVertices() const {
         return vertices;
     }
 
-    DirectX::XMMATRIX world_transform = owner_->GetWorldTransformM();
+    DirectX::XMMATRIX world_transform = owner_->GetWorldTransformMatrix();
     DirectX::XMFLOAT3 half_size = { size_.x * 0.5f, size_.y * 0.5f, size_.z * 0.5f };
     DirectX::XMFLOAT3 local_vertices[8] = {
         {-half_size.x, -half_size.y, -half_size.z},
@@ -67,7 +67,7 @@ void CapsuleCollider::GetCapsuleSegment(DirectX::XMFLOAT3& start, DirectX::XMFLO
     }
 
     DirectX::XMVECTOR local_up = DirectX::XMVectorSet(0, half_height, 0, 0);
-    DirectX::XMMATRIX world_transform = owner_->GetWorldTransformM();
+    DirectX::XMMATRIX world_transform = owner_->GetWorldTransformMatrix();
     DirectX::XMVECTOR offset_vec = DirectX::XMLoadFloat3(&offset_);
     DirectX::XMVECTOR world_center = DirectX::XMVector3TransformCoord(offset_vec, world_transform);
     DirectX::XMVECTOR world_up = DirectX::XMVector3TransformNormal(local_up, world_transform);

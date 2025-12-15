@@ -255,7 +255,7 @@ public:
      * @brief ローカル座標を取得
      * @return ローカル座標
      */
-    const DirectX::XMFLOAT3& GetLocalPosition() const { return position_; }
+    const DirectX::XMFLOAT3& GetLocalPositionFloat3() const { return position_; }
 
     /**
      * @brief ワールド座標を設定
@@ -281,7 +281,7 @@ public:
      * @brief ワールド座標を取得
      * @return ワールド座標
      */
-    DirectX::XMFLOAT3 GetWorldPosition() const;
+    DirectX::XMFLOAT3 GetWorldPositionFloat3() const;
 
     /**
      * @brief 回転を設定（ラジアン）
@@ -439,19 +439,19 @@ public:
      * @brief 前方ベクトルを取得
      * @return 前方ベクトル（正規化済み）
      */
-    DirectX::XMVECTOR GetForward() const;
+    DirectX::XMVECTOR GetForwardVector() const;
 
     /**
      * @brief 右方向ベクトルを取得
      * @return 右方向ベクトル（正規化済み）
      */
-    DirectX::XMVECTOR GetRight() const;
+    DirectX::XMVECTOR GetRightVector() const;
 
     /**
      * @brief 上方向ベクトルを取得
      * @return 上方向ベクトル（正規化済み）
      */
-    DirectX::XMVECTOR GetUp() const;
+    DirectX::XMVECTOR GetUpVector() const;
 
     /**
      * @brief 前方ベクトルを取得（XMFLOAT3版）
@@ -499,7 +499,7 @@ public:
      * @brief 速度を取得
      * @return 速度
      */
-    const DirectX::XMFLOAT3& GetVelocity() const { return velocity_; }
+    const DirectX::XMFLOAT3& GetVelocityFloat3() const { return velocity_; }
 
     /**
      * @brief 速度を加算
@@ -606,13 +606,13 @@ public:
      * @brief ワールド変換行列を取得
      * @return ワールド変換行列
      */
-    DirectX::XMFLOAT4X4 GetWorldTransform() const;
+    DirectX::XMFLOAT4X4 GetWorldTransformFloat4X4() const;
 
     /**
      * @brief ワールド変換行列を取得（XMMATRIX版）
      * @return ワールド変換行列
      */
-    DirectX::XMMATRIX GetWorldTransformM() const;
+    DirectX::XMMATRIX GetWorldTransformMatrix() const;
 
     /**
      * @brief 変換行列を設定
@@ -751,6 +751,8 @@ public:
      * @return 自身と親が全てアクティブならtrue
      */
     bool IsActiveInHierarchy() const;
+
+    DirectX::XMVECTOR GetWorldPositionVector() const;
 
     /**
      * @brief オブジェクトを破棄

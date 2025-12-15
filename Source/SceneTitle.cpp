@@ -170,9 +170,6 @@ void SceneTitle::Finalize() {
 }
 
 void SceneTitle::Update(float elapsedTime) {
-    TweenManager::Instance().Update(elapsedTime);
-    InputManager::Instance().Update();
-
     backGroundMusic->Play(true);
     cameraController->Update(elapsedTime, camera.get(), 0, 0);
 

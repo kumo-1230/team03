@@ -7,21 +7,13 @@
 #include "System/Shader.h"
 
 GameObject::~GameObject() {
-    // コライダーの削除
     for (Collider* collider : colliders_) {
-        if (collider) {
-            delete collider;
-        }
+        delete collider;
     }
     colliders_.clear();
 
-    // リジッドボディの削除
-    if (rigidbody_) {
-        delete rigidbody_;
-        rigidbody_ = nullptr;
-    }
+    delete rigidbody_;
 
-    // 子オブジェクトの親参照をクリア
     for (GameObject* child : children_) {
         if (child) {
             child->parent_ = nullptr;
@@ -34,9 +26,11 @@ void GameObject::Update(float elapsed_time) {
 
     elapsed_time_ += elapsed_time;
 
-    position_.x += velocity_.x * elapsed_time;
-    position_.y += velocity_.y * elapsed_time;
-    position_.z += velocity_.z * elapsed_time;
+    DirectX::XMVECTOR pos_vec = DirectX::XMLoadFloat3(&position_);
+    DirectX::XMVECTOR vel_vec = DirectX::XMLoadFloat3(&velocity_);
+    DirectX::XMVECTOR scaled_vel = DirectX::XMVectorScale(vel_vec, elapsed_time);
+    pos_vec = DirectX::XMVectorAdd(pos_vec, scaled_vel);
+    DirectX::XMStoreFloat3(&position_, pos_vec);
 
     UpdateTransform();
 
@@ -59,11 +53,11 @@ void GameObject::Render(const RenderContext& rc, ModelRenderer* model_renderer) 
     }
 }
 
-void GameObject::SetParentTransformOnly(GameObject* parent, bool keep_world_position) {
+void GameObject::SetParentTransformOnly(GameObject* parent,
+    bool keep_world_position) {
     if (keep_world_position && parent) {
-        DirectX::XMFLOAT3 world_pos = GetWorldPosition();
-        DirectX::XMFLOAT3 world_rot = angle_;
-        DirectX::XMFLOAT3 world_scale = scale_;
+        // ワールド座標を保存
+        DirectX::XMVECTOR world_pos = GetWorldPositionVector();
 
         DetachFromParent();
 
@@ -71,10 +65,12 @@ void GameObject::SetParentTransformOnly(GameObject* parent, bool keep_world_posi
         hierarchy_type_ = HierarchyType::kTransformOnly;
         parent_->children_.push_back(this);
 
-        DirectX::XMMATRIX parent_world_inv = DirectX::XMMatrixInverse(nullptr, parent->GetWorldTransformM());
-        DirectX::XMVECTOR world_pos_v = DirectX::XMLoadFloat3(&world_pos);
-        DirectX::XMVECTOR local_pos_v = DirectX::XMVector3TransformCoord(world_pos_v, parent_world_inv);
-        DirectX::XMStoreFloat3(&position_, local_pos_v);
+        // ローカル座標に変換
+        DirectX::XMMATRIX parent_world_inv = DirectX::XMMatrixInverse(
+            nullptr, parent->GetWorldTransformMatrix());
+        DirectX::XMVECTOR local_pos = DirectX::XMVector3TransformCoord(
+            world_pos, parent_world_inv);
+        DirectX::XMStoreFloat3(&position_, local_pos);
     }
     else {
         DetachFromParent();
@@ -92,9 +88,8 @@ void GameObject::SetParentTransformOnly(GameObject* parent, bool keep_world_posi
 
 void GameObject::SetParent(GameObject* parent, bool keep_world_position) {
     if (keep_world_position && parent) {
-        DirectX::XMFLOAT3 world_pos = GetWorldPosition();
-        DirectX::XMFLOAT3 world_rot = angle_;
-        DirectX::XMFLOAT3 world_scale = scale_;
+        // ワールド座標を保存
+        DirectX::XMVECTOR world_pos = GetWorldPositionVector();
 
         DetachFromParent();
 
@@ -102,10 +97,12 @@ void GameObject::SetParent(GameObject* parent, bool keep_world_position) {
         hierarchy_type_ = HierarchyType::kFull;
         parent_->children_.push_back(this);
 
-        DirectX::XMMATRIX parent_world_inv = DirectX::XMMatrixInverse(nullptr, parent->GetWorldTransformM());
-        DirectX::XMVECTOR world_pos_v = DirectX::XMLoadFloat3(&world_pos);
-        DirectX::XMVECTOR local_pos_v = DirectX::XMVector3TransformCoord(world_pos_v, parent_world_inv);
-        DirectX::XMStoreFloat3(&position_, local_pos_v);
+        // ローカル座標に変換
+        DirectX::XMMATRIX parent_world_inv = DirectX::XMMatrixInverse(
+            nullptr, parent->GetWorldTransformMatrix());
+        DirectX::XMVECTOR local_pos = DirectX::XMVector3TransformCoord(
+            world_pos, parent_world_inv);
+        DirectX::XMStoreFloat3(&position_, local_pos);
     }
     else {
         DetachFromParent();
@@ -142,24 +139,28 @@ bool GameObject::IsActiveInHierarchy() const {
     return true;
 }
 
-DirectX::XMFLOAT3 GameObject::GetWorldPosition() const {
+DirectX::XMVECTOR GameObject::GetWorldPositionVector() const {
+    DirectX::XMMATRIX world = GetWorldTransformMatrix();
+    return world.r[3];
+}
+
+DirectX::XMFLOAT3 GameObject::GetWorldPositionFloat3() const {
     DirectX::XMFLOAT3 world_pos;
-    DirectX::XMMATRIX world = GetWorldTransformM();
-    DirectX::XMStoreFloat3(&world_pos, world.r[3]);
+    DirectX::XMStoreFloat3(&world_pos, GetWorldPositionVector());
     return world_pos;
 }
 
-DirectX::XMFLOAT4X4 GameObject::GetWorldTransform() const {
+DirectX::XMFLOAT4X4 GameObject::GetWorldTransformFloat4X4() const {
     DirectX::XMFLOAT4X4 world_transform;
-    DirectX::XMStoreFloat4x4(&world_transform, GetWorldTransformM());
+    DirectX::XMStoreFloat4x4(&world_transform, GetWorldTransformMatrix());
     return world_transform;
 }
 
-DirectX::XMMATRIX GameObject::GetWorldTransformM() const {
+DirectX::XMMATRIX GameObject::GetWorldTransformMatrix() const {
     DirectX::XMMATRIX local_transform = DirectX::XMLoadFloat4x4(&transform_);
 
     if (parent_ && hierarchy_type_ != HierarchyType::kNone) {
-        DirectX::XMMATRIX parent_world = parent_->GetWorldTransformM();
+        DirectX::XMMATRIX parent_world = parent_->GetWorldTransformMatrix();
         return local_transform * parent_world;
     }
 
@@ -182,26 +183,25 @@ void GameObject::SetLocalPosition(DirectX::FXMVECTOR v) {
 }
 
 void GameObject::SetWorldPosition(const DirectX::XMFLOAT3& world_pos) {
-    if (parent_ && hierarchy_type_ != HierarchyType::kNone) {
-        DirectX::XMMATRIX parent_world_inv = DirectX::XMMatrixInverse(nullptr, parent_->GetWorldTransformM());
-        DirectX::XMVECTOR world_pos_v = DirectX::XMLoadFloat3(&world_pos);
-        DirectX::XMVECTOR local_pos_v = DirectX::XMVector3TransformCoord(world_pos_v, parent_world_inv);
-        DirectX::XMStoreFloat3(&position_, local_pos_v);
-    }
-    else {
-        position_ = world_pos;
-    }
-    UpdateTransform();
+    SetWorldPosition(DirectX::XMLoadFloat3(&world_pos));
 }
 
 void GameObject::SetWorldPosition(float x, float y, float z) {
-    SetWorldPosition(DirectX::XMFLOAT3(x, y, z));
+    SetWorldPosition(DirectX::XMVectorSet(x, y, z, 1.0f));
 }
 
 void GameObject::SetWorldPosition(DirectX::FXMVECTOR v) {
-    DirectX::XMFLOAT3 pos;
-    DirectX::XMStoreFloat3(&pos, v);
-    SetWorldPosition(pos);
+    if (parent_ && hierarchy_type_ != HierarchyType::kNone) {
+        DirectX::XMMATRIX parent_world_inv = DirectX::XMMatrixInverse(
+            nullptr, parent_->GetWorldTransformMatrix());
+        DirectX::XMVECTOR local_pos = DirectX::XMVector3TransformCoord(
+            v, parent_world_inv);
+        DirectX::XMStoreFloat3(&position_, local_pos);
+    }
+    else {
+        DirectX::XMStoreFloat3(&position_, v);
+    }
+    UpdateTransform();
 }
 
 void GameObject::SetAngle(DirectX::FXMVECTOR v) {
@@ -215,10 +215,7 @@ void GameObject::SetAngle(const DirectX::XMFLOAT3& angle) {
 }
 
 void GameObject::SetAngle(float x, float y, float z) {
-    angle_.x = x;
-    angle_.y = y;
-    angle_.z = z;
-
+    angle_ = { x, y, z };
     UpdateTransform();
 }
 
@@ -253,15 +250,11 @@ void GameObject::SetVelocity(DirectX::FXMVECTOR v) {
 }
 
 void GameObject::AddVelocity(const DirectX::XMFLOAT3& vel) {
-    velocity_.x += vel.x;
-    velocity_.y += vel.y;
-    velocity_.z += vel.z;
+    AddVelocity(DirectX::XMLoadFloat3(&vel));
 }
 
 void GameObject::AddVelocity(float x, float y, float z) {
-    velocity_.x += x;
-    velocity_.y += y;
-    velocity_.z += z;
+    AddVelocity(DirectX::XMVectorSet(x, y, z, 0.0f));
 }
 
 void GameObject::AddVelocity(DirectX::FXMVECTOR v) {
@@ -290,17 +283,13 @@ void GameObject::RemoveCollider(Collider* collider) {
 
 void GameObject::RemoveAllColliders() {
     for (Collider* collider : colliders_) {
-        if (collider) {
-            delete collider;
-        }
+        delete collider;
     }
     colliders_.clear();
 }
 
 void GameObject::SetRigidbody(Rigidbody* rigidbody) {
-    if (rigidbody_) {
-        delete rigidbody_;
-    }
+    delete rigidbody_;
     rigidbody_ = rigidbody;
     if (rigidbody_) {
         rigidbody_->SetOwner(this);
@@ -308,9 +297,7 @@ void GameObject::SetRigidbody(Rigidbody* rigidbody) {
 }
 
 Rigidbody* GameObject::AddRigidbody() {
-    if (rigidbody_) {
-        delete rigidbody_;
-    }
+    delete rigidbody_;
 
     rigidbody_ = new Rigidbody();
     rigidbody_->SetOwner(this);
@@ -319,10 +306,8 @@ Rigidbody* GameObject::AddRigidbody() {
 }
 
 void GameObject::RemoveRigidbody() {
-    if (rigidbody_) {
-        delete rigidbody_;
-        rigidbody_ = nullptr;
-    }
+    delete rigidbody_;
+    rigidbody_ = nullptr;
 }
 
 void GameObject::Destroy() {
@@ -341,57 +326,45 @@ void GameObject::Destroy() {
     }
 }
 
-DirectX::XMVECTOR GameObject::GetForward() const {
-    DirectX::XMMATRIX m = GetWorldTransformM();
-    return DirectX::XMVector3Normalize(m.r[2]);
+DirectX::XMVECTOR GameObject::GetForwardVector() const {
+    DirectX::XMMATRIX world_matrix = GetWorldTransformMatrix();
+    return DirectX::XMVector3Normalize(world_matrix.r[2]);
 }
 
-DirectX::XMVECTOR GameObject::GetRight() const {
-    DirectX::XMMATRIX m = GetWorldTransformM();
-    return DirectX::XMVector3Normalize(m.r[0]);
+DirectX::XMVECTOR GameObject::GetRightVector() const {
+    DirectX::XMMATRIX world_matrix = GetWorldTransformMatrix();
+    return DirectX::XMVector3Normalize(world_matrix.r[0]);
 }
 
-DirectX::XMVECTOR GameObject::GetUp() const {
-    DirectX::XMMATRIX m = GetWorldTransformM();
-    return DirectX::XMVector3Normalize(m.r[1]);
+DirectX::XMVECTOR GameObject::GetUpVector() const {
+    DirectX::XMMATRIX world_matrix = GetWorldTransformMatrix();
+    return DirectX::XMVector3Normalize(world_matrix.r[1]);
 }
 
 DirectX::XMFLOAT3 GameObject::GetForwardFloat3() const {
-    DirectX::XMMATRIX m = GetWorldTransformM();
-    DirectX::XMVECTOR v = DirectX::XMVector3Normalize(m.r[2]);
-    DirectX::XMFLOAT3 out;
-    DirectX::XMStoreFloat3(&out, v);
-    return out;
+    DirectX::XMFLOAT3 result;
+    DirectX::XMStoreFloat3(&result, GetForwardVector());
+    return result;
 }
 
 DirectX::XMFLOAT3 GameObject::GetRightFloat3() const {
-    DirectX::XMMATRIX m = GetWorldTransformM();
-    DirectX::XMVECTOR v = DirectX::XMVector3Normalize(m.r[0]);
-    DirectX::XMFLOAT3 out;
-    DirectX::XMStoreFloat3(&out, v);
-    return out;
+    DirectX::XMFLOAT3 result;
+    DirectX::XMStoreFloat3(&result, GetRightVector());
+    return result;
 }
 
 DirectX::XMFLOAT3 GameObject::GetUpFloat3() const {
-    DirectX::XMMATRIX m = GetWorldTransformM();
-    DirectX::XMVECTOR v = DirectX::XMVector3Normalize(m.r[1]);
-    DirectX::XMFLOAT3 out;
-    DirectX::XMStoreFloat3(&out, v);
-    return out;
+    DirectX::XMFLOAT3 result;
+    DirectX::XMStoreFloat3(&result, GetUpVector());
+    return result;
 }
 
 void GameObject::Move(const DirectX::XMFLOAT3& offset) {
-    position_.x += offset.x;
-    position_.y += offset.y;
-    position_.z += offset.z;
-    UpdateTransform();
+    Move(DirectX::XMLoadFloat3(&offset));
 }
 
 void GameObject::Move(float x, float y, float z) {
-    position_.x += x;
-    position_.y += y;
-    position_.z += z;
-    UpdateTransform();
+    Move(DirectX::XMVectorSet(x, y, z, 0.0f));
 }
 
 void GameObject::Move(DirectX::FXMVECTOR v) {
@@ -402,48 +375,48 @@ void GameObject::Move(DirectX::FXMVECTOR v) {
 }
 
 void GameObject::MoveForward(float distance) {
-    DirectX::XMVECTOR forward = GetForward();
+    DirectX::XMVECTOR forward = GetForwardVector();
     DirectX::XMVECTOR offset = DirectX::XMVectorScale(forward, distance);
     Move(offset);
 }
 
 void GameObject::MoveRight(float distance) {
-    DirectX::XMVECTOR right = GetRight();
+    DirectX::XMVECTOR right = GetRightVector();
     DirectX::XMVECTOR offset = DirectX::XMVectorScale(right, distance);
     Move(offset);
 }
 
 void GameObject::MoveUp(float distance) {
-    DirectX::XMVECTOR up = GetUp();
+    DirectX::XMVECTOR up = GetUpVector();
     DirectX::XMVECTOR offset = DirectX::XMVectorScale(up, distance);
     Move(offset);
 }
 
 void GameObject::Rotate(const DirectX::XMFLOAT3& delta) {
-    angle_.x += delta.x;
-    angle_.y += delta.y;
-    angle_.z += delta.z;
+    DirectX::XMVECTOR current = DirectX::XMLoadFloat3(&angle_);
+    DirectX::XMVECTOR delta_vec = DirectX::XMLoadFloat3(&delta);
+    DirectX::XMVECTOR result = DirectX::XMVectorAdd(current, delta_vec);
+    DirectX::XMStoreFloat3(&angle_, result);
     UpdateTransform();
 }
 
 void GameObject::Rotate(float x, float y, float z) {
-    angle_.x += x;
-    angle_.y += y;
-    angle_.z += z;
-    UpdateTransform();
+    Rotate(DirectX::XMFLOAT3(x, y, z));
 }
 
 void GameObject::RotateDegree(float x, float y, float z) {
-    angle_.x += DirectX::XMConvertToRadians(x);
-    angle_.y += DirectX::XMConvertToRadians(y);
-    angle_.z += DirectX::XMConvertToRadians(z);
-    UpdateTransform();
+    Rotate(DirectX::XMConvertToRadians(x)
+        , DirectX::XMConvertToRadians(y)
+        , DirectX::XMConvertToRadians(z));
 }
 
 void GameObject::LookAt(const DirectX::XMFLOAT3& target) {
+    LookAt(DirectX::XMLoadFloat3(&target));
+}
+
+void GameObject::LookAt(DirectX::FXMVECTOR target) {
     DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(&position_);
-    DirectX::XMVECTOR tar = DirectX::XMLoadFloat3(&target);
-    DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(tar, pos);
+    DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(target, pos);
 
     float x = DirectX::XMVectorGetX(dir);
     float z = DirectX::XMVectorGetZ(dir);
@@ -451,57 +424,49 @@ void GameObject::LookAt(const DirectX::XMFLOAT3& target) {
     UpdateTransform();
 }
 
-void GameObject::LookAt(DirectX::FXMVECTOR target) {
-    DirectX::XMFLOAT3 t;
-    DirectX::XMStoreFloat3(&t, target);
-    LookAt(t);
-}
-
 float GameObject::GetDistanceTo(const GameObject* other) const {
     if (!other) return 0.0f;
-    DirectX::XMFLOAT3 world_pos1 = GetWorldPosition();
-    DirectX::XMFLOAT3 world_pos2 = other->GetWorldPosition();
-    DirectX::XMVECTOR p1 = DirectX::XMLoadFloat3(&world_pos1);
-    DirectX::XMVECTOR p2 = DirectX::XMLoadFloat3(&world_pos2);
-    DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(p2, p1);
+
+    DirectX::XMVECTOR pos1 = GetWorldPositionVector();
+    DirectX::XMVECTOR pos2 = other->GetWorldPositionVector();
+    DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(pos2, pos1);
     DirectX::XMVECTOR length = DirectX::XMVector3Length(diff);
     return DirectX::XMVectorGetX(length);
 }
 
 float GameObject::GetDistanceTo(const DirectX::XMFLOAT3& point) const {
-    DirectX::XMFLOAT3 world_pos = GetWorldPosition();
-    DirectX::XMVECTOR p1 = DirectX::XMLoadFloat3(&world_pos);
-    DirectX::XMVECTOR p2 = DirectX::XMLoadFloat3(&point);
-    DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(p2, p1);
+    DirectX::XMVECTOR pos1 = GetWorldPositionVector();
+    DirectX::XMVECTOR pos2 = DirectX::XMLoadFloat3(&point);
+    DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(pos2, pos1);
     DirectX::XMVECTOR length = DirectX::XMVector3Length(diff);
     return DirectX::XMVectorGetX(length);
 }
 
 float GameObject::GetDistanceSquaredTo(const GameObject* other) const {
     if (!other) return 0.0f;
-    DirectX::XMFLOAT3 world_pos1 = GetWorldPosition();
-    DirectX::XMFLOAT3 world_pos2 = other->GetWorldPosition();
-    float dx = world_pos2.x - world_pos1.x;
-    float dy = world_pos2.y - world_pos1.y;
-    float dz = world_pos2.z - world_pos1.z;
-    return dx * dx + dy * dy + dz * dz;
+
+    // SIMD最適化: XMVector3LengthSqを使用
+    DirectX::XMVECTOR pos1 = GetWorldPositionVector();
+    DirectX::XMVECTOR pos2 = other->GetWorldPositionVector();
+    DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(pos2, pos1);
+    DirectX::XMVECTOR length_sq = DirectX::XMVector3LengthSq(diff);
+    return DirectX::XMVectorGetX(length_sq);
 }
 
 DirectX::XMVECTOR GameObject::GetDirectionTo(const GameObject* other) const {
     if (!other) return DirectX::XMVectorZero();
-    DirectX::XMFLOAT3 world_pos1 = GetWorldPosition();
-    DirectX::XMFLOAT3 world_pos2 = other->GetWorldPosition();
-    DirectX::XMVECTOR p1 = DirectX::XMLoadFloat3(&world_pos1);
-    DirectX::XMVECTOR p2 = DirectX::XMLoadFloat3(&world_pos2);
-    DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(p2, p1);
+
+    DirectX::XMVECTOR pos1 = GetWorldPositionVector();
+    DirectX::XMVECTOR pos2 = other->GetWorldPositionVector();
+    DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(pos2, pos1);
     return DirectX::XMVector3Normalize(dir);
 }
 
-DirectX::XMVECTOR GameObject::GetDirectionTo(const DirectX::XMFLOAT3& point) const {
-    DirectX::XMFLOAT3 world_pos = GetWorldPosition();
-    DirectX::XMVECTOR p1 = DirectX::XMLoadFloat3(&world_pos);
-    DirectX::XMVECTOR p2 = DirectX::XMLoadFloat3(&point);
-    DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(p2, p1);
+DirectX::XMVECTOR GameObject::GetDirectionTo(
+    const DirectX::XMFLOAT3& point) const {
+    DirectX::XMVECTOR pos1 = GetWorldPositionVector();
+    DirectX::XMVECTOR pos2 = DirectX::XMLoadFloat3(&point);
+    DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(pos2, pos1);
     return DirectX::XMVector3Normalize(dir);
 }
 
@@ -513,7 +478,7 @@ bool GameObject::IsInRange(const GameObject* other, float range) const {
 void GameObject::SetTransform(const DirectX::XMFLOAT4X4& transform) {
     transform_ = transform;
     if (model_) {
-        DirectX::XMFLOAT4X4 world_transform = GetWorldTransform();
+        DirectX::XMFLOAT4X4 world_transform = GetWorldTransformFloat4X4();
         model_->UpdateTransform(world_transform);
     }
 }
@@ -531,27 +496,31 @@ void GameObject::StopMovement() {
 }
 
 float GameObject::GetSpeed() const {
-    DirectX::XMVECTOR v = DirectX::XMLoadFloat3(&velocity_);
-    DirectX::XMVECTOR length = DirectX::XMVector3Length(v);
+    DirectX::XMVECTOR vel = DirectX::XMLoadFloat3(&velocity_);
+    DirectX::XMVECTOR length = DirectX::XMVector3Length(vel);
     return DirectX::XMVectorGetX(length);
 }
 
 void GameObject::SetSpeed(float speed) {
-    DirectX::XMVECTOR v = DirectX::XMLoadFloat3(&velocity_);
-    DirectX::XMVECTOR normalized = DirectX::XMVector3Normalize(v);
+    DirectX::XMVECTOR vel = DirectX::XMLoadFloat3(&velocity_);
+    DirectX::XMVECTOR normalized = DirectX::XMVector3Normalize(vel);
     DirectX::XMVECTOR result = DirectX::XMVectorScale(normalized, speed);
     DirectX::XMStoreFloat3(&velocity_, result);
 }
 
 void GameObject::UpdateTransform() {
-    DirectX::XMMATRIX S = DirectX::XMMatrixScaling(scale_.x, scale_.y, scale_.z);
-    DirectX::XMMATRIX R = DirectX::XMMatrixRotationRollPitchYaw(angle_.x, angle_.y, angle_.z);
-    DirectX::XMMATRIX T = DirectX::XMMatrixTranslation(position_.x, position_.y, position_.z);
-    DirectX::XMMATRIX W = S * R * T;
-    DirectX::XMStoreFloat4x4(&transform_, W);
+    DirectX::XMMATRIX scale_matrix = DirectX::XMMatrixScaling(
+        scale_.x, scale_.y, scale_.z);
+    DirectX::XMMATRIX rotation_matrix = DirectX::XMMatrixRotationRollPitchYaw(
+        angle_.x, angle_.y, angle_.z);
+    DirectX::XMMATRIX translation_matrix = DirectX::XMMatrixTranslation(
+        position_.x, position_.y, position_.z);
+    DirectX::XMMATRIX world_matrix = scale_matrix * rotation_matrix *
+        translation_matrix;
+    DirectX::XMStoreFloat4x4(&transform_, world_matrix);
 
     if (model_) {
-        DirectX::XMFLOAT4X4 world_transform = GetWorldTransform();
+        DirectX::XMFLOAT4X4 world_transform = GetWorldTransformFloat4X4();
         model_->UpdateTransform(world_transform);
     }
 

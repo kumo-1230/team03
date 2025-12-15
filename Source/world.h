@@ -20,7 +20,7 @@ public:
     template<typename T, typename... Args>
     T* CreateObject(Args&&... args) {
         static_assert(std::is_base_of<GameObject, T>::value,
-            "基底クラスがGameObjectであるオブジェクトを<>で指定してください");
+            "基底クラスがGameObjectであるクラスを<>で指定してください");
         auto obj = std::make_unique<T>(std::forward<Args>(args)...);
         T* ptr = obj.get();
         game_objects_.emplace_back(std::move(obj));
@@ -254,7 +254,7 @@ private:
             // 衝突があった場合、累積した補正と速度反射を適用
             if (has_any_collision) {
                 // 位置補正（累積した補正ベクトルを一度に適用）
-                DirectX::XMFLOAT3 current_pos = obj_a->GetWorldPosition();
+                DirectX::XMFLOAT3 current_pos = obj_a->GetWorldPositionFloat3();
                 obj_a->SetWorldPosition(
                     current_pos.x + total_correction.x,
                     current_pos.y + total_correction.y,
@@ -276,7 +276,7 @@ private:
                         DirectX::XMStoreFloat3(&average_normal, avg_normal_vec);
 
                         // 速度反射処理
-                        DirectX::XMFLOAT3 velocity = obj_a->GetVelocity();
+                        DirectX::XMFLOAT3 velocity = obj_a->GetVelocityFloat3();
 
                         // 法線方向の速度成分を計算
                         float dot = velocity.x * average_normal.x +
