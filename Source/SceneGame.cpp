@@ -21,6 +21,8 @@
 #include <world.h>
 #include <System/ResourceManager.h>
 #include <Player.h>
+#include <k_lerp.h>
+#include <input_manager.h>
 
 SceneGame::SceneGame()
 {
@@ -144,7 +146,6 @@ void SceneGame::Initialize()
 // 終了化
 void SceneGame::Finalize()
 {
-	//player_->Finalize();
 	bgm_->Stop();
 
 	EffectManager::Instance().Initialize();
@@ -155,8 +156,11 @@ void SceneGame::Finalize()
 }
 
 // 更新処理
-void SceneGame::Update(float elapsedTime)
+void SceneGame::Update(float elapsed_time)
 {
+	TweenManager::Instance().Update(elapsed_time);
+	InputManager::Instance().Update();
+
 	//obj_->SetPosition(0, MathUtils::RandomRangeFloat(0, 2.0f), 0);
 
 	if (game_limit_ < 0)
@@ -167,12 +171,12 @@ void SceneGame::Update(float elapsedTime)
 		}
 		return;
 	}
-	Pose::Instance().Update(elapsedTime);
+	Pose::Instance().Update(elapsed_time);
 
-	if (Pose::Instance().GetPose())
+	if (Pose::Instance().IsOnPose())
 	{
 		bgm_->SetVolume(0.05f);
-		Cursor::Instance().Update(elapsedTime);
+		Cursor::Instance().Update(elapsed_time);
 		return;
 	}
 	else
@@ -180,7 +184,7 @@ void SceneGame::Update(float elapsedTime)
 		bgm_->SetVolume(0.4f);
 	}
 
-	World::Instance().Update(elapsedTime);
+	World::Instance().Update(elapsed_time);
 
 	GamePad& gamePad = Input::Instance().GetGamePad();
 
@@ -190,7 +194,7 @@ void SceneGame::Update(float elapsedTime)
 	{
 		DirectX::XMFLOAT3 playerPos = player_->GetWorldPosition();
 		playerPos.y += 1.0f;
-		light_manager_.SetPlayerLight(playerPos, 15.0f, { 1.0f, 0.9f, 0.8f }, 5.0f);
+		//light_manager_.SetPlayerSpotLight(playerPos, player_->GetAngle(), 15.0f, {1.0f, 0.9f, 0.8f}, 50.0f);
 	}
 
 
@@ -200,14 +204,14 @@ void SceneGame::Update(float elapsedTime)
 			if (KeyInput::Instance().GetKeyHold(VK_LBUTTON))
 			{
 
-				game_limit_ -= 1 * elapsedTime * 0.2f;
+				game_limit_ -= 1 * elapsed_time * 0.2f;
 			}
 			else
-				game_limit_ -= 1 * elapsedTime;
+				game_limit_ -= 1 * elapsed_time;
 
 		}
 
-		EffectManager::Instance().Update(elapsedTime);
+		EffectManager::Instance().Update(elapsed_time);
 	}
 
 }
@@ -293,6 +297,7 @@ void SceneGame::Render()
 
 	// 2Dスプライト描画
 	{
+		Pose::Instance().Render(dc);
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
 

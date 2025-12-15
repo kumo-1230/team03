@@ -1,5 +1,6 @@
 #include "ui_element.h"
-#include <render_layer.h>
+#include <System/Sprite.h>
+#include <System/graphics.h>
 
 UiElement::UiElement(const char* file_name, DirectX::XMFLOAT2 position,
     DirectX::XMFLOAT2 size, DirectX::XMFLOAT2 sprite_position,
@@ -8,59 +9,97 @@ UiElement::UiElement(const char* file_name, DirectX::XMFLOAT2 position,
     size_(size),
     sprite_position_(sprite_position),
     sprite_size_(sprite_size),
-    layer_(layer) {
-    if (!file_name || file_name[0] == '\0') {
-        is_valid_ = false;
-    }
-    else {
-        is_valid_ = is_valid;
-    }
-
+    render_layer_(layer),
+    is_valid_(is_valid&& file_name&& file_name[0] != '\0') {
     if (is_valid_) {
         sprite_ = std::make_unique<Sprite>(Graphics::Instance().GetDevice(), file_name);
-    }
-    else {
-        int a = 3;
     }
 }
 
 void UiElement::Render(ID3D11DeviceContext* dc) {
-    if (render_mode_ == UiRenderMode::kInvisible || !is_valid_) {
+    if (!is_valid_) {
         return;
     }
 
-    DirectX::XMFLOAT4 final_color = color_;
-    final_color.w = CalculateAlpha();
+    const float final_alpha = CalculateAlpha();
+    if (final_alpha <= 0.0f) {
+        return;
+    }
 
     sprite_->Render(dc,
-        position_.x + size_offset_,
-        position_.y + size_offset_,
+        position_.x + size_offset_.x,
+        position_.y + size_offset_.y,
         0.0f,
-        size_.x + size_offset_,
-        size_.y + size_offset_,
+        size_.x + size_offset_.x,
+        size_.y + size_offset_.y,
         sprite_position_.x,
         sprite_position_.y,
         sprite_size_.x,
         sprite_size_.y,
         0.0f,
-        final_color.x,
-        final_color.y,
-        final_color.z,
-        final_color.w);
+        color_.x,
+        color_.y,
+        color_.z,
+        final_alpha);
+}
+
+void UiElement::SetSprite(const char* file_name) {
+    if (!file_name || file_name[0] == '\0') {
+        is_valid_ = false;
+        sprite_ = nullptr;
+        return;
+    }
+    sprite_ = std::make_unique<Sprite>(Graphics::Instance().GetDevice(), file_name);
+    is_valid_ = true;
+}
+
+Sprite* UiElement::GetSprite() const {
+    return sprite_.get();
+}
+
+void UiElement::StartAlphaTransition(float target_alpha, float duration, EaseType ease) {
+    if (alpha_tween_) {
+        alpha_tween_->Stop();
+    }
+    alpha_tween_ = TweenManager::Instance().AddTween<FloatTween>(
+        &current_alpha_,
+        current_alpha_,
+        target_alpha,
+        duration,
+        ease
+    );
+}
+
+void UiElement::StartAlphaMultiplierTransition(float target_multiplier,
+    float duration, EaseType ease) {
+    if (multiplier_tween_) {
+        multiplier_tween_->Stop();
+    }
+    multiplier_tween_ = TweenManager::Instance().AddTween<FloatTween>(
+        &alpha_multiplier_,
+        alpha_multiplier_,
+        target_multiplier,
+        duration,
+        ease
+    );
+}
+
+void UiElement::SetAlphaImmediate(float alpha) {
+    current_alpha_ = alpha;
+    if (alpha_tween_) {
+        alpha_tween_->Stop();
+        alpha_tween_ = nullptr;
+    }
+}
+
+void UiElement::SetAlphaMultiplier(float multiplier) {
+    alpha_multiplier_ = multiplier;
+    if (multiplier_tween_) {
+        multiplier_tween_->Stop();
+        multiplier_tween_ = nullptr;
+    }
 }
 
 float UiElement::CalculateAlpha() const {
-    if (!enable_alpha_transition_) {
-        switch (render_mode_) {
-        case UiRenderMode::kNormal:
-            return 1.0f;
-        case UiRenderMode::kHalfTransparent:
-            return 0.5f;
-        case UiRenderMode::kInvisible:
-            return 0.0f;
-        default:
-            return 1.0f;
-        }
-    }
-    return Lerp(base_alpha_, target_alpha_, alpha_progress_);
+    return current_alpha_ * alpha_multiplier_ * color_.w;
 }

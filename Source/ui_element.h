@@ -1,78 +1,52 @@
-#pragma once
-#include "System/Graphics.h"
-#include <memory>
-#include <DirectXMath.h>
-#include <System/Sprite.h>
-#include "render_layer.h"
-#include <d3d11_1.h>
+#ifndef UI_ELEMENT_H_
+#define UI_ELEMENT_H_
 
-enum class UiRenderMode {
-    kNormal,           // í èÌï\é¶
-    kHalfTransparent,  // îºìßñæ
-    kInvisible         // îÒï\é¶
-};
+#include <DirectXMath.h>
+#include <memory>
+#include <k_lerp.h>
+#include "render_layer.h"
+
+class Sprite;
+struct ID3D11DeviceContext;
 
 class UiElement {
 public:
-    UiElement(const char* file_name,
-        DirectX::XMFLOAT2 position,
-        DirectX::XMFLOAT2 size,
-        DirectX::XMFLOAT2 sprite_position,
-        DirectX::XMFLOAT2 sprite_size,
-        int layer,
+    UiElement(const char* file_name = "", DirectX::XMFLOAT2 position = { 0, 0 },
+        DirectX::XMFLOAT2 size = { 0, 0 }, DirectX::XMFLOAT2 sprite_position = { 0, 0 },
+        DirectX::XMFLOAT2 sprite_size = { 0, 0 }, int layer = RenderLayer::kDefault,
         bool is_valid = true);
-
     virtual ~UiElement() = default;
 
     virtual void Render(ID3D11DeviceContext* dc);
+    void SetSprite(const char* file_name);
+    Sprite* GetSprite() const;
 
-    DirectX::XMFLOAT2 GetPosition() const { return position_; }
-    DirectX::XMFLOAT2 GetSize() const { return size_; }
-    DirectX::XMFLOAT2 GetSpritePosition() const { return sprite_position_; }
-    DirectX::XMFLOAT2 GetSpriteSize() const { return sprite_size_; }
-    int GetRenderLayer() const { return layer_; }
-    bool IsValid() const { return is_valid_; }
-    DirectX::XMFLOAT4 GetColor() const { return color_; }
-    UiRenderMode GetRenderMode() const { return render_mode_; }
+    void StartAlphaTransition(float target_alpha, float duration,
+        EaseType ease = EaseType::EaseOutQuad);
+    void StartAlphaMultiplierTransition(float target_multiplier, float duration,
+        EaseType ease = EaseType::EaseOutQuad);
+    void SetAlphaImmediate(float alpha);
+    void SetAlphaMultiplier(float multiplier);
 
-    virtual void SetPosition(const DirectX::XMFLOAT2& position) {
-        position_ = position;
-    }
-    virtual void SetSize(const DirectX::XMFLOAT2& size) {
-        size_ = size;
-    }
-    virtual void SetSpritePosition(const DirectX::XMFLOAT2& sprite_position) {
+    virtual void SetPosition(const DirectX::XMFLOAT2& position) { position_ = position; }
+    void SetSize(const DirectX::XMFLOAT2& size) { size_ = size; }
+    void SetColor(const DirectX::XMFLOAT4& color) { color_ = color; }
+    void SetValid(bool is_valid) { is_valid_ = is_valid; }
+    void SetRenderLayer(int render_layer) { render_layer_ = render_layer; }
+    void SetSpritePosition(const DirectX::XMFLOAT2& sprite_position) {
         sprite_position_ = sprite_position;
-    }
-    virtual void SetSpriteSize(const DirectX::XMFLOAT2& sprite_size) {
+	}
+    void SetSpriteSize(const DirectX::XMFLOAT2& sprite_size) {
         sprite_size_ = sprite_size;
     }
-    virtual void SetValid(bool is_valid) {
-        is_valid_ = is_valid;
-    }
-    virtual void SetColor(const DirectX::XMFLOAT4& color) {
-        color_ = color;
-    }
-    virtual void SetRenderMode(UiRenderMode mode) {
-        render_mode_ = mode;
-    }
 
-    void SetAlphaTransition(bool enable) {
-        enable_alpha_transition_ = enable;
-    }
-    void SetTargetAlpha(float target_alpha) {
-        target_alpha_ = target_alpha;
-    }
-    void SetAlphaProgress(float alpha_progress) {
-        alpha_progress_ = alpha_progress;
-    }
+    const DirectX::XMFLOAT2& GetPosition() const { return position_; }
+    const DirectX::XMFLOAT2& GetSize() const { return size_; }
+    int GetRenderLayer() const { return render_layer_; }
+    bool IsValid() const { return is_valid_; }
 
 protected:
-    virtual float CalculateAlpha() const;
-
-    static float Lerp(float start, float end, float t) {
-        return start + (end - start) * t;
-    }
+    float CalculateAlpha() const;
 
     std::unique_ptr<Sprite> sprite_;
     DirectX::XMFLOAT2 position_;
@@ -80,13 +54,14 @@ protected:
     DirectX::XMFLOAT2 sprite_position_;
     DirectX::XMFLOAT2 sprite_size_;
     DirectX::XMFLOAT4 color_ = { 1.0f, 1.0f, 1.0f, 1.0f };
-    int layer_ = RenderLayer::kDefault;
-    bool is_valid_ = true;
-    UiRenderMode render_mode_ = UiRenderMode::kNormal;
-    float size_offset_ = 0.0f;
+    int render_layer_;
+    bool is_valid_;
+    DirectX::XMFLOAT2 size_offset_ = { 0.0f, 0.0f };
 
-    bool enable_alpha_transition_ = false;
-    float base_alpha_ = 1.0f;
-    float target_alpha_ = 1.0f;
-    float alpha_progress_ = 0.0f;
+    float current_alpha_ = 1.0f;
+    float alpha_multiplier_ = 1.0f;
+    FloatTween* alpha_tween_ = nullptr;
+    FloatTween* multiplier_tween_ = nullptr;
 };
+
+#endif

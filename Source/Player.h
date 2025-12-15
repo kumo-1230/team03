@@ -4,6 +4,9 @@
 #include "game_object.h"
 #include "Camera.h"
 #include <memory>
+#include <collider.h>
+#include "rigidbody.h"
+#include "System/Graphics.h"
 
 class Player : public GameObject {
 public:
@@ -41,6 +44,7 @@ public:
         UpdateCamera(elapsed_time);
         HandleInput(elapsed_time);
         GameObject::Update(elapsed_time);
+		RenderDebugInfo();
     }
 
     void SetCamera(Camera* camera) {
@@ -133,6 +137,265 @@ private:
         else {
             SetVelocity(0.0f, 0.0f, 0.0f);
         }
+    }
+
+    void RenderDebugInfo() {
+        if (!ImGui::Begin("Player Debug Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::End();
+            return;
+        }
+
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "=== PLAYER DEBUG INFO ===");
+        ImGui::Separator();
+
+        // === 基本情報 ===
+        if (ImGui::CollapsingHeader("Basic Info", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::Text("Active: %s", IsActive() ? "TRUE" : "FALSE");
+            ImGui::Text("Active in Hierarchy: %s", IsActiveInHierarchy() ? "TRUE" : "FALSE");
+            ImGui::Text("Elapsed Time: %.3f", GetElapsedTime());
+        }
+
+        // === 位置情報 ===
+        if (ImGui::CollapsingHeader("Position", ImGuiTreeNodeFlags_DefaultOpen)) {
+            DirectX::XMFLOAT3 local_pos = GetLocalPosition();
+            ImGui::Text("Local Position:");
+            ImGui::Indent();
+            ImGui::Text("X: %.3f", local_pos.x);
+            ImGui::Text("Y: %.3f", local_pos.y);
+            ImGui::Text("Z: %.3f", local_pos.z);
+            ImGui::Unindent();
+
+            DirectX::XMFLOAT3 world_pos = GetWorldPosition();
+            ImGui::Text("World Position:");
+            ImGui::Indent();
+            ImGui::Text("X: %.3f", world_pos.x);
+            ImGui::Text("Y: %.3f", world_pos.y);
+            ImGui::Text("Z: %.3f", world_pos.z);
+            ImGui::Unindent();
+        }
+
+        // === 回転情報 ===
+        if (ImGui::CollapsingHeader("Rotation", ImGuiTreeNodeFlags_DefaultOpen)) {
+            DirectX::XMFLOAT3 angle_rad = GetAngle();
+            ImGui::Text("Angle (Radians):");
+            ImGui::Indent();
+            ImGui::Text("X: %.3f", angle_rad.x);
+            ImGui::Text("Y: %.3f", angle_rad.y);
+            ImGui::Text("Z: %.3f", angle_rad.z);
+            ImGui::Unindent();
+
+            DirectX::XMFLOAT3 angle_deg = GetAngleDegree();
+            ImGui::Text("Angle (Degrees):");
+            ImGui::Indent();
+            ImGui::Text("X: %.3f", angle_deg.x);
+            ImGui::Text("Y: %.3f", angle_deg.y);
+            ImGui::Text("Z: %.3f", angle_deg.z);
+            ImGui::Unindent();
+        }
+
+        // === スケール情報 ===
+        if (ImGui::CollapsingHeader("Scale")) {
+            DirectX::XMFLOAT3 scale = GetScale();
+            ImGui::Text("Scale:");
+            ImGui::Indent();
+            ImGui::Text("X: %.3f", scale.x);
+            ImGui::Text("Y: %.3f", scale.y);
+            ImGui::Text("Z: %.3f", scale.z);
+            ImGui::Unindent();
+        }
+
+        // === 速度情報 ===
+        if (ImGui::CollapsingHeader("Velocity", ImGuiTreeNodeFlags_DefaultOpen)) {
+            DirectX::XMFLOAT3 velocity = GetVelocity();
+            ImGui::Text("Velocity:");
+            ImGui::Indent();
+            ImGui::Text("X: %.3f", velocity.x);
+            ImGui::Text("Y: %.3f", velocity.y);
+            ImGui::Text("Z: %.3f", velocity.z);
+            ImGui::Unindent();
+
+            float speed = GetSpeed();
+            ImGui::Text("Speed: %.3f", speed);
+        }
+
+        // === 方向ベクトル ===
+        if (ImGui::CollapsingHeader("Direction Vectors")) {
+            DirectX::XMFLOAT3 forward = GetForwardFloat3();
+            ImGui::Text("Forward:");
+            ImGui::Indent();
+            ImGui::Text("X: %.3f", forward.x);
+            ImGui::Text("Y: %.3f", forward.y);
+            ImGui::Text("Z: %.3f", forward.z);
+            ImGui::Unindent();
+
+            DirectX::XMFLOAT3 right = GetRightFloat3();
+            ImGui::Text("Right:");
+            ImGui::Indent();
+            ImGui::Text("X: %.3f", right.x);
+            ImGui::Text("Y: %.3f", right.y);
+            ImGui::Text("Z: %.3f", right.z);
+            ImGui::Unindent();
+
+            DirectX::XMFLOAT3 up = GetUpFloat3();
+            ImGui::Text("Up:");
+            ImGui::Indent();
+            ImGui::Text("X: %.3f", up.x);
+            ImGui::Text("Y: %.3f", up.y);
+            ImGui::Text("Z: %.3f", up.z);
+            ImGui::Unindent();
+        }
+
+        // === 親子関係 ===
+        if (ImGui::CollapsingHeader("Hierarchy")) {
+            GameObject* parent = GetParent();
+            ImGui::Text("Parent: %s", parent ? "YES" : "NONE");
+
+            const std::vector<GameObject*>& children = GetChildren();
+            ImGui::Text("Children Count: %zu", children.size());
+
+            if (!children.empty() && ImGui::TreeNode("Children List")) {
+                for (size_t i = 0; i < children.size(); ++i) {
+                    if (children[i]) {
+                        DirectX::XMFLOAT3 child_pos = children[i]->GetWorldPosition();
+                        ImGui::Text("[%zu] Pos(%.1f, %.1f, %.1f)",
+                            i, child_pos.x, child_pos.y, child_pos.z);
+                    }
+                }
+                ImGui::TreePop();
+            }
+        }
+
+        // === Rigidbody情報 ===
+        if (ImGui::CollapsingHeader("Rigidbody")) {
+            Rigidbody* rb = GetRigidbody();
+            if (rb) {
+                ImGui::Text("Rigidbody: ATTACHED");
+                ImGui::Indent();
+                ImGui::Text("Enabled: %s", rb->IsEnabled() ? "TRUE" : "FALSE");
+                ImGui::Text("Kinematic: %s", rb->IsKinematic() ? "TRUE" : "FALSE");
+                ImGui::Text("Use Gravity: %s", rb->IsUseGravity() ? "TRUE" : "FALSE");
+                ImGui::Text("Mass: %.3f", rb->GetMass());
+                ImGui::Text("Bounciness: %.3f", rb->GetBounciness());
+                ImGui::Text("Friction: %.3f", rb->GetFriction());
+                ImGui::Text("Drag: %.3f", rb->GetDrag());
+                ImGui::Text("Max Speed: %.3f", rb->GetMaxSpeed());
+                ImGui::Unindent();
+            }
+            else {
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Rigidbody: NONE");
+            }
+        }
+
+        // === Collider情報 ===
+        if (ImGui::CollapsingHeader("Colliders")) {
+            const std::vector<Collider*>& colliders = GetColliders();
+            ImGui::Text("Collider Count: %zu", colliders.size());
+
+            if (!colliders.empty() && ImGui::TreeNode("Collider List")) {
+                for (size_t i = 0; i < colliders.size(); ++i) {
+                    if (colliders[i]) {
+                        ImGui::PushID(static_cast<int>(i));
+
+                        const char* type_name = "Unknown";
+                        switch (colliders[i]->GetType()) {
+                        case ColliderType::kSphere: type_name = "Sphere"; break;
+                        case ColliderType::kBox: type_name = "Box"; break;
+                        case ColliderType::kCapsule: type_name = "Capsule"; break;
+                        }
+
+                        if (ImGui::TreeNode("Collider", "[%zu] %s", i, type_name)) {
+                            ImGui::Text("Enabled: %s", colliders[i]->IsEnabled() ? "TRUE" : "FALSE");
+
+                            DirectX::XMFLOAT3 offset = colliders[i]->GetOffset();
+                            ImGui::Text("Offset: (%.3f, %.3f, %.3f)",
+                                offset.x, offset.y, offset.z);
+
+                            DirectX::XMFLOAT3 world_center = colliders[i]->GetWorldCenter();
+                            ImGui::Text("World Center: (%.3f, %.3f, %.3f)",
+                                world_center.x, world_center.y, world_center.z);
+
+                            // 型ごとの詳細情報
+                            if (colliders[i]->GetType() == ColliderType::kSphere) {
+                                SphereCollider* sphere = static_cast<SphereCollider*>(colliders[i]);
+                                ImGui::Text("Radius: %.3f", sphere->GetRadius());
+                            }
+                            else if (colliders[i]->GetType() == ColliderType::kBox) {
+                                BoxCollider* box = static_cast<BoxCollider*>(colliders[i]);
+                                DirectX::XMFLOAT3 size = box->GetSize();
+                                ImGui::Text("Size: (%.3f, %.3f, %.3f)",
+                                    size.x, size.y, size.z);
+                            }
+                            else if (colliders[i]->GetType() == ColliderType::kCapsule) {
+                                CapsuleCollider* capsule = static_cast<CapsuleCollider*>(colliders[i]);
+                                ImGui::Text("Radius: %.3f", capsule->GetRadius());
+                                ImGui::Text("Height: %.3f", capsule->GetHeight());
+                            }
+
+                            ImGui::TreePop();
+                        }
+
+                        ImGui::PopID();
+                    }
+                }
+                ImGui::TreePop();
+            }
+        }
+
+        // === プレイヤー固有情報 ===
+        if (ImGui::CollapsingHeader("Player Specific", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::Text("Move Speed: %.3f", move_speed_);
+            ImGui::Text("Mouse Sensitivity: %.3f", mouse_sensitivity_);
+            ImGui::Text("Camera Height: %.3f", camera_height_);
+            ImGui::Text("Camera Follow: %s", camera_follow_enabled_ ? "ENABLED" : "DISABLED");
+            ImGui::Text("Camera Yaw: %.3f (%.1f deg)", camera_yaw_,
+                DirectX::XMConvertToDegrees(camera_yaw_));
+            ImGui::Text("Camera Pitch: %.3f (%.1f deg)", camera_pitch_,
+                DirectX::XMConvertToDegrees(camera_pitch_));
+            ImGui::Text("Screen Size: %d x %d", screen_width_, screen_height_);
+
+            if (camera_) {
+                ImGui::Separator();
+                ImGui::Text("Camera Info:");
+                ImGui::Indent();
+                ImGui::Text("Eye: (%.2f, %.2f, %.2f)",
+                    camera_->eye.x, camera_->eye.y, camera_->eye.z);
+                ImGui::Text("Focus: (%.2f, %.2f, %.2f)",
+                    camera_->focus.x, camera_->focus.y, camera_->focus.z);
+                ImGui::Unindent();
+            }
+            else {
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Camera: NOT SET");
+            }
+        }
+
+        // === トランスフォーム行列 ===
+        if (ImGui::CollapsingHeader("Transform Matrix")) {
+            DirectX::XMFLOAT4X4 local_transform = GetTransform();
+            ImGui::Text("Local Transform:");
+            ImGui::Indent();
+            for (int row = 0; row < 4; ++row) {
+                ImGui::Text("[%.3f, %.3f, %.3f, %.3f]",
+                    local_transform.m[row][0],
+                    local_transform.m[row][1],
+                    local_transform.m[row][2],
+                    local_transform.m[row][3]);
+            }
+            ImGui::Unindent();
+
+            DirectX::XMFLOAT4X4 world_transform = GetWorldTransform();
+            ImGui::Text("World Transform:");
+            ImGui::Indent();
+            for (int row = 0; row < 4; ++row) {
+                ImGui::Text("[%.3f, %.3f, %.3f, %.3f]",
+                    world_transform.m[row][0],
+                    world_transform.m[row][1],
+                    world_transform.m[row][2],
+                    world_transform.m[row][3]);
+            }
+            ImGui::Unindent();
+        }
+
+        ImGui::End();
     }
 
     void UpdateCamera(float elapsed_time) {

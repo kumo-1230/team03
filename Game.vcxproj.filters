@@ -46,9 +46,6 @@
     <Filter Include="Source\Obj">
       <UniqueIdentifier>{82e62cd1-7420-4ebc-852d-fd70debcd998}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\MySystem\menu">
-      <UniqueIdentifier>{2b52ead2-4363-4b24-bd44-f15f877a9849}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\scene\main/frame">
       <UniqueIdentifier>{2a6c3d4b-49c5-45b7-b0f0-974f75cc7003}</UniqueIdentifier>
     </Filter>
@@ -58,11 +55,20 @@
     <Filter Include="Source\PBR">
       <UniqueIdentifier>{faa288b8-4844-4209-8e34-dd56ab8f4b6d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\KLib">
+      <UniqueIdentifier>{5394f30f-98c8-465b-9b72-0402d6dccc0d}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Object">
       <UniqueIdentifier>{63cad932-b083-4e09-ac49-b591f62c04d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Object\System">
-      <UniqueIdentifier>{b34d16ac-726a-4c6a-a84a-80f130183d53}</UniqueIdentifier>
+    <Filter Include="Source\KLib\Objects">
+      <UniqueIdentifier>{f1c6e41d-1158-4eff-b34e-e68c3490ecb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\KLib\Lerp">
+      <UniqueIdentifier>{f654fa34-9acd-4081-9453-23db536cadb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\KLib\UI">
+      <UniqueIdentifier>{2b52ead2-4363-4b24-bd44-f15f877a9849}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -154,10 +160,10 @@
       <Filter>Source\System</Filter>
     </ClInclude>
     <ClInclude Include="Source\ui_button.h">
-      <Filter>Source\MySystem\menu</Filter>
+      <Filter>Source\KLib\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\ui_panel.h">
-      <Filter>Source\MySystem\menu</Filter>
+      <Filter>Source\KLib\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\SceneGame.h">
       <Filter>Source\scene</Filter>
@@ -268,10 +274,10 @@
       <Filter>Source\scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\ui_element.h">
-      <Filter>Source\MySystem\menu</Filter>
+      <Filter>Source\KLib\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\render_layer.h">
-      <Filter>Source\MySystem\menu</Filter>
+      <Filter>Source\KLib\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\System\GLTFImporter.h">
       <Filter>Source\System</Filter>
@@ -282,23 +288,35 @@
     <ClInclude Include="Source\PBRMaterialConstants.h">
       <Filter>Source\PBR</Filter>
     </ClInclude>
-    <ClInclude Include="Source\game_object.h">
-      <Filter>Source\Object\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\world.h">
-      <Filter>Source\Object\System</Filter>
-    </ClInclude>
     <ClInclude Include="Source\player.h">
       <Filter>Source\Object</Filter>
     </ClInclude>
     <ClInclude Include="Source\System\Light.h">
       <Filter>Source\PBR</Filter>
     </ClInclude>
+    <ClInclude Include="Source\world.h">
+      <Filter>Source\KLib\Objects</Filter>
+    </ClInclude>
     <ClInclude Include="Source\collider.h">
-      <Filter>Source\Object\System</Filter>
+      <Filter>Source\KLib\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\game_object.h">
+      <Filter>Source\KLib\Objects</Filter>
     </ClInclude>
     <ClInclude Include="Source\rigidbody.h">
-      <Filter>Source\Object\System</Filter>
+      <Filter>Source\KLib\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\input_manager.h">
+      <Filter>Source\KLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\k_lerp.h">
+      <Filter>Source\KLib\Lerp</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ui_event.h">
+      <Filter>Source\KLib\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\k_cursor.h">
+      <Filter>Source\KLib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -369,10 +387,10 @@
       <Filter>Source\System</Filter>
     </ClCompile>
     <ClCompile Include="Source\ui_button.cpp">
-      <Filter>Source\MySystem\menu</Filter>
+      <Filter>Source\KLib\UI</Filter>
     </ClCompile>
     <ClCompile Include="Source\ui_panel.cpp">
-      <Filter>Source\MySystem\menu</Filter>
+      <Filter>Source\KLib\UI</Filter>
     </ClCompile>
     <ClCompile Include="Source\SceneGame.cpp">
       <Filter>Source\scene</Filter>
@@ -456,7 +474,7 @@
       <Filter>Source\scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\ui_element.cpp">
-      <Filter>Source\MySystem\menu</Filter>
+      <Filter>Source\KLib\UI</Filter>
     </ClCompile>
     <ClCompile Include="Source\System\GLTFImporter.cpp">
       <Filter>Source\System</Filter>
@@ -468,13 +486,16 @@
       <Filter>Source\PBR</Filter>
     </ClCompile>
     <ClCompile Include="Source\collider.cpp">
-      <Filter>Source\Object\System</Filter>
+      <Filter>Source\KLib\Objects</Filter>
     </ClCompile>
     <ClCompile Include="Source\game_object.cpp">
-      <Filter>Source\Object\System</Filter>
+      <Filter>Source\KLib\Objects</Filter>
     </ClCompile>
     <ClCompile Include="Source\rigidbody.cpp">
-      <Filter>Source\Object\System</Filter>
+      <Filter>Source\KLib\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\input_manager.cpp">
+      <Filter>Source\KLib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

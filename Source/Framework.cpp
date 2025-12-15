@@ -12,6 +12,7 @@
 #include "EffectManager.h"
 #include "System/Audio.h"
 #include "KeyInput.h"
+#include <k_cursor.h>
 
 // 垂直同期間隔設定
 static const int syncInterval = 1;
@@ -50,6 +51,12 @@ Framework::Framework(HWND hWnd)
 	EffectManager::Instance().Initialize();
 	OutputDebugStringA("EffectManager initialized\n");
 
+	// カスタムカーソル初期化（追加）
+	OutputDebugStringA("Initializing CustomCursor\n");
+	CustomCursor::Instance().Initialize("Data/Sprite/new_cursor.png");
+	CustomCursor::Instance().Hide();  // 初期状態は非表示
+	OutputDebugStringA("CustomCursor initialized\n");
+
 	// シーン初期化
 	OutputDebugStringA("Initializing SceneManager\n");
 	SceneManager::Instance().ChangeScene(new SceneTitle);
@@ -87,8 +94,9 @@ void Framework::Update(float elapsedTime)
 	// IMGUIフレーム開始処理	
 	ImGuiRenderer::NewFrame();
 
+	CustomCursor::Instance().Update(elapsedTime);
+
 	// シーン更新処理
-	//sceneGame.Update(elapsedTime);
 	SceneManager::Instance().Update(elapsedTime);
 }
 
@@ -108,13 +116,14 @@ void Framework::Render(float elapsedTime)
 	Graphics::Instance().SetRenderTargets();
 
 	// シーン描画処理
-	//sceneGame.Render();
 	SceneManager::Instance().Render();
 
+
 	// シーンGUI描画処理
-	//sceneGame.DrawGUI();
 	SceneManager::Instance().DrawGUI();
 
+	// カスタムカーソルの描画
+	CustomCursor::Instance().Render(dc);
 #if 0
 	// IMGUIデモウインドウ描画（IMGUI機能テスト用）
 	ImGui::ShowDemoWindow();

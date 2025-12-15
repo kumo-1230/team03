@@ -1,9 +1,14 @@
 #include "ui_button.h"
+#include <System/Sprite.h>
 
-UiButton::UiButton(const char* file_name, DirectX::XMFLOAT2 position,
-    DirectX::XMFLOAT2 size, DirectX::XMFLOAT2 sprite_position,
-    DirectX::XMFLOAT2 sprite_size, int layer, int action_id,
+UiButton::UiButton(const char* file_name,
+    DirectX::XMFLOAT2 position,
+    DirectX::XMFLOAT2 size,
+    DirectX::XMFLOAT2 sprite_position,
+    DirectX::XMFLOAT2 sprite_size,
+    int action_id,
     std::function<void()> on_click_callback,
+    int layer,
     bool is_valid)
     : UiElement(file_name, position, size, sprite_position, sprite_size,
         layer, is_valid),
@@ -11,15 +16,23 @@ UiButton::UiButton(const char* file_name, DirectX::XMFLOAT2 position,
     hit_area_size_(size),
     action_id_(action_id),
     is_hovered_(false),
+    visual_config_(ButtonVisualConfig::Default()),
     on_click_callback_(std::move(on_click_callback)) {
+
+    // 初期状態のアルファ値を normal_alpha に設定
+    SetAlphaImmediate(visual_config_.normal_alpha);
 }
 
-UiButton::UiButton(const char* file_name, DirectX::XMFLOAT2 position,
-    DirectX::XMFLOAT2 size, DirectX::XMFLOAT2 sprite_position,
+UiButton::UiButton(const char* file_name,
+    DirectX::XMFLOAT2 position,
+    DirectX::XMFLOAT2 size,
+    DirectX::XMFLOAT2 sprite_position,
     DirectX::XMFLOAT2 sprite_size,
     DirectX::XMFLOAT2 hit_area_position,
-    DirectX::XMFLOAT2 hit_area_size, int layer, int action_id,
+    DirectX::XMFLOAT2 hit_area_size,
+    int action_id,
     std::function<void()> on_click_callback,
+    int layer,
     bool is_valid)
     : UiElement(file_name, position, size, sprite_position, sprite_size,
         layer, is_valid),
@@ -27,41 +40,69 @@ UiButton::UiButton(const char* file_name, DirectX::XMFLOAT2 position,
     hit_area_size_(hit_area_size),
     action_id_(action_id),
     is_hovered_(false),
+    visual_config_(ButtonVisualConfig::Default()),
     on_click_callback_(std::move(on_click_callback)) {
+
+    // 初期状態のアルファ値を normal_alpha に設定
+    SetAlphaImmediate(visual_config_.normal_alpha);
 }
 
-void UiButton::Update(const DirectX::XMFLOAT2& cursor_position,
-    const DirectX::XMFLOAT2& cursor_size) {
+void UiButton::UpdateHoverState(const DirectX::XMFLOAT2& cursor_position) {
     if (!is_valid_) {
-        is_hovered_ = false;
+        if (is_hovered_) { 
+            is_hovered_ = false;
+            ApplyVisualEffects();
+        }
         return;
     }
-
     const bool was_hovered = is_hovered_;
-    is_hovered_ = TestHit(cursor_position, cursor_size);
+    is_hovered_ = TestHit(cursor_position);
 
-    if (is_hovered_) {
-        SetRenderMode(UiRenderMode::kNormal);
-        size_offset_ = -1.0f;
-    }
-    else {
-        SetRenderMode(UiRenderMode::kHalfTransparent);
-        size_offset_ = 0.0f;
+    if (was_hovered != is_hovered_) {
+        ApplyVisualEffects();
     }
 
-    // ホバー状態が変化したときのコールバック
     if (is_hovered_ && !was_hovered && on_hover_callback_) {
         on_hover_callback_();
     }
 }
 
-bool UiButton::TestHit(const DirectX::XMFLOAT2& point_position,
-    const DirectX::XMFLOAT2& point_size) const {
-    // AABB (Axis-Aligned Bounding Box) 衝突判定
+void UiButton::ApplyVisualEffects() {
+    if (is_hovered_) {
+        size_offset_ = visual_config_.hover_size_offset;
+
+        char buf[256];
+        sprintf_s(buf, "Hover: current_alpha_=%.2f, alpha_multiplier_=%.2f, final=%.2f\n",
+            current_alpha_, alpha_multiplier_, CalculateAlpha());
+        OutputDebugStringA(buf);
+        StartAlphaTransition(
+            visual_config_.hover_alpha,
+            0.2f,
+            EaseType::EaseOutQuad
+        );
+    }
+    else {
+        size_offset_ = visual_config_.normal_size_offset;
+
+        char buf[256];
+        sprintf_s(buf, "Normal: current_alpha_=%.2f, alpha_multiplier_=%.2f, final=%.2f\n",
+            current_alpha_, alpha_multiplier_, CalculateAlpha());
+        OutputDebugStringA(buf);
+        StartAlphaTransition(
+            visual_config_.normal_alpha,
+            0.2f,
+            EaseType::EaseInQuad
+        );
+    }
+}
+
+bool UiButton::TestHit(const DirectX::XMFLOAT2& point_position) const {
+    constexpr float kCursorSize = 10.0f;
+
     const float hit_right = hit_area_position_.x + hit_area_size_.x;
     const float hit_bottom = hit_area_position_.y + hit_area_size_.y;
-    const float point_right = point_position.x + point_size.x;
-    const float point_bottom = point_position.y + point_size.y;
+    const float point_right = point_position.x + kCursorSize;
+    const float point_bottom = point_position.y + kCursorSize;
 
     return !(hit_right < point_position.x ||
         hit_area_position_.x > point_right ||
@@ -92,4 +133,9 @@ void UiButton::SetOnClickCallback(std::function<void()> callback) {
 
 void UiButton::SetOnHoverCallback(std::function<void()> callback) {
     on_hover_callback_ = std::move(callback);
+}
+
+void UiButton::SetVisualConfig(const ButtonVisualConfig& config) {
+    visual_config_ = config;
+    ApplyVisualEffects();
 }

@@ -4,11 +4,12 @@
 #include "SceneGame.h"
 #include "SceneManager.h"
 #include "SceneLoading.h"
-#include "CursorManager.h"
 #include "common.h"
 #include "System/Audio.h"
 #include "SceneTutorial.h"
-#include "Cursor.h"
+#include "input_manager.h"
+#include "render_layer.h"
+#include "k_cursor.h"
 
 SceneTitle::SceneTitle() {}
 
@@ -16,44 +17,77 @@ void SceneTitle::Initialize() {
     Graphics& graphics = Graphics::Instance();
     auto* device = graphics.GetDevice();
 
-
-    sprTitle = std::make_unique<Sprite>(device, "Data/Sprite/game_logo_new.png");
-    sprButtonBack = std::make_unique<Sprite>(device, "Data/Sprite/title_square.png");
     sprFadeLoad = std::make_unique<Sprite>(device, "Data/Sprite/load_background.png");
 
     titleStartMenu = std::make_unique<UiPanel>();
-    titleStartMenu->AddButton(std::make_unique<UiButton>(
+
+    // ロゴスプライト追加
+    auto* logo_spr = titleStartMenu->AddSprite();
+    logo_spr->SetSprite("Data/Sprite/game_logo_new.png");
+    logo_spr->SetPosition(DirectX::XMFLOAT2{ SCREEN_W * 0.2f - 512 * 0.5f, 100 });
+    logo_spr->SetSize(DirectX::XMFLOAT2{ 601, 224 });
+    logo_spr->SetRenderLayer(RenderLayer::kDefault);
+    logo_spr->SetSpritePosition({ 0, 0 });
+    logo_spr->SetSpriteSize({ 601, 224 });
+
+    // スタートボタン追加
+    auto* startButton = titleStartMenu->AddButton(
         "Data/Sprite/gamestart_text_new.png",
         DirectX::XMFLOAT2{ SCREEN_W * 0.2f - 351 * 0.5f - 100,
                           SCREEN_H * 0.8f - 96 * 0.5f - 80 },
         DirectX::XMFLOAT2{ 351, 96 },
         DirectX::XMFLOAT2{ 0, 0 },
         DirectX::XMFLOAT2{ 351, 96 },
-        0,
-        0,
-        [this]() {
-            if (clickSE) clickSE->Play(false);
+        0,  // action_id
+        [this]() {  // on_click_callback
+            if (clickSE) {
+                clickSE->Stop();
+                clickSE->Play(false);
+            }
             SceneManager::Instance().ChangeScene(new SceneLoading(new SceneGame()));
         },
-        true
-    ));
+        RenderLayer::kButton
+    );
 
-    titleStartMenu->AddButton(std::make_unique<UiButton>(
+    // ホバー時のコールバック設定
+    startButton->SetOnHoverCallback([this]() {
+        if (onCursorSE) {
+            onCursorSE->Stop();
+            onCursorSE->Play(false);
+        }
+        });
+
+    // チュートリアルボタン追加
+    auto* tutorialButton = titleStartMenu->AddButton(
         "Data/Sprite/tutorial_text_new.png",
         DirectX::XMFLOAT2{ SCREEN_W * 0.2f - 633 * 0.5f + 40,
                           SCREEN_H * 0.9f - 96 * 0.5f - 30 },
         DirectX::XMFLOAT2{ 633, 96 },
         DirectX::XMFLOAT2{ 0, 0 },
         DirectX::XMFLOAT2{ 633, 96 },
-        0,
-        1,
-        [this]() {
-            if (clickSE) clickSE->Play(false);
+        1,  // action_id
+        [this]() {  // on_click_callback
+            if (clickSE) {
+                clickSE->Stop();
+                clickSE->Play(false);
+            }
             SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial()));
         },
-        true
-    ));
+        RenderLayer::kButton
+    );
 
+    // ホバー時のコールバック設定
+    tutorialButton->SetOnHoverCallback([this]() {
+        if (onCursorSE) {
+            onCursorSE->Stop();
+            onCursorSE->Play(false);
+        }
+        });
+
+    // パネルをフェードイン
+    titleStartMenu->FadeIn(2.0f);
+
+    // オーディオ読み込み
     clickSE = Audio::Instance().LoadAudioSource("Data/Sound/title/SE_title_click.wav");
     onCursorSE = Audio::Instance().LoadAudioSource("Data/Sound/title/SE_title_cursor.wav");
     onStartSE = Audio::Instance().LoadAudioSource("Data/Sound/title/SE_title_zoom.wav");
@@ -69,6 +103,7 @@ void SceneTitle::Initialize() {
 
     titleStartMenu->SetActive(true);
 
+    // カメラ設定
     camera = std::make_unique<Camera>();
     DirectX::XMFLOAT3 eye{ 0, 0, 0 };
     DirectX::XMFLOAT3 focus{ 1, 0, 0 };
@@ -84,10 +119,8 @@ void SceneTitle::Initialize() {
     cameraController->SetEye({ 0, 0, 0 });
     cameraController->SetTarget({ 0, 0, 1 });
 
-    lastHoveredButtonId = -1;
-
+    // ライト設定
     {
-        OutputDebugStringA("Setting directional light\n");
         DirectionalLight directionalLight;
         DirectX::XMFLOAT3 dir = { 0.3f, -1.0f, 0.3f };
         DirectX::XMVECTOR Dir = DirectX::XMLoadFloat3(&dir);
@@ -95,9 +128,7 @@ void SceneTitle::Initialize() {
         DirectX::XMStoreFloat3(&directionalLight.direction, Dir);
         directionalLight.color = { 1.5f, 1.5f, 1.5f };
         lightManager.SetDirectionalLight(directionalLight);
-        OutputDebugStringA("Directional light set\n");
 
-        OutputDebugStringA("Adding point light\n");
         PointLight mapLight;
         mapLight.position = { 0, 1, 0 };
         mapLight.range = 12.0f;
@@ -105,9 +136,7 @@ void SceneTitle::Initialize() {
         mapLight.intensity = 8.0f;
         mapLight.priority = 10;
         lightManager.AddPointLight(mapLight);
-        OutputDebugStringA("Point light added\n");
 
-        OutputDebugStringA("Setting player spot light\n");
         DirectX::XMFLOAT3 playerPos = { 0, 0, 0 };
         playerPos.y += 1.0f;
         DirectX::XMFLOAT3 spotDirection = camera->GetFront();
@@ -117,8 +146,12 @@ void SceneTitle::Initialize() {
             20.0f, 25.0f, 40.0f,
             { 1.0f, 0.95f, 0.85f }, 8.0f
         );
-        OutputDebugStringA("Player spot light set\n");
     }
+
+    // カーソル設定（タイトル画面ではカスタムカーソルを表示）
+    SystemCursor::Hide();           // システムカーソルを非表示
+    CustomCursor::Instance().Show(); // カスタムカーソルを表示
+    CustomCursor::Instance().FadeIn(2.0f); // フェードインで登場
 }
 
 void SceneTitle::Finalize() {
@@ -131,52 +164,40 @@ void SceneTitle::Finalize() {
     delete clickSE;
     delete onStartSE;
     delete onCursorSE;
+
+    // カーソルをリセット（次のシーンのために）
+    CustomCursor::Instance().Hide();
 }
 
 void SceneTitle::Update(float elapsedTime) {
+    TweenManager::Instance().Update(elapsedTime);
+    InputManager::Instance().Update();
+
     backGroundMusic->Play(true);
-    Cursor::Instance().Update(elapsedTime);
     cameraController->Update(elapsedTime, camera.get(), 0, 0);
 
-    int clicked_button_id = -1;
-    titleStartMenu->Update(&clicked_button_id);
+    // UIパネルを更新
+    titleStartMenu->Update();
 
-    int hovered_button_id = -1;
-    const auto& input_state = titleStartMenu->GetInputState();
-    if (input_state.is_button_held || input_state.is_button_down) {
-        for (int i = 0; i < 2; ++i) {
-            if (titleStartMenu->IsActive()) {
-                hovered_button_id = i;
-                break;
-            }
+    // イベント処理
+    auto events = titleStartMenu->GetPendingEvents();
+    for (const auto& event : events) {
+        switch (event.type) {
+        case UiEventType::Click:
+            // クリックイベントの処理（コールバックで既に処理されている）
+            break;
+        case UiEventType::HoverBegin:
+            // ホバー開始時の追加処理（必要なら）
+            break;
+        case UiEventType::HoverEnd:
+            // ホバー終了時の追加処理
+            break;
+        default:
+            break;
         }
-    }
-
-    if (hovered_button_id != lastHoveredButtonId && hovered_button_id != -1) {
-        if (onCursorSE) onCursorSE->Play(false);
-        lastHoveredButtonId = hovered_button_id;
-    }
-
-    if (hovered_button_id == -1) {
-        lastHoveredButtonId = -1;
     }
 }
 
-// 描画順序とレンダーステートの使い分け:
-//
-// 1. 3Dオブジェクト（不透明）
-//    - DepthState::TestAndWrite（深度テスト有効、書き込み有効）
-//    - BlendState::Opaque（ブレンド無効）
-//
-// 2. 3Dオブジェクト（透明）
-//    - DepthState::TestOnly（深度テスト有効、書き込み無効）
-//    - BlendState::Transparency（透明度ブレンド有効）
-//    - カメラから遠い順にソートして描画
-//
-// 3. 2D UI要素（スプライト）
-//    - DepthState::NoTestNoWrite（深度テスト無効、書き込み無効）
-//    - BlendState::Transparency（透明度ブレンド有効）
-//    - 最後に描画（常に手前に表示される）
 void SceneTitle::Render() {
     Graphics& graphics = Graphics::Instance();
     ID3D11DeviceContext* dc = graphics.GetDeviceContext();
@@ -186,12 +207,16 @@ void SceneTitle::Render() {
     rc.renderState = rs;
     rc.camera = camera.get();
     rc.lightManager = &lightManager;
+
+    // レンダーステート設定
     dc->RSSetState(rs->GetRasterizerState(RasterizerState::SolidCullNone));
     dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestAndWrite), 0);
     ID3D11SamplerState* s = rs->GetSamplerState(SamplerState::LinearClamp);
     dc->PSSetSamplers(0, 1, &s);
     const float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
     dc->OMSetBlendState(rs->GetBlendState(BlendState::Opaque), blendFactor, 0xffffffff);
+
+    // スカイマップ描画
     DirectX::XMMATRIX V = DirectX::XMLoadFloat4x4(&rc.camera->GetView());
     DirectX::XMMATRIX P = DirectX::XMLoadFloat4x4(&rc.camera->GetProjection());
     DirectX::XMMATRIX VP = V * P;
@@ -200,15 +225,13 @@ void SceneTitle::Render() {
     DirectX::XMFLOAT3 Cpos = camera->GetEye();
     skyMap->blit(rc, vp, { Cpos.x, Cpos.y, Cpos.z, 1.0f });
 
+    // UI描画
     dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
     dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
     dc->PSSetSamplers(0, 1, &s);
 
-    sprTitle->Render(dc, 50, 50, 0, 656, 188, 0, 1, 1, 1, 1);
     titleStartMenu->Render(dc, MenuBackgroundMode::kBackgroundVisible, false);
-    Cursor::Instance().Render(dc);
+
 }
-
-
 
 void SceneTitle::DrawGUI() {}

@@ -38,8 +38,6 @@ private:
 	std::unique_ptr<UiPanel> titleStartMenu;
 	std::unique_ptr<Camera> camera{ nullptr };
 	std::unique_ptr<CameraController> cameraController{ nullptr };
-	std::unique_ptr<Sprite> sprTitle{ nullptr };
-	std::unique_ptr<Sprite> sprButtonBack{ nullptr };
 	std::unique_ptr<Sprite> sprFadeLoad{ nullptr };
 	std::unique_ptr<sky_map> skyMap{ nullptr };
 

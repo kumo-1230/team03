@@ -121,6 +121,9 @@
     <ClInclude Include="External\imgui-docking\imstb_truetype.h" />
     <ClInclude Include="Source\collider.h" />
     <ClInclude Include="Source\game_object.h" />
+    <ClInclude Include="Source\input_manager.h" />
+    <ClInclude Include="Source\k_cursor.h" />
+    <ClInclude Include="Source\k_lerp.h" />
     <ClInclude Include="Source\PBRMaterialConstants.h" />
     <ClInclude Include="Source\PBRShader.h" />
     <ClInclude Include="Source\player.h" />
@@ -144,6 +147,7 @@
     <ClInclude Include="Source\KeyInput.h" />
     <ClInclude Include="Source\Lerp.h" />
     <ClInclude Include="Source\mathUtils.h" />
+    <ClInclude Include="Source\ui_event.h" />
     <ClInclude Include="Source\ui_panel.h" />
     <ClInclude Include="Source\Obj.h" />
     <ClInclude Include="Source\ParentChild.h" />
@@ -197,6 +201,7 @@
     <ClCompile Include="External\imgui-docking\imgui_widgets.cpp" />
     <ClCompile Include="Source\collider.cpp" />
     <ClCompile Include="Source\game_object.cpp" />
+    <ClCompile Include="Source\input_manager.cpp" />
     <ClCompile Include="Source\PBRShader.cpp" />
     <ClCompile Include="Source\rigidbody.cpp" />
     <ClCompile Include="Source\System\GLTFImporter.cpp" />

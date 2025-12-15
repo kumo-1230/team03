@@ -64,7 +64,7 @@ void SceneTutorial::Update(float elapsedTime) {
 
     int clicked_button_id = -1;
     if (tutorialMenu) {
-        tutorialMenu->Update(&clicked_button_id);
+        tutorialMenu->Update();
     }
 }
 
