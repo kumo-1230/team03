@@ -9,6 +9,7 @@
 #include "System/Sprite.h"
 #include "Lerp.h"
 #include "mathUtils.h"
+#include "System/RenderState.h"
 
 // カーソルの表示状態管理（システムカーソル）
 class SystemCursor
@@ -103,6 +104,11 @@ public:
         if (!is_visible_ || !sprite_) return;
 
         const float current_alpha = GetCurrentAlpha();
+        constexpr float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+        RenderState* rs = Graphics::Instance().GetRenderState();
+        dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
+        dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
 
         // パーティクル描画
         RenderParticles(dc, current_alpha);

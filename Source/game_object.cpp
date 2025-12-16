@@ -21,7 +21,7 @@ GameObject::~GameObject() {
     }
 }
 
-void GameObject::Update(float elapsed_time) {
+void GameObject::UpdatePosition(float elapsed_time) {
     if (!IsActiveInHierarchy()) return;
 
     elapsed_time_ += elapsed_time;
@@ -36,7 +36,7 @@ void GameObject::Update(float elapsed_time) {
 
     for (GameObject* child : children_) {
         if (child) {
-            child->Update(elapsed_time);
+            child->UpdatePosition(elapsed_time);
         }
     }
 }

@@ -10,7 +10,8 @@ public:
 
 	}
 
-	void Update(float elapsed_time) override {
+	void Update(float elapsed_time) override 
+	{
 		if (InputManager::Instance().IsKeyDown(VK_SPACE)) {
 			auto * tw = TweenManager::Instance().AddTween<Vector3Tween>(
 				&position_, // lerp対象変数のポインタ
@@ -20,12 +21,27 @@ public:
 				EaseType::EaseInElastic // イージングタイプ
 			);
 			//tw->SetLoop(true);
-			//tw->SetYoyo(true); // 往復設定
+			//tw->SetYoyo(true); 
 			tw->SetOnComplete([this]() { // 完了時コールバック
-				ImGuiLogger::Instance().AddLog("Vault Tween Complete!");
+				Log(u8"Vault: lerp Complete!");
 				});
 		}
+	}
 
-		GameObject::Update(elapsed_time);
+	void OnCollisionEnter(GameObject* other) override {
+		Log("Vault: Collision Enter!");
+
+		// 衝突相手の情報を取得
+		if (other) {
+			DirectX::XMFLOAT3 other_pos = other->GetWorldPositionFloat3();
+			Log("Other object position: (%.2f, %.2f, %.2f)",
+				other_pos.x, other_pos.y, other_pos.z);
+			Log("This object position: (%.2f, %.2f, %.2f)",
+				position_.x, position_.y, position_.z);
+		}
+	}
+
+	void OnCollisionStay(GameObject* other) override {
+		//Log("Vault: Collision Stay!");
 	}
 };

@@ -18,6 +18,8 @@
 
 // 垂直同期間隔設定
 static const int syncInterval = 1;
+static constexpr float kMaxFPS = 144.0f;
+static const float kMinFrameTime = 1.0f / kMaxFPS;
 
 //static SceneGame sceneGame;
 
@@ -26,47 +28,38 @@ static const int syncInterval = 1;
 Framework::Framework(HWND hWnd)
 	: hWnd(hWnd)
 {
-	OutputDebugStringA("Framework constructor START\n");
 
 	//オーディオ初期化
-	OutputDebugStringA("Initializing Audio\n");
 	Audio::Instance().Initialize();
-	OutputDebugStringA("Audio initialized\n");
 
 	// インプット初期化
-	OutputDebugStringA("Initializing Input\n");
 	Input::Instance().Initialize(hWnd);
-	OutputDebugStringA("Input initialized\n");
 
 	// グラフィックス初期化
-	OutputDebugStringA("Initializing Graphics\n");
 	Graphics::Instance().Initialize(hWnd);
-	OutputDebugStringA("Graphics initialized\n");
 
 	// IMGUI初期化
-	OutputDebugStringA("Initializing ImGui\n");
 	ImGuiRenderer::Initialize(hWnd, Graphics::Instance().GetDevice(), Graphics::Instance().GetDeviceContext());
-	OutputDebugStringA("ImGui initialized\n");
 
+	{ // imgui font change
+		ImGuiIO& io = ImGui::GetIO();
+		io.Fonts->Clear();
+		io.Fonts->AddFontFromFileTTF("Data/Font/MPLUS1-Medium.ttf", 20.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+		io.Fonts->Build();
+	}
 	//エフェクトマネージャー初期化
-	OutputDebugStringA("Initializing EffectManager\n");
 	EffectManager::Instance().Initialize();
-	OutputDebugStringA("EffectManager initialized\n");
 
 	// カスタムカーソル初期化（追加）
-	OutputDebugStringA("Initializing CustomCursor\n");
 	CustomCursor::Instance().Initialize("Data/Sprite/new_cursor.png");
 	CustomCursor::Instance().Hide();  // 初期状態は非表示
-	OutputDebugStringA("CustomCursor initialized\n");
+
 
 	// シーン初期化
-	OutputDebugStringA("Initializing SceneManager\n");
 	SceneManager::Instance().ChangeScene(new SceneTitle);
-	OutputDebugStringA("SceneManager initialized\n");
 
 	srand((unsigned int)time(NULL));
 
-	OutputDebugStringA("Framework constructor END\n");
 }
 // デストラクタ
 Framework::~Framework()
@@ -125,12 +118,12 @@ void Framework::Render(float elapsedTime)
 	// シーン描画処理
 	SceneManager::Instance().Render();
 
+	// カスタムカーソルの描画
+	CustomCursor::Instance().Render(dc);
 
 	// シーンGUI描画処理
 	SceneManager::Instance().DrawGUI();
 
-	// カスタムカーソルの描画
-	CustomCursor::Instance().Render(dc);
 #if 0
 	// IMGUIデモウインドウ描画（IMGUI機能テスト用）
 	ImGui::ShowDemoWindow();
@@ -192,12 +185,25 @@ int Framework::Run()
 			CalculateFrameStats();
 
 			float elapsedTime = timer.TimeInterval();
+
+			if (elapsedTime < kMinFrameTime)
+			{
+				DWORD sleepTime = static_cast<DWORD>((kMinFrameTime - elapsedTime) * 1000.0f);
+				if (sleepTime > 0)
+				{
+					Sleep(sleepTime);
+				}
+				timer.Tick();
+				elapsedTime = timer.TimeInterval();
+			}
+
 			Update(elapsedTime);
 			Render(elapsedTime);
 		}
 	}
 	return static_cast<int>(msg.wParam);
 }
+
 
 // メッセージハンドラ
 LRESULT CALLBACK Framework::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

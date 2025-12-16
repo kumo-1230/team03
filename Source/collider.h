@@ -4,7 +4,6 @@
 #include <vector>
 #include <DirectXMath.h>
 
-// 前方宣言
 class GameObject;
 
 // コライダーの種類を表す列挙型
@@ -50,6 +49,10 @@ public:
     bool IsEnabled() const { return is_enabled_; }
     void SetEnabled(bool enabled) { is_enabled_ = enabled; }
 
+    virtual void GetDebugDrawInfo(
+        DirectX::XMFLOAT4X4& transform,
+        DirectX::XMFLOAT3& size) const = 0;
+
 protected:
     GameObject* owner_ = nullptr;                      // 所有者
     DirectX::XMFLOAT3 offset_ = { 0.0f, 0.0f, 0.0f };   // ローカル座標でのオフセット
@@ -75,6 +78,8 @@ public:
     float GetRadius() const { return radius_; }
     void SetRadius(float radius) { radius_ = radius; }
 
+    void GetDebugDrawInfo(DirectX::XMFLOAT4X4& transform, DirectX::XMFLOAT3& size) const;
+
 private:
     float radius_;  // 球体の半径
 };
@@ -96,13 +101,13 @@ public:
         DirectX::XMFLOAT3& out_correction,
         GameObject*& out_other) const override;
 
-    // サイズの取得・設定
     const DirectX::XMFLOAT3& GetSize() const { return size_; }
     void SetSize(const DirectX::XMFLOAT3& size) { size_ = size; }
     void SetSize(float x, float y, float z) { size_ = { x, y, z }; }
 
-    // ワールド座標での8つの頂点を取得
     std::vector<DirectX::XMFLOAT3> GetWorldVertices() const;
+
+    void GetDebugDrawInfo(DirectX::XMFLOAT4X4& transform, DirectX::XMFLOAT3& size) const;
 
 private:
     DirectX::XMFLOAT3 size_;  // ボックスのサイズ（幅、高さ、奥行き）
@@ -135,6 +140,8 @@ public:
 
     // カプセルの中心線（セグメント）の開始点と終了点を取得
     void GetCapsuleSegment(DirectX::XMFLOAT3& start, DirectX::XMFLOAT3& end) const;
+
+    void GetDebugDrawInfo(DirectX::XMFLOAT4X4& transform, DirectX::XMFLOAT3& size) const;
 
 private:
     float height_;  // カプセルの高さ（全体の高さ）

@@ -10,6 +10,7 @@
 #include "System/graphics.h"
 #include "render_layer.h"
 #include "k_cursor.h"
+#include <imgui_logger.h>
 
 Pose::Pose() {
     Initialize();
@@ -38,13 +39,7 @@ void Pose::Initialize() {
         DirectX::XMFLOAT2{ 417, 476 },
         DirectX::XMFLOAT2{ 0, 0 },
         DirectX::XMFLOAT2{ 417, 476 },
-        0,  // action_id
-        [this]() {  // on_click_callback
-            pose_panel_->SetActive(false);
-            settingMenu->SetActive(true);
-            num_bank = -1;
-        },
-        RenderLayer::kButton
+        0  // action_id
     );
 
     // ホバー時のSE再生
@@ -54,6 +49,10 @@ void Pose::Initialize() {
             se_pause_select_->Play(false);
         }
         });
+
+    pose_buttons_[0]->SetOnClickCallback([this]() {
+		ImGuiLogger::Instance().AddLog(u8"ポーズメニューの設定ボタンがクリックされました。");
+		});
 
     pose_panel_->SetActive(false);
 }
@@ -84,6 +83,8 @@ void Pose::Update(float elapsedTime) {
 
             se_pause_->Stop();
             se_pause_->Play(false);
+
+			pose_panel_->FadeOut(0.3f);
 
             // カスタムカーソルをフェードアウト
             CustomCursor::Instance().FadeOut(0.3f, [this]() {

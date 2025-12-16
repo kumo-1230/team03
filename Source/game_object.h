@@ -11,6 +11,7 @@
 #include <DirectXMath.h>
 #include "System/Model.h"
 #include "System/ResourceManager.h"
+#include "imgui_logger.h"
 
  // 前方宣言
 class Collider;
@@ -152,10 +153,16 @@ public:
     virtual ~GameObject();
 
     /**
-     * @brief 更新処理
+     * @brief 更新処理 (UpdatePosition()前)
      * @param elapsed_time 前フレームからの経過時間（秒）
      */
-    virtual void Update(float elapsed_time);
+    virtual void Update(float elapsed_time) {};
+
+    /**
+	 * @brief 座標更新処理 (Update()後)
+     * @param elapsed_time 前フレームからの経過時間（秒）
+     */
+    void UpdatePosition(float elapsed_time);
 
     /**
      * @brief 描画処理
@@ -703,6 +710,10 @@ public:
      */
     size_t GetColliderCount() const { return colliders_.size(); }
 
+    virtual void OnCollisionEnter(GameObject* other) {}
+    virtual void OnCollisionStay(GameObject* other) {}
+    virtual void OnCollisionExit(GameObject* other) {}
+
     // ========================================
     // リジッドボディ
     // ========================================
@@ -774,6 +785,11 @@ public:
      * @return 階層タイプ
      */
     HierarchyType GetHierarchyType() const { return hierarchy_type_; }
+
+	template<typename... Args>
+    inline void Log(Args&&... args) const {
+        ImGuiLogger::Instance().AddLog(std::forward<Args>(args)...);
+    }
 
 protected:
     // トランスフォーム

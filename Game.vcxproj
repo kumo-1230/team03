@@ -150,7 +150,6 @@
     <ClInclude Include="Source\mathUtils.h" />
     <ClInclude Include="Source\ui_event.h" />
     <ClInclude Include="Source\ui_panel.h" />
-    <ClInclude Include="Source\Obj.h" />
     <ClInclude Include="Source\ParentChild.h" />
     <ClInclude Include="Source\PlayerOld.h" />
     <ClInclude Include="Source\Pose.h" />
@@ -221,7 +220,6 @@
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\mathUtils.cpp" />
     <ClCompile Include="Source\ui_panel.cpp" />
-    <ClCompile Include="Source\Obj.cpp" />
     <ClCompile Include="Source\ParentChild.cpp" />
     <ClCompile Include="Source\PlayerOld.cpp" />
     <ClCompile Include="Source\Pose.cpp" />

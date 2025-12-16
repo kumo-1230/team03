@@ -151,7 +151,7 @@ void SceneTitle::Initialize() {
     // カーソル設定（タイトル画面ではカスタムカーソルを表示）
     SystemCursor::Hide();           // システムカーソルを非表示
     CustomCursor::Instance().Show(); // カスタムカーソルを表示
-    CustomCursor::Instance().FadeIn(2.0f); // フェードインで登場
+    CustomCursor::Instance().FadeIn(1.0f); // フェードインで登場
 }
 
 void SceneTitle::Finalize() {

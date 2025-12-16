@@ -22,7 +22,9 @@ public:
         window_handle_(Graphics::Instance().GetWindowHandle()),
         camera_follow_enabled_(true),
         camera_yaw_(0.0f),
-        camera_pitch_(0.0f) {
+        camera_pitch_(0.0f),
+        free_camera_mode_(false),
+        free_camera_speed_(10.0f) {
     }
 
     Player(const char* model_filepath, const DirectX::XMFLOAT3& pos = { 0.0f, 0.0f, 0.0f })
@@ -36,16 +38,22 @@ public:
         window_handle_(Graphics::Instance().GetWindowHandle()),
         camera_follow_enabled_(true),
         camera_yaw_(0.0f),
-        camera_pitch_(0.0f) {
+        camera_pitch_(0.0f),
+        free_camera_mode_(false),
+        free_camera_speed_(10.0f) {
     }
 
     virtual ~Player() = default;
 
     void Update(float elapsed_time) override {
-        UpdateCamera(elapsed_time);
-        HandleInput(elapsed_time);
-        GameObject::Update(elapsed_time);
-		RenderDebugInfo();
+        if (free_camera_mode_) {
+            UpdateFreeCamera(elapsed_time);
+        }
+        else {
+            UpdateCamera(elapsed_time);
+            HandleInput(elapsed_time);
+        }
+        RenderDebugInfo();
     }
 
     void SetCamera(Camera* camera) {
@@ -83,14 +91,26 @@ public:
 
     void SetCameraFollowEnabled(bool enabled) {
         camera_follow_enabled_ = enabled;
-
-        if (!enabled) {
-            ShowCursor(TRUE);
-        }
     }
 
     bool IsCameraFollowEnabled() const {
         return camera_follow_enabled_;
+    }
+
+    void SetFreeCameraMode(bool enabled) {
+        free_camera_mode_ = enabled;
+    }
+
+    bool IsFreeCameraMode() const {
+        return free_camera_mode_;
+    }
+
+    void SetFreeCameraSpeed(float speed) {
+        free_camera_speed_ = speed;
+    }
+
+    float GetFreeCameraSpeed() const {
+        return free_camera_speed_;
     }
 
     void EaseExam() {
@@ -154,6 +174,110 @@ private:
         }
     }
 
+    void UpdateFreeCamera(float elapsed_time) {
+        if (!camera_ || !window_handle_) return;
+
+        // マウスルック処理
+        POINT center;
+        center.x = static_cast<LONG>(screen_width_ / 2);
+        center.y = static_cast<LONG>(screen_height_ / 2);
+
+        POINT cursor;
+        GetCursorPos(&cursor);
+        ScreenToClient(window_handle_, &cursor);
+
+        float ax = static_cast<float>(cursor.x - center.x);
+        float ay = static_cast<float>(cursor.y - center.y);
+
+        if (ax != 0.0f || ay != 0.0f) {
+            camera_yaw_ += ax * mouse_sensitivity_ * elapsed_time;
+            camera_pitch_ += ay * mouse_sensitivity_ * elapsed_time;
+
+            const float pitch_max = DirectX::XM_PIDIV2 - 0.1f;
+            const float pitch_min = -DirectX::XM_PIDIV2 + 0.1f;
+            if (camera_pitch_ > pitch_max) camera_pitch_ = pitch_max;
+            if (camera_pitch_ < pitch_min) camera_pitch_ = pitch_min;
+
+            if (camera_yaw_ < -DirectX::XM_PI) {
+                camera_yaw_ += DirectX::XM_2PI;
+            }
+            if (camera_yaw_ > DirectX::XM_PI) {
+                camera_yaw_ -= DirectX::XM_2PI;
+            }
+
+            POINT screenCenter{ center.x, center.y };
+            ClientToScreen(window_handle_, &screenCenter);
+            SetCursorPos(screenCenter.x, screenCenter.y);
+        }
+
+        // カメラの方向ベクトルを計算
+        DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(
+            camera_pitch_, camera_yaw_, 0.0f);
+
+        DirectX::XMVECTOR forward_vec = rotation.r[2];
+        DirectX::XMVECTOR right_vec = rotation.r[0];
+        DirectX::XMVECTOR up_vec = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+        DirectX::XMFLOAT3 forward, right, up;
+        DirectX::XMStoreFloat3(&forward, forward_vec);
+        DirectX::XMStoreFloat3(&right, right_vec);
+        DirectX::XMStoreFloat3(&up, up_vec);
+
+        // WASDで移動
+        DirectX::XMFLOAT3 move_direction = { 0.0f, 0.0f, 0.0f };
+
+        if (GetAsyncKeyState('W') & 0x8000) {
+            move_direction.x += forward.x;
+            move_direction.y += forward.y;
+            move_direction.z += forward.z;
+        }
+        if (GetAsyncKeyState('S') & 0x8000) {
+            move_direction.x -= forward.x;
+            move_direction.y -= forward.y;
+            move_direction.z -= forward.z;
+        }
+        if (GetAsyncKeyState('D') & 0x8000) {
+            move_direction.x += right.x;
+            move_direction.y += right.y;
+            move_direction.z += right.z;
+        }
+        if (GetAsyncKeyState('A') & 0x8000) {
+            move_direction.x -= right.x;
+            move_direction.y -= right.y;
+            move_direction.z -= right.z;
+        }
+
+        // スペースで上昇、Shiftで下降
+        if (GetAsyncKeyState(VK_SPACE) & 0x8000) {
+            move_direction.y += 1.0f;
+        }
+        if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
+            move_direction.y -= 1.0f;
+        }
+
+        // 移動を適用
+        DirectX::XMVECTOR move_vec = DirectX::XMLoadFloat3(&move_direction);
+        float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(move_vec));
+
+        if (length > 0.0f) {
+            move_vec = DirectX::XMVector3Normalize(move_vec);
+            move_vec = DirectX::XMVectorScale(move_vec, free_camera_speed_ * elapsed_time);
+
+            DirectX::XMVECTOR eye_vec = DirectX::XMLoadFloat3(&camera_->eye);
+            eye_vec = DirectX::XMVectorAdd(eye_vec, move_vec);
+            DirectX::XMStoreFloat3(&camera_->eye, eye_vec);
+        }
+
+        // フォーカス位置を更新
+        camera_->focus.x = camera_->eye.x + forward.x;
+        camera_->focus.y = camera_->eye.y + forward.y;
+        camera_->focus.z = camera_->eye.z + forward.z;
+
+        // カメラ更新
+        DirectX::XMFLOAT3 camera_up(0.0f, 1.0f, 0.0f);
+        camera_->SetLookAt(camera_->eye, camera_->focus, camera_up);
+    }
+
     void RenderDebugInfo() {
         if (!ImGui::Begin("Player Debug Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::End();
@@ -162,6 +286,36 @@ private:
 
         ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "=== PLAYER DEBUG INFO ===");
         ImGui::Separator();
+
+        // === カメラモード切り替え ===
+        if (ImGui::CollapsingHeader("Camera Mode", ImGuiTreeNodeFlags_DefaultOpen)) {
+            bool free_mode = free_camera_mode_;
+            if (ImGui::Checkbox("Free Camera Mode", &free_mode)) {
+                SetFreeCameraMode(free_mode);
+            }
+
+            if (free_camera_mode_) {
+                ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "MODE: FREE CAMERA");
+                ImGui::Text("Controls:");
+                ImGui::BulletText("WASD: Move Camera");
+                ImGui::BulletText("Space: Move Up");
+                ImGui::BulletText("Shift: Move Down");
+                ImGui::BulletText("Mouse: Look Around");
+
+                float speed = free_camera_speed_;
+                if (ImGui::SliderFloat("Camera Speed", &speed, 1.0f, 50.0f)) {
+                    SetFreeCameraSpeed(speed);
+                }
+            }
+            else {
+                ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "MODE: PLAYER FOLLOW");
+
+                bool follow = camera_follow_enabled_;
+                if (ImGui::Checkbox("Camera Follow", &follow)) {
+                    SetCameraFollowEnabled(follow);
+                }
+            }
+        }
 
         // === 基本情報 ===
         if (ImGui::CollapsingHeader("Basic Info", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -361,7 +515,6 @@ private:
             ImGui::Text("Move Speed: %.3f", move_speed_);
             ImGui::Text("Mouse Sensitivity: %.3f", mouse_sensitivity_);
             ImGui::Text("Camera Height: %.3f", camera_height_);
-            ImGui::Text("Camera Follow: %s", camera_follow_enabled_ ? "ENABLED" : "DISABLED");
             ImGui::Text("Camera Yaw: %.3f (%.1f deg)", camera_yaw_,
                 DirectX::XMConvertToDegrees(camera_yaw_));
             ImGui::Text("Camera Pitch: %.3f (%.1f deg)", camera_pitch_,
@@ -466,8 +619,6 @@ private:
 
         DirectX::XMFLOAT3 up(0.0f, 1.0f, 0.0f);
         camera_->SetLookAt(camera_->eye, camera_->focus, up);
-
-        //ShowCursor(FALSE);
     }
 
     float move_speed_;
@@ -480,6 +631,10 @@ private:
     bool camera_follow_enabled_;
     float camera_yaw_;
     float camera_pitch_;
+
+    // フリーカメラモード
+    bool free_camera_mode_;
+    float free_camera_speed_;
 };
 
 #endif

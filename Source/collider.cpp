@@ -567,3 +567,79 @@ bool CapsuleCollider::CheckRigidbodyCollision(const Collider* other, DirectX::XM
 
     return has_collision;
 }
+
+void SphereCollider::GetDebugDrawInfo(
+    DirectX::XMFLOAT4X4& transform,
+    DirectX::XMFLOAT3& size) const {
+
+    DirectX::XMFLOAT3 world_center = GetWorldCenter();
+
+    transform = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        world_center.x, world_center.y, world_center.z, 1
+    };
+
+    size = { radius_, radius_, radius_ };
+}
+
+void BoxCollider::GetDebugDrawInfo(
+    DirectX::XMFLOAT4X4& transform,
+    DirectX::XMFLOAT3& size) const {
+
+    if (owner_) {
+        transform = owner_->GetWorldTransformFloat4X4();
+
+        if (offset_.x != 0.0f || offset_.y != 0.0f || offset_.z != 0.0f) {
+            DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(&transform);
+            DirectX::XMVECTOR offset_vec = DirectX::XMLoadFloat3(&offset_);
+            DirectX::XMVECTOR world_offset = DirectX::XMVector3TransformCoord(
+                offset_vec, world);
+
+            DirectX::XMStoreFloat3(
+                reinterpret_cast<DirectX::XMFLOAT3*>(&transform._41),
+                world_offset);
+        }
+    }
+    else {
+        transform = {
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            offset_.x, offset_.y, offset_.z, 1
+        };
+    }
+
+    size = size_;
+}
+
+void CapsuleCollider::GetDebugDrawInfo(
+    DirectX::XMFLOAT4X4& transform,
+    DirectX::XMFLOAT3& size) const {
+
+    if (owner_) {
+        transform = owner_->GetWorldTransformFloat4X4();
+
+        if (offset_.x != 0.0f || offset_.y != 0.0f || offset_.z != 0.0f) {
+            DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(&transform);
+            DirectX::XMVECTOR offset_vec = DirectX::XMLoadFloat3(&offset_);
+            DirectX::XMVECTOR world_offset = DirectX::XMVector3TransformCoord(
+                offset_vec, world);
+
+            DirectX::XMStoreFloat3(
+                reinterpret_cast<DirectX::XMFLOAT3*>(&transform._41),
+                world_offset);
+        }
+    }
+    else {
+        transform = {
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            offset_.x, offset_.y, offset_.z, 1
+        };
+    }
+
+    size = { radius_, height_, radius_ };
+}

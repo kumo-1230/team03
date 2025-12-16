@@ -24,6 +24,7 @@
 #include <k_lerp.h>
 #include <input_manager.h>
 #include <vault.h>
+#include "collider.h"
 
 SceneGame::SceneGame()
 {
@@ -68,9 +69,11 @@ void SceneGame::Initialize()
 	sky_map_ = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
 
 	player_->SetCamera(camera_.get());
+	player_->AddCollider<BoxCollider>(DirectX::XMFLOAT3{ 1.0f, 2.0f, 1.0f });
 
 	obj_ = world.CreateObject<Vault>("Data/Model/mech_drone/mech_drone.glb");
 	obj_->SetPosition(0, 0, 1);
+	obj_->AddCollider<BoxCollider>(DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f });
 
 	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 2 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f })
 		->SetParent(obj_);
@@ -287,18 +290,21 @@ void SceneGame::Render()
 	}
 
 	// 3Dデバッグ描画
+#ifdef _DEBUG
 	{
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
+		World::Instance().DrawDebugPrimitives(shapeRenderer);
 		light_manager_.DrawDebugSpheres(shapeRenderer);
 		shapeRenderer->Render(dc, rc.camera->GetView(), rc.camera->GetProjection());
 	}
+#endif
 
 	// 2Dスプライト描画
 	{
-		Pose::Instance().Render(dc);
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
+		Pose::Instance().Render(dc);
 
 	}
 }
@@ -318,6 +324,13 @@ void SceneGame::DrawGUI()
 
 		DirectX::XMFLOAT3 camFront = camera_->GetFront();
 		ImGui::Text("Front: %.2f, %.2f, %.2f", camFront.x, camFront.y, camFront.z);
+	}
+
+	if (ImGui::CollapsingHeader("Debug Draw", ImGuiTreeNodeFlags_DefaultOpen)) {
+		bool draw_colliders = World::Instance().GetDebugDrawColliders();
+		if (ImGui::Checkbox("Draw Colliders", &draw_colliders)) {
+			World::Instance().SetDebugDrawColliders(draw_colliders);
+		}
 	}
 
 	ImGui::End();

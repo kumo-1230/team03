@@ -43,9 +43,6 @@
     <Filter Include="Source\MySystem\Collision">
       <UniqueIdentifier>{9bc5efcc-daeb-47ed-babf-10d8c0a882b0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Obj">
-      <UniqueIdentifier>{82e62cd1-7420-4ebc-852d-fd70debcd998}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\scene\main/frame">
       <UniqueIdentifier>{2a6c3d4b-49c5-45b7-b0f0-974f75cc7003}</UniqueIdentifier>
     </Filter>
@@ -63,9 +60,6 @@
     </Filter>
     <Filter Include="Source\KLib\Objects">
       <UniqueIdentifier>{f1c6e41d-1158-4eff-b34e-e68c3490ecb9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\KLib\Lerp">
-      <UniqueIdentifier>{f654fa34-9acd-4081-9453-23db536cadb1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\KLib\UI">
       <UniqueIdentifier>{2b52ead2-4363-4b24-bd44-f15f877a9849}</UniqueIdentifier>
@@ -230,9 +224,6 @@
     </ClInclude>
     <ClInclude Include="Source\star.h">
       <Filter>Source\Map\Stage</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Obj.h">
-      <Filter>Source\Obj</Filter>
     </ClInclude>
     <ClInclude Include="Source\System\PrimitiveRenderer.h">
       <Filter>Source\System</Filter>
@@ -460,9 +451,6 @@
     </ClCompile>
     <ClCompile Include="Source\star.cpp">
       <Filter>Source\Map\Stage</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Obj.cpp">
-      <Filter>Source\Obj</Filter>
     </ClCompile>
     <ClCompile Include="Source\System\PrimitiveRenderer.cpp">
       <Filter>Source\System</Filter>

@@ -54,35 +54,35 @@ public:
         case EaseType::EaseInOutQuart:
             return t < 0.5f ? 8.0f * t * t * t * t : 1.0f - 8.0f * (--t) * t * t * t;
         case EaseType::EaseInBack: {
-            const float c1 = 1.70158f;
-            const float c3 = c1 + 1.0f;
+            constexpr float c1 = 1.70158f;
+            constexpr float c3 = c1 + 1.0f;
             return c3 * t * t * t - c1 * t * t;
         }
         case EaseType::EaseOutBack: {
-            const float c1 = 1.70158f;
-            const float c3 = c1 + 1.0f;
+            constexpr float c1 = 1.70158f;
+            constexpr float c3 = c1 + 1.0f;
             return 1.0f + c3 * powf(t - 1.0f, 3.0f) + c1 * powf(t - 1.0f, 2.0f);
         }
         case EaseType::EaseInOutBack: {
-            const float c1 = 1.70158f;
-            const float c2 = c1 * 1.525f;
+            constexpr float c1 = 1.70158f;
+            constexpr float c2 = c1 * 1.525f;
             return t < 0.5f
                 ? (powf(2.0f * t, 2.0f) * ((c2 + 1.0f) * 2.0f * t - c2)) / 2.0f
                 : (powf(2.0f * t - 2.0f, 2.0f) * ((c2 + 1.0f) * (t * 2.0f - 2.0f) + c2) + 2.0f) / 2.0f;
         }
         case EaseType::EaseInElastic: {
-            const float c4 = (2.0f * DirectX::XM_PI) / 3.0f;
+            constexpr float c4 = (2.0f * DirectX::XM_PI) / 3.0f;
             return t == 0.0f ? 0.0f : t == 1.0f ? 1.0f : -powf(2.0f, 10.0f * t - 10.0f) * sinf((t * 10.0f - 10.75f) * c4);
         }
         case EaseType::EaseOutElastic: {
-            const float c4 = (2.0f * DirectX::XM_PI) / 3.0f;
+            constexpr float c4 = (2.0f * DirectX::XM_PI) / 3.0f;
             return t == 0.0f ? 0.0f : t == 1.0f ? 1.0f : powf(2.0f, -10.0f * t) * sinf((t * 10.0f - 0.75f) * c4) + 1.0f;
         }
         case EaseType::EaseInBounce:
             return 1.0f - Apply(EaseType::EaseOutBounce, 1.0f - t);
         case EaseType::EaseOutBounce: {
-            const float n1 = 7.5625f;
-            const float d1 = 2.75f;
+            constexpr float n1 = 7.5625f;
+            constexpr float d1 = 2.75f;
             if (t < 1.0f / d1) {
                 return n1 * t * t;
             }
@@ -169,23 +169,23 @@ public:
 
         float eased_t = Easing::Apply(ease_type_, t);
         ApplyTween(eased_t);
-
-        //if (is_complete_ && on_complete_) {
-        //    on_complete_();
-        //    on_complete_ = nullptr;
-        //}
     }
 
     virtual void ApplyTween(float t) = 0;
 
     void Play() { is_playing_ = true; }
+
     void Pause() { is_playing_ = false; }
-    void Stop() {
+
+    void Stop()
+    {
         is_playing_ = false;
         is_complete_ = true;
         elapsed_time_ = 0.0f;
     }
-    void Reset() {
+
+    void Reset()
+    {
         elapsed_time_ = 0.0f;
         is_complete_ = false;
         is_playing_ = true;
@@ -289,10 +289,10 @@ public:
         return ptr;
     }
 
-    void Update(float delta_time) {
+    void Update(float elapsed_time) {
         for (auto& tween : tweens_) {
             if (tween) {
-                tween->Update(delta_time);
+                tween->Update(elapsed_time);
             }
         }
 
