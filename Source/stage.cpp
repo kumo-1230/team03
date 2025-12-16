@@ -1,5 +1,4 @@
 #include "stage.h"
-#include "PlayerOld.h"
 
 //コンストラクタ
 Stage::Stage()

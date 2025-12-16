@@ -35,6 +35,10 @@ public:
 	// ‰E•ûŒüŽæ“¾
 	const DirectX::XMFLOAT3& GetRight() const { return right; }
 
+	void SetEye(const DirectX::XMFLOAT3& eye) { this->eye = eye; }
+
+	void SetFocus(const DirectX::XMFLOAT3& focus) { this->focus = focus; }
+
 public:
 	DirectX::XMFLOAT4X4		view;
 	DirectX::XMFLOAT4X4		projection;

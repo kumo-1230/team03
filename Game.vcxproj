@@ -119,6 +119,8 @@
     <ClInclude Include="External\imgui-docking\imstb_rectpack.h" />
     <ClInclude Include="External\imgui-docking\imstb_textedit.h" />
     <ClInclude Include="External\imgui-docking\imstb_truetype.h" />
+    <ClInclude Include="Source\Camera.h" />
+    <ClInclude Include="Source\camera_controller.h" />
     <ClInclude Include="Source\collider.h" />
     <ClInclude Include="Source\game_object.h" />
     <ClInclude Include="Source\imgui_logger.h" />
@@ -133,8 +135,6 @@
     <ClInclude Include="Source\System\GLTFImporter.h" />
     <ClInclude Include="Source\System\Light.h" />
     <ClInclude Include="Source\ui_button.h" />
-    <ClInclude Include="Source\Camera.h" />
-    <ClInclude Include="Source\CameraController.h" />
     <ClInclude Include="Source\Character.h" />
     <ClInclude Include="Source\Collision.h" />
     <ClInclude Include="Source\common.h" />
@@ -145,22 +145,18 @@
     <ClInclude Include="Source\EffectManager.h" />
     <ClInclude Include="Source\Framework.h" />
     <ClInclude Include="Source\JsonUtils.h" />
-    <ClInclude Include="Source\KeyInput.h" />
     <ClInclude Include="Source\Lerp.h" />
     <ClInclude Include="Source\mathUtils.h" />
     <ClInclude Include="Source\ui_event.h" />
     <ClInclude Include="Source\ui_panel.h" />
     <ClInclude Include="Source\ParentChild.h" />
-    <ClInclude Include="Source\PlayerOld.h" />
-    <ClInclude Include="Source\Pose.h" />
+    <ClInclude Include="Source\pause.h" />
     <ClInclude Include="Source\RayCast.h" />
-    <ClInclude Include="Source\Scene.h" />
-    <ClInclude Include="Source\SceneGame.h" />
-    <ClInclude Include="Source\SceneLoading.h" />
-    <ClInclude Include="Source\SceneManager.h" />
-    <ClInclude Include="Source\SceneResult.h" />
-    <ClInclude Include="Source\SceneTitle.h" />
-    <ClInclude Include="Source\SceneTutorial.h" />
+    <ClInclude Include="Source\scene.h" />
+    <ClInclude Include="Source\scene_game.h" />
+    <ClInclude Include="Source\scene_loading.h" />
+    <ClInclude Include="Source\scene_manager.h" />
+    <ClInclude Include="Source\scene_title.h" />
     <ClInclude Include="Source\Screen.h" />
     <ClInclude Include="Source\sky_map.h" />
     <ClInclude Include="Source\stage.h" />
@@ -200,6 +196,7 @@
     <ClCompile Include="External\imgui-docking\imgui_impl_dx11.cpp" />
     <ClCompile Include="External\imgui-docking\imgui_impl_win32.cpp" />
     <ClCompile Include="External\imgui-docking\imgui_widgets.cpp" />
+    <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\collider.cpp" />
     <ClCompile Include="Source\game_object.cpp" />
     <ClCompile Include="Source\input_manager.cpp" />
@@ -209,8 +206,6 @@
     <ClCompile Include="Source\ui_button.cpp">
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
-    <ClCompile Include="Source\Camera.cpp" />
-    <ClCompile Include="Source\CameraController.cpp" />
     <ClCompile Include="Source\Character.cpp" />
     <ClCompile Include="Source\Collision.cpp" />
     <ClCompile Include="Source\Dialog.cpp" />
@@ -221,16 +216,13 @@
     <ClCompile Include="Source\mathUtils.cpp" />
     <ClCompile Include="Source\ui_panel.cpp" />
     <ClCompile Include="Source\ParentChild.cpp" />
-    <ClCompile Include="Source\PlayerOld.cpp" />
-    <ClCompile Include="Source\Pose.cpp" />
+    <ClCompile Include="Source\pause.cpp" />
     <ClCompile Include="Source\RayCast.cpp" />
-    <ClCompile Include="Source\Scene.cpp" />
-    <ClCompile Include="Source\SceneGame.cpp" />
-    <ClCompile Include="Source\SceneLoading.cpp" />
-    <ClCompile Include="Source\SceneManager.cpp" />
-    <ClCompile Include="Source\SceneResult.cpp" />
-    <ClCompile Include="Source\SceneTitle.cpp" />
-    <ClCompile Include="Source\SceneTutorial.cpp" />
+    <ClCompile Include="Source\scene.cpp" />
+    <ClCompile Include="Source\scene_game.cpp" />
+    <ClCompile Include="Source\scene_loading.cpp" />
+    <ClCompile Include="Source\scene_manager.cpp" />
+    <ClCompile Include="Source\scene_title.cpp" />
     <ClCompile Include="Source\sky_map.cpp" />
     <ClCompile Include="Source\stage.cpp" />
     <ClCompile Include="Source\System\Audio.cpp" />

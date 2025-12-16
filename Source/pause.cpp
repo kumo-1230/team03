@@ -1,28 +1,27 @@
-#include "pose.h"
+#include "pause.h"
 #include "common.h"
-#include "SceneManager.h"
-#include "SceneLoading.h"
-#include "SceneGame.h"
-#include "SceneTitle.h"
+#include "scene_manager.h"
+#include "scene_loading.h"
+#include "scene_game.h"
+#include "scene_title.h"
 #include "input_manager.h"
 #include "System/audio.h"
-#include "SceneTutorial.h"
 #include "System/graphics.h"
 #include "render_layer.h"
 #include "k_cursor.h"
 #include <imgui_logger.h>
 
-Pose::Pose() {
+Pause::Pause() {
     Initialize();
 }
 
-Pose::~Pose() {
+Pause::~Pause() {
     delete se_pause_;
     delete se_pause_back_;
     delete se_pause_select_;
 }
 
-void Pose::Initialize() {
+void Pause::Initialize() {
     auto* device = Graphics::Instance().GetDevice();
 
     se_pause_ = Audio::Instance().LoadAudioSource("Data/Sound/Game/SE_game_pause.wav");
@@ -57,14 +56,14 @@ void Pose::Initialize() {
     pose_panel_->SetActive(false);
 }
 
-void Pose::Update(float elapsedTime) {
+void Pause::Update(float elapsedTime) {
     auto& input = InputManager::Instance();
 
     // ポーズの切り替え
     {
         // ポーズ開始
-        if (input.IsKeyDown('P') && !on_pose_) {
-            on_pose_ = true;
+        if (input.IsKeyDown('P') && !on_pause_) {
+            on_pause_ = true;
             is_fade_in_ = true;
             pose_panel_->SetActive(true);
             pose_panel_->FadeIn(0.3f);
@@ -77,7 +76,7 @@ void Pose::Update(float elapsedTime) {
             SystemCursor::Hide();  // システムカーソルは非表示
         }
         // ポーズ解除
-        else if (input.IsKeyDown('P') && on_pose_) {
+        else if (input.IsKeyDown('P') && on_pause_) {
             is_fade_out_ = true;
             is_fade_in_ = false;
 
@@ -94,22 +93,20 @@ void Pose::Update(float elapsedTime) {
         }
     }
 
-    if (!on_pose_) return;
+    if (!on_pause_) return;
 
     // UIパネルの更新
     pose_panel_->Update();
 }
 
-void Pose::Render(ID3D11DeviceContext* dc) {
-    if (!on_pose_) return;
+void Pause::Render(ID3D11DeviceContext* dc) {
+    if (!on_pause_) return;
 
     pose_panel_->Render(dc, MenuBackgroundMode::kBackgroundVisible, false);
-
-
 }
 
-void Pose::PoseOffComplete() {
-    on_pose_ = false;
+void Pause::PoseOffComplete() {
+    on_pause_ = false;
     is_fade_in_ = true;
     is_fade_out_ = false;
     num_bank = -1;

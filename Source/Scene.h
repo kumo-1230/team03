@@ -1,4 +1,5 @@
 #pragma once
+#include <imgui_logger.h>
 
 //ƒV[ƒ“
 class Scene
@@ -33,4 +34,9 @@ public:
 
 	//€”õŠ®—¹‚µ‚Ä‚¢‚é‚©
 	void SetReady() { ready = true; }
+
+	template<typename... Args>
+	inline void Log(Args&&... args) const {
+		ImGuiLogger::Instance().AddLog(std::forward<Args>(args)...);
+	}
 };

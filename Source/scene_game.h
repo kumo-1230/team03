@@ -1,10 +1,9 @@
 #pragma once
 
-#include "CameraController.h"
+#include "camera_controller.h"
 #include "Scene.h"
 #include "Camera.h"
 #include <memory>
-#include "PlayerOld.h"
 #include <vector>
 #include "sky_map.h"
 #include "Lerp.h"
@@ -21,7 +20,7 @@ private:
 	bool H = false;//デバッグ
 
 	Player* player_ = nullptr;
-	std::unique_ptr<Camera> camera_ = nullptr;
+	CameraController* camera_controller_ = nullptr;
 	std::unique_ptr<sky_map> sky_map_ = nullptr;
 	GameObject* obj_ = nullptr;
 	AudioSource* bgm_ = nullptr;

@@ -2,10 +2,11 @@
 #include "System/Sprite.h"
 #include "Scene.h"
 #include "ui_panel.h"
-#include "CameraController.h"
 #include "Lerp.h"
 #include "sky_map.h"
 #include "System/AudioSource.h"
+
+class CameraController;
 
 enum PwUp {
 	RETURN = 0,
@@ -36,8 +37,9 @@ public:
 
 private:
 	std::unique_ptr<UiPanel> titleStartMenu;
-	std::unique_ptr<Camera> camera{ nullptr };
-	std::unique_ptr<CameraController> cameraController{ nullptr };
+	CameraController* camera_controller_{ nullptr };
+	//std::unique_ptr<CameraController> camera{ nullptr };
+	//std::unique_ptr<CameraController> cameraController{ nullptr };
 	std::unique_ptr<Sprite> sprFadeLoad{ nullptr };
 	std::unique_ptr<sky_map> skyMap{ nullptr };
 

@@ -7,7 +7,7 @@
 struct ID3D11DeviceContext;
 class Sprite;
 
-class Pose {
+class Pause {
 public:
     enum class SENSITIVITY_TYPE {
         LOW = 0,
@@ -31,14 +31,14 @@ public:
         HIGH,
     };
 
-    static Pose& Instance() {
-        static Pose pose;
+    static Pause& Instance() {
+        static Pause pose;
         return pose;
     }
 
     // ポーズ状態制御
-    void SetPose(bool b) { on_pose_ = b; }
-    bool IsOnPose() const { return on_pose_; }
+    void SetPose(bool b) { on_pause_ = b; }
+    bool IsOnPose() const { return on_pause_; }
 
     // 設定値取得
     int GetSenitivity() const { return sensitivity; }
@@ -55,16 +55,16 @@ public:
     void Render(ID3D11DeviceContext* dc);
 
 private:
-    Pose();
-    ~Pose();
-    Pose(const Pose&) = delete;
-    Pose& operator=(const Pose&) = delete;
+    Pause();
+    ~Pause();
+    Pause(const Pause&) = delete;
+    Pause& operator=(const Pause&) = delete;
 
     void Initialize();
     void PoseOffComplete();  // フェード完了後の処理
 
     // ポーズ状態
-    bool on_pose_{ false };
+    bool on_pause_{ false };
     bool is_fade_in_{ false };
     bool is_fade_out_{ false };
     bool tutorial{ false };

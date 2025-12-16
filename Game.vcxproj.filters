@@ -159,28 +159,22 @@
     <ClInclude Include="Source\ui_panel.h">
       <Filter>Source\KLib\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SceneGame.h">
+    <ClInclude Include="Source\scene_game.h">
       <Filter>Source\scene</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SceneLoading.h">
+    <ClInclude Include="Source\scene_loading.h">
       <Filter>Source\scene</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SceneManager.h">
+    <ClInclude Include="Source\scene_manager.h">
       <Filter>Source\scene</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SceneTitle.h">
+    <ClInclude Include="Source\scene_title.h">
       <Filter>Source\scene</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Scene.h">
-      <Filter>Source\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SceneResult.h">
+    <ClInclude Include="Source\scene.h">
       <Filter>Source\scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\Character.h">
-      <Filter>Source\Character</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\PlayerOld.h">
       <Filter>Source\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Collision.h">
@@ -198,16 +192,7 @@
     <ClInclude Include="Source\Framework.h">
       <Filter>Source\scene\main/frame</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Camera.h">
-      <Filter>Source\Map\camera</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\CameraController.h">
-      <Filter>Source\Map\camera</Filter>
-    </ClInclude>
     <ClInclude Include="Source\common.h">
-      <Filter>Source\MySystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\KeyInput.h">
       <Filter>Source\MySystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\mathUtils.h">
@@ -243,7 +228,7 @@
     <ClInclude Include="Source\Screen.h">
       <Filter>Source\MySystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Pose.h">
+    <ClInclude Include="Source\pause.h">
       <Filter>Source\scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\CursorManager.h">
@@ -260,9 +245,6 @@
     </ClInclude>
     <ClInclude Include="Source\sky_map.h">
       <Filter>Source\MySystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SceneTutorial.h">
-      <Filter>Source\scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\ui_element.h">
       <Filter>Source\KLib\UI</Filter>
@@ -314,6 +296,12 @@
     </ClInclude>
     <ClInclude Include="Source\imgui_logger.h">
       <Filter>Source\KLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\camera_controller.h">
+      <Filter>Source\KLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Camera.h">
+      <Filter>Source\System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -389,28 +377,22 @@
     <ClCompile Include="Source\ui_panel.cpp">
       <Filter>Source\KLib\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SceneGame.cpp">
+    <ClCompile Include="Source\scene_game.cpp">
       <Filter>Source\scene</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SceneLoading.cpp">
+    <ClCompile Include="Source\scene_loading.cpp">
       <Filter>Source\scene</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SceneManager.cpp">
+    <ClCompile Include="Source\scene_manager.cpp">
       <Filter>Source\scene</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SceneTitle.cpp">
+    <ClCompile Include="Source\scene_title.cpp">
       <Filter>Source\scene</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Scene.cpp">
-      <Filter>Source\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SceneResult.cpp">
+    <ClCompile Include="Source\scene.cpp">
       <Filter>Source\scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\Character.cpp">
-      <Filter>Source\Character</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\PlayerOld.cpp">
       <Filter>Source\Character</Filter>
     </ClCompile>
     <ClCompile Include="Source\Collision.cpp">
@@ -431,12 +413,6 @@
     <ClCompile Include="Source\Main.cpp">
       <Filter>Source\scene\main/frame</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Camera.cpp">
-      <Filter>Source\Map\camera</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\CameraController.cpp">
-      <Filter>Source\Map\camera</Filter>
-    </ClCompile>
     <ClCompile Include="Source\mathUtils.cpp">
       <Filter>Source\MySystem</Filter>
     </ClCompile>
@@ -455,7 +431,7 @@
     <ClCompile Include="Source\System\PrimitiveRenderer.cpp">
       <Filter>Source\System</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Pose.cpp">
+    <ClCompile Include="Source\pause.cpp">
       <Filter>Source\scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\Dialog.cpp">
@@ -463,9 +439,6 @@
     </ClCompile>
     <ClCompile Include="Source\sky_map.cpp">
       <Filter>Source\MySystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SceneTutorial.cpp">
-      <Filter>Source\scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\ui_element.cpp">
       <Filter>Source\KLib\UI</Filter>
@@ -490,6 +463,9 @@
     </ClCompile>
     <ClCompile Include="Source\input_manager.cpp">
       <Filter>Source\KLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Camera.cpp">
+      <Filter>Source\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

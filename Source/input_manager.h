@@ -21,7 +21,7 @@ public:
     bool IsMouseButtonUp(int button) const;    // 離された瞬間
     bool IsMouseButtonHeld(int button) const;  // 押され続けている
 
-    // キーボードの状態（constを削除）
+    // キーボードの状態
     bool IsKeyDown(int virtual_key);   // 押された瞬間
     bool IsKeyUp(int virtual_key);     // 離された瞬間
     bool IsKeyHeld(int virtual_key);   // 押され続けている
@@ -44,7 +44,6 @@ private:
 
     DirectX::XMFLOAT2 cursor_position_{ 0.0f, 0.0f };
 
-    // std::mapよりstd::unordered_mapの方が高速
     std::unordered_map<int, KeyState> key_states_;
 
     // マウスボタン（0:Left, 1:Right, 2:Middle）
@@ -56,6 +55,5 @@ private:
     void UpdateKeyStates();
     void UpdateMouseButtons();
 
-    // キー状態の取得または作成（constを削除）
     KeyState& GetOrCreateKeyState(int virtual_key);
 };

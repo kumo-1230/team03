@@ -6,12 +6,11 @@
 #include "System/Input.h"
 #include "System/Graphics.h"
 #include "System/ImGuiRenderer.h"
-#include "SceneGame.h"
-#include "SceneTitle.h"
-#include "SceneManager.h"
+#include "scene_game.h"
+#include "scene_title.h"
+#include "scene_manager.h"
 #include "EffectManager.h"
 #include "System/Audio.h"
-#include "KeyInput.h"
 #include <k_cursor.h>
 #include <input_manager.h>
 #include "imgui_logger.h"
@@ -91,8 +90,10 @@ void Framework::Update(float elapsedTime)
 
 	InputManager::Instance().Update();
 
+#ifdef _DEBUG
 	// IMGUIフレーム開始処理	
 	ImGuiRenderer::NewFrame();
+#endif
 
 	CustomCursor::Instance().Update(elapsedTime);
 

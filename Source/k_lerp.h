@@ -231,9 +231,9 @@ private:
 };
 
 // XMFLOAT3用のTween
-class Vector3Tween : public Tween {
+class Float3Tween : public Tween {
 public:
-    Vector3Tween(DirectX::XMFLOAT3* target, const DirectX::XMFLOAT3& start, const DirectX::XMFLOAT3& end,
+    Float3Tween(DirectX::XMFLOAT3* target, const DirectX::XMFLOAT3& start, const DirectX::XMFLOAT3& end,
         float duration, EaseType ease = EaseType::Linear)
         : Tween(duration, ease), target_(target), start_(start), end_(end) {
         *target_ = start_;
@@ -252,9 +252,9 @@ private:
 };
 
 // カラー用のTween
-class ColorTween : public Tween {
+class Float4Tween : public Tween {
 public:
-    ColorTween(DirectX::XMFLOAT4* target, const DirectX::XMFLOAT4& start, const DirectX::XMFLOAT4& end,
+    Float4Tween(DirectX::XMFLOAT4* target, const DirectX::XMFLOAT4& start, const DirectX::XMFLOAT4& end,
         float duration, EaseType ease = EaseType::Linear)
         : Tween(duration, ease), target_(target), start_(start), end_(end) {
         *target_ = start_;

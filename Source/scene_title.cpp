@@ -1,21 +1,25 @@
 #include "System/Graphics.h"
-#include "SceneTitle.h"
+#include "scene_title.h"
 #include "System/Input.h"
-#include "SceneGame.h"
-#include "SceneManager.h"
-#include "SceneLoading.h"
+#include "scene_game.h"
+#include "scene_manager.h"
+#include "scene_loading.h"
 #include "common.h"
 #include "System/Audio.h"
-#include "SceneTutorial.h"
 #include "input_manager.h"
 #include "render_layer.h"
 #include "k_cursor.h"
+#include <world.h>
+#include "camera_controller.h"
 
 SceneTitle::SceneTitle() {}
 
 void SceneTitle::Initialize() {
     Graphics& graphics = Graphics::Instance();
     auto* device = graphics.GetDevice();
+
+    auto& world = World::Instance();
+	world.Clear();
 
     sprFadeLoad = std::make_unique<Sprite>(device, "Data/Sprite/load_background.png");
 
@@ -71,7 +75,8 @@ void SceneTitle::Initialize() {
                 clickSE->Stop();
                 clickSE->Play(false);
             }
-            SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial()));
+            //シーン作ってない
+            //SceneManager::Instance().ChangeScene(new SceneLoading(new SceneTutorial()));
         },
         RenderLayer::kButton
     );
@@ -104,20 +109,20 @@ void SceneTitle::Initialize() {
     titleStartMenu->SetActive(true);
 
     // カメラ設定
-    camera = std::make_unique<Camera>();
-    DirectX::XMFLOAT3 eye{ 0, 0, 0 };
-    DirectX::XMFLOAT3 focus{ 1, 0, 0 };
-    camera->SetLookAt(eye, focus, DirectX::XMFLOAT3(0, 1, 0));
-    camera->SetPerspectiveFov(
-        DirectX::XMConvertToRadians(45),
-        graphics.GetScreenWidth() / graphics.GetScreenHeight(),
-        0.1f,
-        100000.0f
-    );
+    //camera = std::make_unique<CameraController>();
+    //DirectX::XMFLOAT3 eye{ 0, 0, 0 };
+    //DirectX::XMFLOAT3 focus{ 1, 0, 0 };
+    //camera->SetLookAt(eye, focus, DirectX::XMFLOAT3(0, 1, 0));
+    //camera->SetPerspectiveFov(
+    //    DirectX::XMConvertToRadians(45),
+    //    graphics.GetScreenWidth() / graphics.GetScreenHeight(),
+    //    0.1f,
+    //    100000.0f
+    //);
 
-    cameraController = std::make_unique<CameraController>();
-    cameraController->SetEye({ 0, 0, 0 });
-    cameraController->SetTarget({ 0, 0, 1 });
+    camera_controller_ = world.CreateObject<CameraController>();
+    camera_controller_->GetCamera()->SetEye({ 0, 0, 0 });
+    camera_controller_->GetCamera()->SetFocus({ 0, 0, 1 });
 
     // ライト設定
     {
@@ -139,7 +144,7 @@ void SceneTitle::Initialize() {
 
         DirectX::XMFLOAT3 playerPos = { 0, 0, 0 };
         playerPos.y += 1.0f;
-        DirectX::XMFLOAT3 spotDirection = camera->GetFront();
+        DirectX::XMFLOAT3 spotDirection = camera_controller_->GetCamera()->GetFront();
 
         lightManager.SetPlayerSpotLight(
             playerPos, spotDirection,
@@ -155,7 +160,6 @@ void SceneTitle::Initialize() {
 }
 
 void SceneTitle::Finalize() {
-    cameraController.reset();
     backGroundMusic->Stop();
     clickSE->Stop();
     onStartSE->Stop();
@@ -167,11 +171,12 @@ void SceneTitle::Finalize() {
 
     // カーソルをリセット（次のシーンのために）
     CustomCursor::Instance().Hide();
+
+    World::Instance().Clear();
 }
 
 void SceneTitle::Update(float elapsedTime) {
     backGroundMusic->Play(true);
-    cameraController->Update(elapsedTime, camera.get(), 0, 0);
 
     // UIパネルを更新
     titleStartMenu->Update();
@@ -202,7 +207,7 @@ void SceneTitle::Render() {
     RenderContext rc;
     rc.deviceContext = dc;
     rc.renderState = rs;
-    rc.camera = camera.get();
+    rc.camera = camera_controller_->GetCamera();
     rc.lightManager = &lightManager;
 
     // レンダーステート設定
@@ -219,7 +224,7 @@ void SceneTitle::Render() {
     DirectX::XMMATRIX VP = V * P;
     DirectX::XMFLOAT4X4 vp;
     DirectX::XMStoreFloat4x4(&vp, VP);
-    DirectX::XMFLOAT3 Cpos = camera->GetEye();
+    DirectX::XMFLOAT3 Cpos = camera_controller_->GetCamera()->GetEye();
     skyMap->blit(rc, vp, { Cpos.x, Cpos.y, Cpos.z, 1.0f });
 
     // UI描画

@@ -1,7 +1,7 @@
-#include "SceneLoading.h"
+#include "scene_loading.h"
 #include "System/Graphics.h"
 #include "System/Input.h"
-#include "SceneManager.h"
+#include "scene_manager.h"
 
 //ローディングスレッド
 void SceneLoading::LoadingThread(SceneLoading* scene)

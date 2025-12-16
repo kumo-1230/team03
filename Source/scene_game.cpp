@@ -1,22 +1,19 @@
 ﻿#include "System/Graphics.h"
 
-#include "SceneGame.h"
-#include "PlayerOld.h"
+#include "scene_game.h"
 #include "common.h"
 #include "System/Input.h"
-#include "SceneManager.h"
-#include "SceneResult.h"
-#include "SceneTitle.h"
+#include "scene_manager.h"
+#include "scene_title.h"
 #include "System/ModelRenderer.h"
 #include "ScoreRender.h"
-#include "Pose.h"
+#include "pause.h"
 #include "CursorManager.h"
 #include "mathUtils.h"
 #include "Screen.h"
 #include "System/Audio.h"
 #include "EffectManager.h"
 #include "Cursor.h"
-#include <KeyInput.h>
 #include <PBRShader.h>
 #include <world.h>
 #include <System/ResourceManager.h>
@@ -25,6 +22,7 @@
 #include <input_manager.h>
 #include <vault.h>
 #include "collider.h"
+#include "camera.h"
 
 SceneGame::SceneGame()
 {
@@ -34,47 +32,33 @@ SceneGame::SceneGame()
 // 初期化
 void SceneGame::Initialize()
 {
-	OutputDebugStringA("=== SceneGame::Initialize START ===\n");
-
-	World& world = World::Instance();
-	world.Clear();
-	OutputDebugStringA("World cleared\n");
-
 	Graphics& graphics = Graphics::Instance();
 	auto* dv = graphics.GetDevice();
 
-	bgm_ = Audio::Instance().LoadAudioSource("Data/Sound/Game/BGM_game.wav");
-	bgm_->SetVolume(0.4f);
+	World& world = World::Instance();
+	world.Clear(); // ワールドを初期化 (全シーンのFinalizeで呼ぶが、一応ここでも初期化)
 
-	player_ = world.CreateObject<Player>();
+	// プレイヤー初期化
+	player_ = world.CreateObject<Player>();// 引数はmodelパスだが、FPSなのでモデルなし
+	player_->AddCollider<BoxCollider>(DirectX::XMFLOAT3{ 1.0f, 2.0f, 1.0f });
 
 	// カメラ初期化
 	{
-		camera_ = std::make_unique<Camera>();
-		DirectX::XMFLOAT3 eye = player_->GetWorldPositionFloat3();
-		DirectX::XMFLOAT3 focus{};
-		focus.x = sinf(player_->GetAngle().y);
-		focus.z = cosf(player_->GetAngle().y);
+		camera_controller_ = world.CreateObject<CameraController>();
+		camera_controller_->SetMode(CameraMode::kFirstPerson); // カメラの設定
+		camera_controller_->SetTarget(player_); // カメラがプレイヤーを追従する
 
-		float fov = 80.0f;
-		camera_->SetLookAt(eye, focus, DirectX::XMFLOAT3(0, 1, 0));
-		camera_->SetPerspectiveFov(
-			DirectX::XMConvertToRadians(fov),
-			graphics.GetScreenWidth() / graphics.GetScreenHeight(),
-			0.1f,
-			100000.0f
-		);
+		player_->SetCameraController(camera_controller_); // プレイヤーが視点によって移動方向を決めるのでSetが必要
 	}
 
 	sky_map_ = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
 
-	player_->SetCamera(camera_.get());
-	player_->AddCollider<BoxCollider>(DirectX::XMFLOAT3{ 1.0f, 2.0f, 1.0f });
-
+	// 車オブジェクト
 	obj_ = world.CreateObject<Vault>("Data/Model/mech_drone/mech_drone.glb");
 	obj_->SetPosition(0, 0, 1);
 	obj_->AddCollider<BoxCollider>(DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f });
 
+	// ロボットオブジェクト
 	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 2 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f })
 		->SetParent(obj_);
 
@@ -107,12 +91,10 @@ void SceneGame::Initialize()
 		// wheel のワールド座標は自動的に (21, 0, 11) になる
 	}
 
-	Pose::Instance().SetTutorial(false);
-	OutputDebugStringA("Pose tutorial disabled\n");
+	Pause::Instance().SetTutorial(false);
 
 	// ライト設定
 	{
-		OutputDebugStringA("Setting directional light\n");
 		DirectionalLight directionalLight;
 		DirectX::XMFLOAT3 dir = { 0.3f, -1.0f, 0.3f };
 		DirectX::XMVECTOR Dir = DirectX::XMLoadFloat3(&dir);
@@ -120,7 +102,6 @@ void SceneGame::Initialize()
 		DirectX::XMStoreFloat3(&directionalLight.direction, Dir);
 		directionalLight.color = { 1.5f, 1.5f, 1.5f };
 		light_manager_.SetDirectionalLight(directionalLight);
-		OutputDebugStringA("Directional light set\n");
 
 		PointLight mapLight;
 		mapLight.position = { 0, 1, 0 };
@@ -129,22 +110,23 @@ void SceneGame::Initialize()
 		mapLight.intensity = 8.0f;
 		mapLight.priority = 10;
 		light_manager_.AddPointLight(mapLight);
-		OutputDebugStringA("Point light added\n");
 
-		OutputDebugStringA("Setting player spot light\n");
 		DirectX::XMFLOAT3 playerPos = player_->GetWorldPositionFloat3();
 		playerPos.y += 1.0f;
-		DirectX::XMFLOAT3 spotDirection = camera_->GetFront();
+		DirectX::XMFLOAT3 spotDirection = camera_controller_->GetCamera()->GetFront();
 
 		light_manager_.SetPlayerSpotLight(
 			playerPos, spotDirection,
 			20.0f, 25.0f, 40.0f,
 			{ 1.0f, 0.95f, 0.85f }, 8.0f
 		);
-		OutputDebugStringA("Player spot light set\n");
 	}
 
-	OutputDebugStringA("=== SceneGame::Initialize END ===\n");
+	// オーディオ
+	{
+		bgm_ = Audio::Instance().LoadAudioSource("Data/Sound/Game/BGM_game.wav");
+		bgm_->SetVolume(0.4f);
+	}
 }
 // 終了化
 void SceneGame::Finalize()
@@ -161,9 +143,22 @@ void SceneGame::Finalize()
 // 更新処理
 void SceneGame::Update(float elapsed_time)
 {
-
-
-	//obj_->SetPosition(0, MathUtils::RandomRangeFloat(0, 2.0f), 0);
+	if (camera_controller_) {
+		// カメラモード更新
+		if (InputManager::Instance().IsKeyDown('1')) {
+			camera_controller_->SetMode(CameraMode::kFirstPerson);
+		}
+		if (InputManager::Instance().IsKeyDown('2')) {
+			camera_controller_->SetMode(CameraMode::kThirdPerson);
+			camera_controller_->SetDistance(5.0f);
+		}
+		if (InputManager::Instance().IsKeyDown('3')) {
+			camera_controller_->SetMode(CameraMode::kFree);
+		}
+		if (InputManager::Instance().IsKeyDown('4')) {
+			camera_controller_->SetMode(CameraMode::kOrbit);
+		}
+	}
 
 	if (game_limit_ < 0)
 	{
@@ -173,9 +168,9 @@ void SceneGame::Update(float elapsed_time)
 		}
 		return;
 	}
-	Pose::Instance().Update(elapsed_time);
+	Pause::Instance().Update(elapsed_time);
 
-	if (Pose::Instance().IsOnPose())
+	if (Pause::Instance().IsOnPose())
 	{
 		bgm_->SetVolume(0.05f);
 		Cursor::Instance().Update(elapsed_time);
@@ -186,36 +181,31 @@ void SceneGame::Update(float elapsed_time)
 		bgm_->SetVolume(0.4f);
 	}
 
-	World::Instance().Update(elapsed_time);
-
 	GamePad& gamePad = Input::Instance().GetGamePad();
-
 	static float velocity = 0.0f;
 
 	// 自機ライティング更新
 	{
-		DirectX::XMFLOAT3 playerPos = player_->GetWorldPositionFloat3();
-		playerPos.y += 1.0f;
-		//light_manager_.SetPlayerSpotLight(playerPos, player_->GetAngle(), 15.0f, {1.0f, 0.9f, 0.8f}, 50.0f);
+		if (player_ && camera_controller_) {
+			DirectX::XMFLOAT3 playerPos = player_->GetWorldPositionFloat3();
+			playerPos.y += 1.0f;
+			light_manager_.SetPlayerSpotLight(playerPos, camera_controller_->GetCamera()->GetFront());
+		}
 	}
 
-
 	{
-
 		{
-			if (KeyInput::Instance().GetKeyHold(VK_LBUTTON))
+			if (InputManager::Instance().IsKeyHeld(VK_LBUTTON))
 			{
-
 				game_limit_ -= 1 * elapsed_time * 0.2f;
 			}
 			else
 				game_limit_ -= 1 * elapsed_time;
-
 		}
-
 		EffectManager::Instance().Update(elapsed_time);
 	}
 
+	World::Instance().Update(elapsed_time);
 }
 
 // 描画処理
@@ -231,31 +221,28 @@ void SceneGame::Render()
 	ShapeRenderer* shapeRenderer = graphics.GetShapeRenderer();
 	ModelRenderer* modelRenderer = graphics.GetModelRenderer();
 	RenderState* rs = graphics.GetRenderState();
-
-	// ======= バックフェイスカリング設定ここから =======
 	ID3D11Device* device = graphics.GetDevice();
 
+	// ======= バックフェイスカリング設定ここから =======
 	// バックフェイスカリングはSolidCullBackを使うので、ここでは設定しない
-	
 	//D3D11_RASTERIZER_DESC rasterDesc{};
 	//rasterDesc.FillMode = D3D11_FILL_SOLID;
 	//rasterDesc.CullMode = D3D11_CULL_BACK;           // 背面カリング
 	//rasterDesc.FrontCounterClockwise = FALSE;        // 時計回りを表面とみなす
 	//rasterDesc.DepthClipEnable = TRUE;
-
 	//ID3D11RasterizerState* rasterState = nullptr;
 	//device->CreateRasterizerState(&rasterDesc, &rasterState);
 	//dc->RSSetState(rasterState);
 	//rasterState->Release(); // 参照カウント減らしておく（安全）
 	// ======= バックフェイスカリング設定ここまで =======
 
-
 	// 描画準備
 	RenderContext rc;
 	rc.deviceContext = dc;
 	rc.renderState = rs;
-	rc.camera = camera_.get();
+	rc.camera = camera_controller_->GetCamera();
 	rc.lightManager = &light_manager_;
+	
 
 	dc->RSSetState(rs->GetRasterizerState(RasterizerState::SolidCullNone));
 	dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestAndWrite), 0);
@@ -269,7 +256,7 @@ void SceneGame::Render()
 	DirectX::XMMATRIX VP = V * P;
 	DirectX::XMFLOAT4X4 vp;
 	DirectX::XMStoreFloat4x4(&vp, VP);
-	DirectX::XMFLOAT3 Cpos = camera_->GetEye();
+	DirectX::XMFLOAT3 Cpos = camera_controller_->GetWorldPositionFloat3();
 
 	//スカイマップ描画
 	sky_map_->blit(rc, vp, { Cpos.x,Cpos.y,Cpos.z,1.0f });
@@ -286,7 +273,7 @@ void SceneGame::Render()
 		// エフェクトは透明オブジェクトなので このState
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::TestOnly), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
-		EffectManager::Instance().Render(rc.camera->view, rc.camera->projection);
+		EffectManager::Instance().Render(rc.camera->GetView(), rc.camera->GetProjection());
 	}
 
 	// 3Dデバッグ描画
@@ -304,7 +291,7 @@ void SceneGame::Render()
 	{
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
-		Pose::Instance().Render(dc);
+		Pause::Instance().Render(dc);
 
 	}
 }
@@ -316,13 +303,13 @@ void SceneGame::DrawGUI()
 	ImGui::Begin("GameDebug", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
 	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
-		DirectX::XMFLOAT3 camPos = camera_->GetEye();
+		DirectX::XMFLOAT3 camPos = camera_controller_->GetCamera()->GetEye();
 		ImGui::Text("Position: %.2f, %.2f, %.2f", camPos.x, camPos.y, camPos.z);
 
-		DirectX::XMFLOAT3 camTarget = camera_->focus;
+		DirectX::XMFLOAT3 camTarget = camera_controller_->GetCamera()->GetFocus();
 		ImGui::Text("Target: %.2f, %.2f, %.2f", camTarget.x, camTarget.y, camTarget.z);
 
-		DirectX::XMFLOAT3 camFront = camera_->GetFront();
+		DirectX::XMFLOAT3 camFront = camera_controller_->GetCamera()->GetFront();
 		ImGui::Text("Front: %.2f, %.2f, %.2f", camFront.x, camFront.y, camFront.z);
 	}
 
