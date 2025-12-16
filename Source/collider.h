@@ -1,151 +1,169 @@
 #ifndef COLLIDER_H_
 #define COLLIDER_H_
 
-#include <vector>
 #include <DirectXMath.h>
+#include <vector>
 
 class GameObject;
 
-// コライダーの種類を表す列挙型
 enum class ColliderType {
-    kSphere,   // 球体コライダー
-    kBox,      // ボックスコライダー
-    kCapsule   // カプセルコライダー
+    kSphere,
+    kBox,
+    kCapsule,
+    kAabb  // Axis-Aligned Bounding Box
 };
 
-// コライダーの基底クラス
+// ============================================================================
+// Base Collider Class
+// ============================================================================
 class Collider {
 public:
-    Collider() = default;
+    Collider(ColliderType type) : type_(type), owner_(nullptr), enabled_(true) {}
     virtual ~Collider() = default;
 
-    // コライダーの種類を取得
-    virtual ColliderType GetType() const = 0;
-
-    // 衝突判定（シンプル版）
+    // 衝突判定メソッド
     virtual bool CheckCollision(const Collider* other, GameObject*& out_other) const = 0;
-
-    // 衝突判定（剛体用、補正ベクトル付き）
-    virtual bool CheckRigidbodyCollision(
-        const Collider* other,
+    virtual bool CheckRigidbodyCollision(const Collider* other,
         DirectX::XMFLOAT3& out_correction,
         GameObject*& out_other) const = 0;
 
-    // ワールド座標での中心位置を取得
-    DirectX::XMFLOAT3 GetWorldCenter() const;
+    // デバッグ描画用情報取得
+    virtual void GetDebugDrawInfo(DirectX::XMFLOAT4X4& transform,
+        DirectX::XMFLOAT3& size) const = 0;
 
-    // オーナーのGameObjectを設定
+    // Getters/Setters
+    ColliderType GetType() const { return type_; }
+    GameObject* GetOwner() const { return owner_; }
     void SetOwner(GameObject* owner) { owner_ = owner; }
 
-    // オーナーのGameObjectを取得
-    GameObject* GetOwner() const { return owner_; }
+    bool IsEnabled() const { return enabled_; }
+    void SetEnabled(bool enabled) { enabled_ = enabled; }
 
-    // オフセット位置の取得・設定
     const DirectX::XMFLOAT3& GetOffset() const { return offset_; }
     void SetOffset(const DirectX::XMFLOAT3& offset) { offset_ = offset; }
     void SetOffset(float x, float y, float z) { offset_ = { x, y, z }; }
 
-    // 有効/無効の取得・設定
-    bool IsEnabled() const { return is_enabled_; }
-    void SetEnabled(bool enabled) { is_enabled_ = enabled; }
-
-    virtual void GetDebugDrawInfo(
-        DirectX::XMFLOAT4X4& transform,
-        DirectX::XMFLOAT3& size) const = 0;
+    // ワールド座標系での中心位置を取得
+    DirectX::XMFLOAT3 GetWorldCenter() const;
 
 protected:
-    GameObject* owner_ = nullptr;                      // 所有者
-    DirectX::XMFLOAT3 offset_ = { 0.0f, 0.0f, 0.0f };   // ローカル座標でのオフセット
-    bool is_enabled_ = true;                           // 有効フラグ
+    ColliderType type_;
+    GameObject* owner_;
+    DirectX::XMFLOAT3 offset_ = { 0.0f, 0.0f, 0.0f };
+    bool enabled_;
 };
 
-// 球体コライダー
+// ============================================================================
+// Sphere Collider
+// ============================================================================
 class SphereCollider : public Collider {
 public:
-    explicit SphereCollider(float radius = 1.0f) : radius_(radius) {}
-    ~SphereCollider() override = default;
-
-    ColliderType GetType() const override { return ColliderType::kSphere; }
+    SphereCollider(float radius = 1.0f)
+        : Collider(ColliderType::kSphere), radius_(radius) {
+    }
 
     bool CheckCollision(const Collider* other, GameObject*& out_other) const override;
-
-    bool CheckRigidbodyCollision(
-        const Collider* other,
+    bool CheckRigidbodyCollision(const Collider* other,
         DirectX::XMFLOAT3& out_correction,
         GameObject*& out_other) const override;
+    void GetDebugDrawInfo(DirectX::XMFLOAT4X4& transform,
+        DirectX::XMFLOAT3& size) const override;
 
-    // 半径の取得・設定
     float GetRadius() const { return radius_; }
     void SetRadius(float radius) { radius_ = radius; }
 
-    void GetDebugDrawInfo(DirectX::XMFLOAT4X4& transform, DirectX::XMFLOAT3& size) const;
-
 private:
-    float radius_;  // 球体の半径
+    float radius_;
 };
 
-// ボックスコライダー
+// ============================================================================
+// Box Collider (OBB - Oriented Bounding Box)
+// ============================================================================
 class BoxCollider : public Collider {
 public:
-    explicit BoxCollider(const DirectX::XMFLOAT3& size = { 1.0f, 1.0f, 1.0f })
-        : size_(size) {
+    BoxCollider(const DirectX::XMFLOAT3& size = { 1.0f, 1.0f, 1.0f })
+        : Collider(ColliderType::kBox), size_(size) {
     }
-    ~BoxCollider() override = default;
-
-    ColliderType GetType() const override { return ColliderType::kBox; }
+    BoxCollider(float x, float y, float z)
+        : Collider(ColliderType::kBox), size_({ x, y, z }) {
+    }
 
     bool CheckCollision(const Collider* other, GameObject*& out_other) const override;
-
-    bool CheckRigidbodyCollision(
-        const Collider* other,
+    bool CheckRigidbodyCollision(const Collider* other,
         DirectX::XMFLOAT3& out_correction,
         GameObject*& out_other) const override;
+    void GetDebugDrawInfo(DirectX::XMFLOAT4X4& transform,
+        DirectX::XMFLOAT3& size) const override;
 
     const DirectX::XMFLOAT3& GetSize() const { return size_; }
     void SetSize(const DirectX::XMFLOAT3& size) { size_ = size; }
     void SetSize(float x, float y, float z) { size_ = { x, y, z }; }
 
+    // OBB用のワールド座標系頂点取得
     std::vector<DirectX::XMFLOAT3> GetWorldVertices() const;
 
-    void GetDebugDrawInfo(DirectX::XMFLOAT4X4& transform, DirectX::XMFLOAT3& size) const;
-
 private:
-    DirectX::XMFLOAT3 size_;  // ボックスのサイズ（幅、高さ、奥行き）
+    DirectX::XMFLOAT3 size_;
 };
 
-// カプセルコライダー
-class CapsuleCollider : public Collider {
+// ============================================================================
+// AABB Collider (Axis-Aligned Bounding Box)
+// ============================================================================
+class AABBCollider : public Collider {
 public:
-    explicit CapsuleCollider(float height = 2.0f, float radius = 0.5f)
-        : height_(height), radius_(radius) {
+    AABBCollider(const DirectX::XMFLOAT3& size = { 1.0f, 1.0f, 1.0f })
+        : Collider(ColliderType::kAabb), size_(size) {
     }
-    ~CapsuleCollider() override = default;
-
-    ColliderType GetType() const override { return ColliderType::kCapsule; }
+    AABBCollider(float x, float y, float z)
+        : Collider(ColliderType::kAabb), size_({ x, y, z }) {
+    }
 
     bool CheckCollision(const Collider* other, GameObject*& out_other) const override;
-
-    bool CheckRigidbodyCollision(
-        const Collider* other,
+    bool CheckRigidbodyCollision(const Collider* other,
         DirectX::XMFLOAT3& out_correction,
         GameObject*& out_other) const override;
+    void GetDebugDrawInfo(DirectX::XMFLOAT4X4& transform,
+        DirectX::XMFLOAT3& size) const override;
 
-    // 高さの取得・設定
-    float GetHeight() const { return height_; }
-    void SetHeight(float height) { height_ = height; }
+    const DirectX::XMFLOAT3& GetSize() const { return size_; }
+    void SetSize(const DirectX::XMFLOAT3& size) { size_ = size; }
+    void SetSize(float x, float y, float z) { size_ = { x, y, z }; }
 
-    // 半径の取得・設定
+    // AABB用の最小/最大座標取得
+    void GetWorldBounds(DirectX::XMFLOAT3& out_min, DirectX::XMFLOAT3& out_max) const;
+
+private:
+    DirectX::XMFLOAT3 size_;
+};
+
+// ============================================================================
+// Capsule Collider (Cylinder implementation)
+// ============================================================================
+class CapsuleCollider : public Collider {
+public:
+    CapsuleCollider(float radius = 0.5f, float height = 2.0f)
+        : Collider(ColliderType::kCapsule), radius_(radius), height_(height) {
+    }
+
+    bool CheckCollision(const Collider* other, GameObject*& out_other) const override;
+    bool CheckRigidbodyCollision(const Collider* other,
+        DirectX::XMFLOAT3& out_correction,
+        GameObject*& out_other) const override;
+    void GetDebugDrawInfo(DirectX::XMFLOAT4X4& transform,
+        DirectX::XMFLOAT3& size) const override;
+
     float GetRadius() const { return radius_; }
     void SetRadius(float radius) { radius_ = radius; }
 
-    // カプセルの中心線（セグメント）の開始点と終了点を取得
-    void GetCapsuleSegment(DirectX::XMFLOAT3& start, DirectX::XMFLOAT3& end) const;
+    float GetHeight() const { return height_; }
+    void SetHeight(float height) { height_ = height; }
 
-    void GetDebugDrawInfo(DirectX::XMFLOAT4X4& transform, DirectX::XMFLOAT3& size) const;
+    // カプセル(円柱)の中心軸セグメント取得
+    void GetCylinderSegment(DirectX::XMFLOAT3& start, DirectX::XMFLOAT3& end) const;
 
 private:
-    float height_;  // カプセルの高さ（全体の高さ）
-    float radius_;  // カプセルの半径
+    float radius_;
+    float height_;
 };
 
 #endif  // COLLIDER_H_

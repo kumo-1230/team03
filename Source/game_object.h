@@ -12,9 +12,9 @@
 #include "System/Model.h"
 #include "System/ResourceManager.h"
 #include "imgui_logger.h"
+#include "collider.h"
 
  // 前方宣言
-class Collider;
 class Rigidbody;
 class ModelRenderer;
 struct RenderContext;
@@ -656,7 +656,7 @@ public:
     std::shared_ptr<Model> GetModel() const { return model_; }
 
     // ========================================
-    // コライダー（複数対応）
+    // コライダー
     // ========================================
 
     /**
@@ -675,6 +675,77 @@ public:
         collider->SetOwner(this);
         colliders_.push_back(collider);
 
+        return collider;
+    }
+
+    /**
+     * @brief Sphere コライダーを追加
+     * @param radius 球の半径
+     * @return 追加された SphereCollider
+     */
+    SphereCollider* AddSphereCollider(float radius = 1.0f) {
+        SphereCollider* collider = new SphereCollider(radius);
+        collider->SetOwner(this);
+        colliders_.push_back(collider);
+        return collider;
+    }
+
+    /**
+     * @brief Box コライダーを追加（サイズ指定）
+     * @param size ボックスのサイズ（x, y, z）
+     * @return 追加された BoxCollider
+     */
+    BoxCollider* AddBoxCollider(const DirectX::XMFLOAT3& size) {
+        BoxCollider* collider = new BoxCollider(size);
+        collider->SetOwner(this);
+        colliders_.push_back(collider);
+        return collider;
+    }
+
+    /**
+     * @brief Box コライダーを追加（各軸指定）
+     * @param x X サイズ
+     * @param y Y サイズ
+     * @param z Z サイズ
+     * @return 追加された BoxCollider
+     */
+    BoxCollider* AddBoxCollider(float x, float y, float z) {
+        return AddBoxCollider(DirectX::XMFLOAT3(x, y, z));
+    }
+
+    /**
+     * @brief AABB コライダーを追加（サイズ指定）
+     * @param size AABB のサイズ（x, y, z）
+     * @return 追加された AABBCollider
+     */
+    AABBCollider* AddAABBCollider(const DirectX::XMFLOAT3& size) {
+        AABBCollider* collider = new AABBCollider(size);
+        collider->SetOwner(this);
+        colliders_.push_back(collider);
+        return collider;
+    }
+
+    /**
+     * @brief AABB コライダーを追加（各軸指定）
+     * @param x X サイズ
+     * @param y Y サイズ
+     * @param z Z サイズ
+     * @return 追加された AABBCollider
+     */
+    AABBCollider* AddAABBCollider(float x, float y, float z) {
+        return AddAABBCollider(DirectX::XMFLOAT3(x, y, z));
+    }
+
+    /**
+     * @brief Capsule コライダーを追加
+     * @param radius カプセルの半径
+     * @param height カプセルの高さ
+     * @return 追加された CapsuleCollider
+     */
+    CapsuleCollider* AddCapsuleCollider(float radius = 0.5f, float height = 2.0f) {
+        CapsuleCollider* collider = new CapsuleCollider(radius, height);
+        collider->SetOwner(this);
+        colliders_.push_back(collider);
         return collider;
     }
 
