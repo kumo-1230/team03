@@ -39,8 +39,8 @@ void SceneGame::Initialize()
 	world.Clear(); // ワールドを初期化 (全シーンのFinalizeで呼ぶが、一応ここでも初期化)
 
 	// プレイヤー初期化
-	player_ = world.CreateObject<Player>();// 引数はmodelパスだが、FPSなのでモデルなし
-	player_->AddAABBCollider({ 1.0f, 2.0f, 1.0f });
+	player_ = world.CreateObject<Player>();// 引数はmodelパスだが、引数なしだとモデルなしになる。FPSなのでモデルなし
+	player_->AddBoxCollider({ 1.0f, 2.0f, 1.0f });
 
 	// カメラ初期化
 	{
@@ -55,8 +55,8 @@ void SceneGame::Initialize()
 
 	// 車オブジェクト
 	obj_ = world.CreateObject<Vault>("Data/Model/mech_drone/mech_drone.glb");
-	obj_->SetPosition(0, 0, 1);
-	obj_->AddAABBCollider({ 2.0f, 1.0f, 3.0f });
+	obj_->SetPosition(0, 0, 0);
+	obj_->AddBoxCollider({ 3.0f, 1.3f, 1.8f });
 
 	// ロボットオブジェクト
 	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 2 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f })
@@ -317,6 +317,57 @@ void SceneGame::DrawGUI()
 		bool draw_colliders = World::Instance().GetDebugDrawColliders();
 		if (ImGui::Checkbox("Draw Colliders", &draw_colliders)) {
 			World::Instance().SetDebugDrawColliders(draw_colliders);
+		}
+	}
+
+	if (ImGui::CollapsingHeader("Collision Debug", ImGuiTreeNodeFlags_DefaultOpen)) {
+		if (player_ && obj_) {
+			const std::vector<Collider*>& playerColliders = player_->GetColliders();
+			const std::vector<Collider*>& vaultColliders = obj_->GetColliders();
+
+			if (!playerColliders.empty() && !vaultColliders.empty()) {
+				Collider* col_a = playerColliders[0];
+				Collider* col_b = vaultColliders[0];
+
+				GameObject* dummy = nullptr;
+				bool is_colliding = col_a->CheckCollision(col_b, dummy);
+
+				ImGui::Text("Collision State: %s", is_colliding ? "TRUE" : "FALSE");
+
+				// 距離を表示
+				DirectX::XMFLOAT3 center_a = col_a->GetWorldCenter();
+				DirectX::XMFLOAT3 center_b = col_b->GetWorldCenter();
+
+				float dx = center_b.x - center_a.x;
+				float dy = center_b.y - center_a.y;
+				float dz = center_b.z - center_a.z;
+				float distance = sqrtf(dx * dx + dy * dy + dz * dz);
+
+				ImGui::Text("Distance between centers: %.2f", distance);
+				ImGui::Text("Center A: %.2f, %.2f, %.2f", center_a.x, center_a.y, center_a.z);
+				ImGui::Text("Center B: %.2f, %.2f, %.2f", center_b.x, center_b.y, center_b.z);
+
+				// AABBの場合、境界を表示
+				if (col_a->GetType() == ColliderType::kAabb) {
+					const AABBCollider* aabb = static_cast<const AABBCollider*>(col_a);
+					DirectX::XMFLOAT3 min, max;
+					aabb->GetWorldBounds(min, max);
+					ImGui::Text("Player AABB Min: %.2f, %.2f, %.2f", min.x, min.y, min.z);
+					ImGui::Text("Player AABB Max: %.2f, %.2f, %.2f", max.x, max.y, max.z);
+					ImGui::Text("Player AABB Size: %.2f, %.2f, %.2f",
+						max.x - min.x, max.y - min.y, max.z - min.z);
+				}
+
+				if (col_b->GetType() == ColliderType::kAabb) {
+					const AABBCollider* aabb = static_cast<const AABBCollider*>(col_b);
+					DirectX::XMFLOAT3 min, max;
+					aabb->GetWorldBounds(min, max);
+					ImGui::Text("Vault AABB Min: %.2f, %.2f, %.2f", min.x, min.y, min.z);
+					ImGui::Text("Vault AABB Max: %.2f, %.2f, %.2f", max.x, max.y, max.z);
+					ImGui::Text("Vault AABB Size: %.2f, %.2f, %.2f",
+						max.x - min.x, max.y - min.y, max.z - min.z);
+				}
+			}
 		}
 	}
 

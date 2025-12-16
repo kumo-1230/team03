@@ -147,38 +147,41 @@ namespace CollisionDetection {
     bool CheckSphereVsBoxSimple(
         const SphereCollider* sphere,
         const BoxCollider* box) {
-        // Simplified sphere-OBB test using AABB approximation
-        DirectX::XMFLOAT3 sphere_center = sphere->GetWorldCenter();
-        DirectX::XMFLOAT3 box_center = box->GetWorldCenter();
-        DirectX::XMFLOAT3 box_size = box->GetSize();
 
+        DirectX::XMFLOAT3 sphere_center = sphere->GetWorldCenter();
+        DirectX::XMVECTOR sphere_center_vec = DirectX::XMLoadFloat3(&sphere_center);
+
+        DirectX::XMMATRIX box_world = box->GetOwner()
+            ? box->GetOwner()->GetWorldTransformMatrix()
+            : DirectX::XMMatrixIdentity();
+
+        DirectX::XMFLOAT3 box_offset = box->GetOffset();
+        DirectX::XMVECTOR offset_vec = DirectX::XMLoadFloat3(&box_offset);
+        DirectX::XMMATRIX offset_matrix = DirectX::XMMatrixTranslationFromVector(offset_vec);
+        DirectX::XMMATRIX final_box_transform = offset_matrix * box_world;
+
+        DirectX::XMMATRIX box_inverse = DirectX::XMMatrixInverse(nullptr, final_box_transform);
+        DirectX::XMVECTOR local_sphere_center = DirectX::XMVector3TransformCoord(
+            sphere_center_vec, box_inverse);
+
+        DirectX::XMFLOAT3 box_size = box->GetSize();
         DirectX::XMFLOAT3 half_extents = {
             box_size.x * 0.5f,
             box_size.y * 0.5f,
             box_size.z * 0.5f
         };
 
-        DirectX::XMFLOAT3 box_min = {
-            box_center.x - half_extents.x,
-            box_center.y - half_extents.y,
-            box_center.z - half_extents.z
-        };
-        DirectX::XMFLOAT3 box_max = {
-            box_center.x + half_extents.x,
-            box_center.y + half_extents.y,
-            box_center.z + half_extents.z
-        };
+        DirectX::XMFLOAT3 local_center;
+        DirectX::XMStoreFloat3(&local_center, local_sphere_center);
 
         DirectX::XMFLOAT3 closest_point = {
-            max(box_min.x, min(sphere_center.x, box_max.x)),
-            max(box_min.y, min(sphere_center.y, box_max.y)),
-            max(box_min.z, min(sphere_center.z, box_max.z))
+            max(-half_extents.x, min(local_center.x, half_extents.x)),
+            max(-half_extents.y, min(local_center.y, half_extents.y)),
+            max(-half_extents.z, min(local_center.z, half_extents.z))
         };
 
-        DirectX::XMVECTOR sphere_center_vec = DirectX::XMLoadFloat3(&sphere_center);
-        DirectX::XMVECTOR closest_point_vec = DirectX::XMLoadFloat3(&closest_point);
-        DirectX::XMVECTOR difference = DirectX::XMVectorSubtract(sphere_center_vec, closest_point_vec);
-
+        DirectX::XMVECTOR closest_vec = DirectX::XMLoadFloat3(&closest_point);
+        DirectX::XMVECTOR difference = DirectX::XMVectorSubtract(local_sphere_center, closest_vec);
         float distance = DirectX::XMVectorGetX(DirectX::XMVector3Length(difference));
 
         return distance < sphere->GetRadius();
@@ -188,48 +191,63 @@ namespace CollisionDetection {
         const SphereCollider* sphere,
         const BoxCollider* box,
         DirectX::XMFLOAT3& out_correction) {
-        DirectX::XMFLOAT3 sphere_center = sphere->GetWorldCenter();
-        DirectX::XMFLOAT3 box_center = box->GetWorldCenter();
-        DirectX::XMFLOAT3 box_size = box->GetSize();
 
+        DirectX::XMFLOAT3 sphere_center = sphere->GetWorldCenter();
+        DirectX::XMVECTOR sphere_center_vec = DirectX::XMLoadFloat3(&sphere_center);
+
+        DirectX::XMMATRIX box_world = box->GetOwner()
+            ? box->GetOwner()->GetWorldTransformMatrix()
+            : DirectX::XMMatrixIdentity();
+
+        DirectX::XMFLOAT3 box_offset = box->GetOffset();
+        DirectX::XMVECTOR offset_vec = DirectX::XMLoadFloat3(&box_offset);
+        DirectX::XMMATRIX offset_matrix = DirectX::XMMatrixTranslationFromVector(offset_vec);
+        DirectX::XMMATRIX final_box_transform = offset_matrix * box_world;
+
+        DirectX::XMMATRIX box_inverse = DirectX::XMMatrixInverse(nullptr, final_box_transform);
+        DirectX::XMVECTOR local_sphere_center = DirectX::XMVector3TransformCoord(
+            sphere_center_vec, box_inverse);
+
+        DirectX::XMFLOAT3 box_size = box->GetSize();
         DirectX::XMFLOAT3 half_extents = {
             box_size.x * 0.5f,
             box_size.y * 0.5f,
             box_size.z * 0.5f
         };
 
-        DirectX::XMFLOAT3 box_min = {
-            box_center.x - half_extents.x,
-            box_center.y - half_extents.y,
-            box_center.z - half_extents.z
-        };
-        DirectX::XMFLOAT3 box_max = {
-            box_center.x + half_extents.x,
-            box_center.y + half_extents.y,
-            box_center.z + half_extents.z
-        };
+        DirectX::XMFLOAT3 local_center;
+        DirectX::XMStoreFloat3(&local_center, local_sphere_center);
 
         DirectX::XMFLOAT3 closest_point = {
-            max(box_min.x, min(sphere_center.x, box_max.x)),
-            max(box_min.y, min(sphere_center.y, box_max.y)),
-            max(box_min.z, min(sphere_center.z, box_max.z))
+            max(-half_extents.x, min(local_center.x, half_extents.x)),
+            max(-half_extents.y, min(local_center.y, half_extents.y)),
+            max(-half_extents.z, min(local_center.z, half_extents.z))
         };
 
-        DirectX::XMVECTOR sphere_center_vec = DirectX::XMLoadFloat3(&sphere_center);
-        DirectX::XMVECTOR closest_point_vec = DirectX::XMLoadFloat3(&closest_point);
-        DirectX::XMVECTOR difference = DirectX::XMVectorSubtract(sphere_center_vec, closest_point_vec);
-
-        float distance = DirectX::XMVectorGetX(DirectX::XMVector3Length(difference));
+        DirectX::XMVECTOR closest_vec = DirectX::XMLoadFloat3(&closest_point);
+        DirectX::XMVECTOR local_difference = DirectX::XMVectorSubtract(local_sphere_center, closest_vec);
+        float distance = DirectX::XMVectorGetX(DirectX::XMVector3Length(local_difference));
 
         if (distance < sphere->GetRadius()) {
             float penetration_depth = sphere->GetRadius() - distance;
+
             if (distance > 0.0001f) {
-                DirectX::XMVECTOR collision_normal = DirectX::XMVector3Normalize(difference);
-                DirectX::XMVECTOR correction_vector = DirectX::XMVectorScale(collision_normal, penetration_depth);
+                DirectX::XMVECTOR local_normal = DirectX::XMVector3Normalize(local_difference);
+                DirectX::XMVECTOR world_normal = DirectX::XMVector3TransformNormal(
+                    local_normal, final_box_transform);
+                world_normal = DirectX::XMVector3Normalize(world_normal);
+
+                DirectX::XMVECTOR correction_vector = DirectX::XMVectorScale(
+                    world_normal, penetration_depth);
                 DirectX::XMStoreFloat3(&out_correction, correction_vector);
             }
             else {
-                out_correction = { 0, penetration_depth, 0 };
+                DirectX::XMVECTOR up = DirectX::XMVectorSet(0, 1, 0, 0);
+                DirectX::XMVECTOR world_up = DirectX::XMVector3TransformNormal(up, final_box_transform);
+                world_up = DirectX::XMVector3Normalize(world_up);
+                DirectX::XMVECTOR correction_vector = DirectX::XMVectorScale(
+                    world_up, penetration_depth);
+                DirectX::XMStoreFloat3(&out_correction, correction_vector);
             }
             return true;
         }
