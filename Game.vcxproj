@@ -119,9 +119,13 @@
     <ClInclude Include="External\imgui-docking\imstb_rectpack.h" />
     <ClInclude Include="External\imgui-docking\imstb_textedit.h" />
     <ClInclude Include="External\imgui-docking\imstb_truetype.h" />
+    <ClInclude Include="Source\aabb_collider.h" />
+    <ClInclude Include="Source\box_collider.h" />
     <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\camera_controller.h" />
+    <ClInclude Include="Source\capsule_collider.h" />
     <ClInclude Include="Source\collider.h" />
+    <ClInclude Include="Source\collision_detection.h" />
     <ClInclude Include="Source\game_object.h" />
     <ClInclude Include="Source\imgui_logger.h" />
     <ClInclude Include="Source\input_manager.h" />
@@ -196,8 +200,12 @@
     <ClCompile Include="External\imgui-docking\imgui_impl_dx11.cpp" />
     <ClCompile Include="External\imgui-docking\imgui_impl_win32.cpp" />
     <ClCompile Include="External\imgui-docking\imgui_widgets.cpp" />
+    <ClCompile Include="Source\aabb_collider.cpp" />
+    <ClCompile Include="Source\box_collider.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
+    <ClCompile Include="Source\capsule_collider.cpp" />
     <ClCompile Include="Source\collider.cpp" />
+    <ClCompile Include="Source\collision_detection.cpp" />
     <ClCompile Include="Source\game_object.cpp" />
     <ClCompile Include="Source\input_manager.cpp" />
     <ClCompile Include="Source\PBRShader.cpp" />

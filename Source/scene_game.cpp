@@ -40,7 +40,7 @@ void SceneGame::Initialize()
 
 	// プレイヤー初期化
 	player_ = world.CreateObject<Player>();// 引数はmodelパスだが、FPSなのでモデルなし
-	player_->AddCollider<BoxCollider>(DirectX::XMFLOAT3{ 1.0f, 2.0f, 1.0f });
+	player_->AddAABBCollider({ 1.0f, 2.0f, 1.0f });
 
 	// カメラ初期化
 	{
@@ -56,7 +56,7 @@ void SceneGame::Initialize()
 	// 車オブジェクト
 	obj_ = world.CreateObject<Vault>("Data/Model/mech_drone/mech_drone.glb");
 	obj_->SetPosition(0, 0, 1);
-	obj_->AddCollider<BoxCollider>(DirectX::XMFLOAT3{ 3.0f, 1.0f, 3.0f });
+	obj_->AddAABBCollider({ 2.0f, 1.0f, 3.0f });
 
 	// ロボットオブジェクト
 	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 2 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f })

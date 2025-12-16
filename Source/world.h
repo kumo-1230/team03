@@ -203,6 +203,10 @@ public:
                     shape_renderer->DrawBox(position, obj_angle, size, color);
                     break;
 
+                case ColliderType::kAabb:
+                    shape_renderer->DrawBox(position, { 0.0f, 0.0f, 0.0f }, size, color);
+                    break;
+
                 case ColliderType::kCapsule:
                     shape_renderer->DrawCapsule(transform, size.x, size.y, color);
                     break;

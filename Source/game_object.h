@@ -13,6 +13,10 @@
 #include "System/ResourceManager.h"
 #include "imgui_logger.h"
 #include "collider.h"
+#include "box_collider.h"
+#include "sphere_collider.h"
+#include "capsule_collider.h"
+#include "aabb_collider.h"
 
  // ‘O•ûéŒ¾
 class Rigidbody;
