@@ -1207,18 +1207,18 @@ public:
 	static const int32_t Version = 1;
 
 private:
-	int mControllPointCount = 0;
-	std::vector<dVector4> mControllPoint{};
+	int mControllPointCount;
+	std::vector<dVector4> mControllPoint;
 
-	int mKnotCount = 0;
-	std::vector<double> mKnotValue{};
+	int mKnotCount;
+	std::vector<double> mKnotValue;
 
-	int mOrder = 0;
-	int mStep = 0;
-	int mType = 0;
-	int mDimension = 0;
+	int mOrder;
+	int mStep;
+	int mType;
+	int mDimension;
 
-	float mLength = 0;
+	float mLength;
 
 private:
 	/**

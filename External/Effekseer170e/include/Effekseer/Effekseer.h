@@ -857,21 +857,21 @@ struct Gradient
 
 	struct ColorKey
 	{
-		float Position = 0.0f;
-		std::array<float, 3> Color{};
-		float Intensity = 0.0f;
+		float Position;
+		std::array<float, 3> Color;
+		float Intensity;
 	};
 
 	struct AlphaKey
 	{
-		float Position = 0.0f;
-		float Alpha = 0.0f;
+		float Position;
+		float Alpha;
 	};
 
 	int ColorCount = 0;
 	int AlphaCount = 0;
-	std::array<ColorKey, KeyMax> Colors{};
-	std::array<AlphaKey, KeyMax> Alphas{};
+	std::array<ColorKey, KeyMax> Colors;
+	std::array<AlphaKey, KeyMax> Alphas;
 
 	std::array<float, 4> GetColor(float x) const;
 
@@ -3875,7 +3875,7 @@ public:
 
 		/**
 			@brief
-			\~English A direction of camera_
+			\~English A direction of camera
 			\~Japanese カメラの方向
 			@note
 			\~English It means that the direction is normalize(focus - position)
@@ -3895,7 +3895,7 @@ public:
 
 		/**
 			@brief
-			\~English Whether effects should be sorted by camera_ position and direction
+			\~English Whether effects should be sorted by camera position and direction
 			\~Japanese エフェクトをカメラの位置と方向でソートするかどうか
 		*/
 		bool IsSortingEffectsEnabled = false;
@@ -3914,7 +3914,7 @@ public:
 			@brief
 			\~English
 			Position of effects viewer to calculate distance of Level of Details system.
-			Normally should be set the same position which is passed in translation of camera_ matrix.
+			Normally should be set the same position which is passed in translation of camera matrix.
 			\~Japanese
 			LODシステムで使用される視点の位置。
 			通常はカメラの位置と同じ値を指定する。
@@ -4654,7 +4654,7 @@ public:
 
 	/**
 		@brief
-		\~English	Get a camera_'s culling mask to show all effects
+		\~English	Get a camera's culling mask to show all effects
 		\~Japanese	全てのエフェクトを表示するためのカメラのカリングマスクを取得する。
 	*/
 	virtual int GetCameraCullingMaskToShowAllEffects() = 0;
