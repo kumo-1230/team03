@@ -26,13 +26,13 @@ void SceneTitle::Initialize() {
     titleStartMenu = std::make_unique<UiPanel>();
 
     // ロゴスプライト追加
-    auto* logo_spr = titleStartMenu->AddSprite();
-    logo_spr->SetSprite("Data/Sprite/game_logo_new.png");
-    logo_spr->SetPosition(DirectX::XMFLOAT2{ SCREEN_W * 0.2f - 512 * 0.5f, 100 });
-    logo_spr->SetSize(DirectX::XMFLOAT2{ 601, 224 });
-    logo_spr->SetRenderLayer(RenderLayer::kDefault);
-    logo_spr->SetSpritePosition({ 0, 0 });
-    logo_spr->SetSpriteSize({ 601, 224 });
+    auto* spr_logo = titleStartMenu->AddSprite();
+    spr_logo->SetSprite("Data/Sprite/game_logo_new.png");
+    spr_logo->SetPosition(DirectX::XMFLOAT2{ SCREEN_W * 0.2f - 512 * 0.5f, 100 });
+    spr_logo->SetSize(DirectX::XMFLOAT2{ 601, 224 });
+    spr_logo->SetRenderLayer(RenderLayer::kDefault);
+    spr_logo->SetSpritePosition({ 0, 0 });
+    spr_logo->SetSpriteSize({ 601, 224 });
 
     // スタートボタン追加
     auto* startButton = titleStartMenu->AddButton(

@@ -30,6 +30,12 @@ public:
         return button_ptr;
     }
 
+    /*
+     (const char* file_name = "", DirectX::XMFLOAT2 position = { 0, 0 },
+       DirectX::XMFLOAT2 size = { 0, 0 }, DirectX::XMFLOAT2 sprite_position = { 0, 0 },
+       DirectX::XMFLOAT2 sprite_size = { 0, 0 }, int layer = RenderLayer::kDefault,
+       bool is_valid = true)
+    */
     template<typename... Args>
     UiElement* AddSprite(Args&&... args) {
         auto new_sprite = std::make_unique<UiElement>(std::forward<Args>(args)...);

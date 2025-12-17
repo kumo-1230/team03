@@ -38,7 +38,7 @@ void SceneGame::Initialize()
 	world.Clear(); // ワールドを初期化 (全シーンのFinalizeで呼ぶが、一応ここでも初期化)
 
 	// プレイヤー初期化
-	player_ = world.CreateObject<Player>();// 引数はmodelパスだが、引数なしだとモデルなしになる。FPSなのでモデルなし
+	player_ = world.CreateObject<Player>();// CreateObjectの引数はmodelパスだが、引数なしだとモデルなしになる。FPSなのでモデルなし
 	player_->AddBoxCollider({ 1.0f, 2.0f, 1.0f });
 
 	// カメラ初期化
@@ -47,7 +47,7 @@ void SceneGame::Initialize()
 		camera_controller_->SetMode(CameraMode::kFirstPerson); // カメラの設定
 		camera_controller_->SetTarget(player_); // カメラがプレイヤーを追従する
 
-		player_->SetCameraController(camera_controller_); // プレイヤーが視点によって移動方向を決めるのでSetが必要
+		player_->SetCameraController(camera_controller_); // プレイヤーが視点によaって移動方向を決めるのでSetが必要
 	}
 
 	sky_map_ = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
