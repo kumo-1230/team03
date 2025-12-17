@@ -71,8 +71,8 @@ private:
 
     GameObject* owner_ = nullptr;       // 所有者
     bool is_enabled_ = true;            // 有効フラグ
-    bool is_kinematic_ = false;         // Kinematicフラグ
-    bool use_gravity_ = true;           // 重力使用フラグ
+    bool is_kinematic_ = true;         // Kinematicフラグ
+    bool use_gravity_ = false;           // 重力使用フラグ
     float drag_ = 0.0f;                 // 抵抗係数
     float mass_ = 1.0f;                 // 質量
     float bounciness_ = 0.0f;           // 反発係数（0.0 = 完全非弾性, 1.0 = 完全弾性）

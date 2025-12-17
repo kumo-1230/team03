@@ -149,5 +149,5 @@ void BoxCollider::GetDebugDrawInfo(
         };
     }
 
-    size = size_;
+    size = { size_.x * 0.5f, size_.y * 0.5f, size_.z * 0.5f };
 }

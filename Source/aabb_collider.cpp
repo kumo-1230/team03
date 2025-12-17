@@ -119,5 +119,5 @@ void AABBCollider::GetDebugDrawInfo(
         world_center.x, world_center.y, world_center.z, 1
     };
 
-    size = size_;
+    size = { size_.x * 0.5f, size_.y * 0.5f, size_.z * 0.5f };
 }

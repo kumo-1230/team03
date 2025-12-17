@@ -39,7 +39,9 @@ void SceneGame::Initialize()
 
 	// プレイヤー初期化
 	player_ = world.CreateObject<Player>();// CreateObjectの引数はmodelパスだが、引数なしだとモデルなしになる。FPSなのでモデルなし
-	player_->AddBoxCollider({ 1.0f, 2.0f, 1.0f });
+	player_->SetPosition(2, 0, 0);
+	player_->AddAABBCollider(1, 1, 1);
+	player_->AddRigidbody();
 
 	// カメラ初期化
 	{
@@ -54,8 +56,10 @@ void SceneGame::Initialize()
 
 	// 車オブジェクト
 	obj_ = world.CreateObject<Vault>("Data/Model/mech_drone/mech_drone.glb");
-	obj_->SetPosition(0, 0, 0);
-	obj_->AddBoxCollider({ 3.0f, 1.3f, 1.8f });
+	//obj_->AddAABBCollider({ 3.0f, 1.3f, 1.8f });
+	obj_->AddAABBCollider(6, 2, 3.5f);
+	//obj_->AddAABBCollider(100, 0.1f, 100)->SetOffset({ 0, 0, 0 });
+	obj_->AddRigidbody();
 
 	// ロボットオブジェクト
 	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 2 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f })
