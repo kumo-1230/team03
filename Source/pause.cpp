@@ -8,8 +8,9 @@
 #include "System/audio.h"
 #include "System/graphics.h"
 #include "render_layer.h"
-#include "k_cursor.h"
 #include <imgui_logger.h>
+#include <custom_cursor.h>
+#include <system_cursor.h>
 
 Pause::Pause() {
     Initialize();

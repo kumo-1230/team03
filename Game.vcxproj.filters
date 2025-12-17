@@ -67,6 +67,9 @@
     <Filter Include="Source\GameObjects">
       <UniqueIdentifier>{63cad932-b083-4e09-ac49-b591f62c04d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\KLib\Cursor">
+      <UniqueIdentifier>{66385c20-d227-4da5-b038-524338201055}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\imgui-docking\imconfig.h">
@@ -285,9 +288,6 @@
     <ClInclude Include="Source\ui_event.h">
       <Filter>Source\KLib\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Source\k_cursor.h">
-      <Filter>Source\KLib</Filter>
-    </ClInclude>
     <ClInclude Include="Source\vault.h">
       <Filter>Source\GameObjects</Filter>
     </ClInclude>
@@ -317,6 +317,12 @@
     </ClInclude>
     <ClInclude Include="Source\collision_detection.h">
       <Filter>Source\KLib\GameObject\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\system_cursor.h">
+      <Filter>Source\KLib\Cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\custom_cursor.h">
+      <Filter>Source\KLib\Cursor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -496,6 +502,12 @@
     </ClCompile>
     <ClCompile Include="Source\world.cpp">
       <Filter>Source\KLib\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\system_cursor.cpp">
+      <Filter>Source\KLib\Cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\custom_cursor.cpp">
+      <Filter>Source\KLib\Cursor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

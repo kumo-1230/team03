@@ -8,9 +8,10 @@
 #include "System/Audio.h"
 #include "input_manager.h"
 #include "render_layer.h"
-#include "k_cursor.h"
 #include <world.h>
 #include "camera_controller.h"
+#include <system_cursor.h>
+#include <custom_cursor.h>
 
 SceneTitle::SceneTitle() {}
 

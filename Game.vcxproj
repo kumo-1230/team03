@@ -126,10 +126,10 @@
     <ClInclude Include="Source\capsule_collider.h" />
     <ClInclude Include="Source\collider.h" />
     <ClInclude Include="Source\collision_detection.h" />
+    <ClInclude Include="Source\custom_cursor.h" />
     <ClInclude Include="Source\game_object.h" />
     <ClInclude Include="Source\imgui_logger.h" />
     <ClInclude Include="Source\input_manager.h" />
-    <ClInclude Include="Source\k_cursor.h" />
     <ClInclude Include="Source\k_lerp.h" />
     <ClInclude Include="Source\PBRMaterialConstants.h" />
     <ClInclude Include="Source\PBRShader.h" />
@@ -138,6 +138,7 @@
     <ClInclude Include="Source\rigidbody.h" />
     <ClInclude Include="Source\System\GLTFImporter.h" />
     <ClInclude Include="Source\System\Light.h" />
+    <ClInclude Include="Source\system_cursor.h" />
     <ClInclude Include="Source\ui_button.h" />
     <ClInclude Include="Source\Character.h" />
     <ClInclude Include="Source\Collision.h" />
@@ -206,11 +207,13 @@
     <ClCompile Include="Source\capsule_collider.cpp" />
     <ClCompile Include="Source\collider.cpp" />
     <ClCompile Include="Source\collision_detection.cpp" />
+    <ClCompile Include="Source\custom_cursor.cpp" />
     <ClCompile Include="Source\game_object.cpp" />
     <ClCompile Include="Source\input_manager.cpp" />
     <ClCompile Include="Source\PBRShader.cpp" />
     <ClCompile Include="Source\rigidbody.cpp" />
     <ClCompile Include="Source\System\GLTFImporter.cpp" />
+    <ClCompile Include="Source\system_cursor.cpp" />
     <ClCompile Include="Source\ui_button.cpp">
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>

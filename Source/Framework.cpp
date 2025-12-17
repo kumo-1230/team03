@@ -11,9 +11,9 @@
 #include "scene_manager.h"
 #include "EffectManager.h"
 #include "System/Audio.h"
-#include <k_cursor.h>
 #include <input_manager.h>
 #include "imgui_logger.h"
+#include <custom_cursor.h>
 
 // ‚’¼“¯ŠúŠÔŠuİ’è
 static const int syncInterval = 1;
