@@ -82,7 +82,7 @@ namespace CollisionDetection {
     // Sphere vs AABB
     // ============================================================================
 
-    bool CheckSphereVsAabbSimple(
+    bool CheckSphereVsAABBSimple(
         const SphereCollider* sphere,
         const AABBCollider* aabb) {
         DirectX::XMFLOAT3 sphere_center = sphere->GetWorldCenter();
@@ -317,7 +317,7 @@ namespace CollisionDetection {
     // AABB vs AABB
     // ============================================================================
 
-    bool CheckAabbVsAabbSimple(
+    bool CheckAABBVsAABBSimple(
         const AABBCollider* aabb_a,
         const AABBCollider* aabb_b) {
         DirectX::XMFLOAT3 min_a, max_a, min_b, max_b;
@@ -329,7 +329,7 @@ namespace CollisionDetection {
             (min_a.z <= max_b.z && max_a.z >= min_b.z);
     }
 
-    bool CheckAabbVsAABBRigidbody(
+    bool CheckAABBVsAABBRigidbody(
         const AABBCollider* aabb_a,
         const AABBCollider* aabb_b,
         DirectX::XMFLOAT3& out_correction) {
@@ -401,7 +401,7 @@ namespace CollisionDetection {
     // OBB vs AABB
     // ============================================================================
 
-    bool CheckBoxVsAabbSimple(
+    bool CheckBoxVsAABBSimple(
         const BoxCollider* box,
         const AABBCollider* aabb) {
         // Convert AABB to OBB for unified testing
@@ -934,7 +934,7 @@ namespace CollisionDetection {
     // AABB vs Cylinder
     // ============================================================================
 
-    bool CheckAabbVsCylinderSimple(
+    bool CheckAABBVsCylinderSimple(
         const AABBCollider* aabb,
         const CapsuleCollider* cylinder) {
         // Get cylinder segment
@@ -977,7 +977,7 @@ namespace CollisionDetection {
         return distance < cylinder->GetRadius();
     }
 
-    bool CheckAabbVsCylinderRigidbody(
+    bool CheckAABBVsCylinderRigidbody(
         const AABBCollider* aabb,
         const CapsuleCollider* cylinder,
         DirectX::XMFLOAT3& out_correction) {

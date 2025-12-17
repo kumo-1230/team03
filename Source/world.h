@@ -203,7 +203,7 @@ public:
                     shape_renderer->DrawBox(position, obj_angle, size, color);
                     break;
 
-                case ColliderType::kAabb:
+                case ColliderType::kAABB:
                     shape_renderer->DrawBox(position, { 0.0f, 0.0f, 0.0f }, size, color);
                     break;
 

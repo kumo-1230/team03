@@ -35,19 +35,19 @@ bool AABBCollider::CheckCollision(const Collider* other, GameObject*& out_other)
 
     switch (other->GetType()) {
     case ColliderType::kSphere:
-        has_collision = CollisionDetection::CheckSphereVsAabbSimple(
+        has_collision = CollisionDetection::CheckSphereVsAABBSimple(
             static_cast<const SphereCollider*>(other), this);
         break;
     case ColliderType::kBox:
-        has_collision = CollisionDetection::CheckBoxVsAabbSimple(
+        has_collision = CollisionDetection::CheckBoxVsAABBSimple(
             static_cast<const BoxCollider*>(other), this);
         break;
-    case ColliderType::kAabb:
-        has_collision = CollisionDetection::CheckAabbVsAabbSimple(
+    case ColliderType::kAABB:
+        has_collision = CollisionDetection::CheckAABBVsAABBSimple(
             this, static_cast<const AABBCollider*>(other));
         break;
     case ColliderType::kCapsule:
-        has_collision = CollisionDetection::CheckAabbVsCylinderSimple(
+        has_collision = CollisionDetection::CheckAABBVsCylinderSimple(
             this, static_cast<const CapsuleCollider*>(other));
         break;
     }
@@ -89,12 +89,12 @@ bool AABBCollider::CheckRigidbodyCollision(
             out_correction.z = -out_correction.z;
         }
         break;
-    case ColliderType::kAabb:
-        has_collision = CollisionDetection::CheckAabbVsAABBRigidbody(
+    case ColliderType::kAABB:
+        has_collision = CollisionDetection::CheckAABBVsAABBRigidbody(
             this, static_cast<const AABBCollider*>(other), out_correction);
         break;
     case ColliderType::kCapsule:
-        has_collision = CollisionDetection::CheckAabbVsCylinderRigidbody(
+        has_collision = CollisionDetection::CheckAABBVsCylinderRigidbody(
             this, static_cast<const CapsuleCollider*>(other), out_correction);
         break;
     }

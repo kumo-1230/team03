@@ -347,7 +347,7 @@ void SceneGame::DrawGUI()
 				ImGui::Text("Center B: %.2f, %.2f, %.2f", center_b.x, center_b.y, center_b.z);
 
 				// AABBの場合、境界を表示
-				if (col_a->GetType() == ColliderType::kAabb) {
+				if (col_a->GetType() == ColliderType::kAABB) {
 					const AABBCollider* aabb = static_cast<const AABBCollider*>(col_a);
 					DirectX::XMFLOAT3 min, max;
 					aabb->GetWorldBounds(min, max);
@@ -357,7 +357,7 @@ void SceneGame::DrawGUI()
 						max.x - min.x, max.y - min.y, max.z - min.z);
 				}
 
-				if (col_b->GetType() == ColliderType::kAabb) {
+				if (col_b->GetType() == ColliderType::kAABB) {
 					const AABBCollider* aabb = static_cast<const AABBCollider*>(col_b);
 					DirectX::XMFLOAT3 min, max;
 					aabb->GetWorldBounds(min, max);

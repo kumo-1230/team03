@@ -9,7 +9,7 @@ enum class ColliderType {
     kSphere,
     kBox,
     kCapsule,
-    kAabb
+    kAABB
 };
 
 // ============================================================================

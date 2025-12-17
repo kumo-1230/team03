@@ -63,8 +63,8 @@ bool BoxCollider::CheckCollision(const Collider* other, GameObject*& out_other) 
         has_collision = CollisionDetection::CheckBoxVsBoxSimple(
             this, static_cast<const BoxCollider*>(other));
         break;
-    case ColliderType::kAabb:
-        has_collision = CollisionDetection::CheckBoxVsAabbSimple(
+    case ColliderType::kAABB:
+        has_collision = CollisionDetection::CheckBoxVsAABBSimple(
             this, static_cast<const AABBCollider*>(other));
         break;
     case ColliderType::kCapsule:
@@ -105,7 +105,7 @@ bool BoxCollider::CheckRigidbodyCollision(
         has_collision = CollisionDetection::CheckBoxVsBoxRigidbody(
             this, static_cast<const BoxCollider*>(other), out_correction);
         break;
-    case ColliderType::kAabb:
+    case ColliderType::kAABB:
         has_collision = CollisionDetection::CheckBoxVsAABBRigidbody(
             this, static_cast<const AABBCollider*>(other), out_correction);
         break;

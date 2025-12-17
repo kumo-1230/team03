@@ -9,9 +9,9 @@
 class AABBCollider : public Collider {
 public:
     AABBCollider(const DirectX::XMFLOAT3& size = { 1.0f, 1.0f, 1.0f }) 
-        : Collider(ColliderType::kAabb), size_(size) {}
+        : Collider(ColliderType::kAABB), size_(size) {}
     AABBCollider(float x, float y, float z) 
-        : Collider(ColliderType::kAabb), size_({ x, y, z }) {}
+        : Collider(ColliderType::kAABB), size_({ x, y, z }) {}
 
     bool CheckCollision(const Collider* other, GameObject*& out_other) const override;
     bool CheckRigidbodyCollision(const Collider* other, 

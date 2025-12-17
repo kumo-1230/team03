@@ -37,7 +37,7 @@ bool CheckSphereVsBoxRigidbody(
     DirectX::XMFLOAT3& out_correction);
 
 // Sphere vs AABB
-bool CheckSphereVsAabbSimple(
+bool CheckSphereVsAABBSimple(
     const SphereCollider* sphere,
     const AABBCollider* aabb);
 
@@ -68,7 +68,7 @@ bool CheckBoxVsBoxRigidbody(
     DirectX::XMFLOAT3& out_correction);
 
 // Box (OBB) vs AABB
-bool CheckBoxVsAabbSimple(
+bool CheckBoxVsAABBSimple(
     const BoxCollider* box,
     const AABBCollider* aabb);
 
@@ -88,21 +88,21 @@ bool CheckBoxVsCylinderRigidbody(
     DirectX::XMFLOAT3& out_correction);
 
 // AABB vs AABB
-bool CheckAabbVsAabbSimple(
+bool CheckAABBVsAABBSimple(
     const AABBCollider* aabb_a,
     const AABBCollider* aabb_b);
 
-bool CheckAabbVsAABBRigidbody(
+bool CheckAABBVsAABBRigidbody(
     const AABBCollider* aabb_a,
     const AABBCollider* aabb_b,
     DirectX::XMFLOAT3& out_correction);
 
 // AABB vs Cylinder (Capsule)
-bool CheckAabbVsCylinderSimple(
+bool CheckAABBVsCylinderSimple(
     const AABBCollider* aabb,
     const CapsuleCollider* cylinder);
 
-bool CheckAabbVsCylinderRigidbody(
+bool CheckAABBVsCylinderRigidbody(
     const AABBCollider* aabb,
     const CapsuleCollider* cylinder,
     DirectX::XMFLOAT3& out_correction);
