@@ -31,7 +31,7 @@
 *.cso
 *.cod
 
-*.ttf
+#*.ttf
 tools/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
@@ -46,7 +46,7 @@ mono_crash.*
 #[Rr]elease/
 #[Rr]eleases/
 #x64/
-#x86/
+x86/
 [Ww][Ii][Nn]32/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
