@@ -66,7 +66,7 @@ public:
     template<typename T>
     T* CreateObject(const DirectX::XMFLOAT3& position) {
         static_assert(std::is_base_of<GameObject, T>::value,
-            "基底クラスがGameObjectであるオブジェクトを<>で指定してください");
+            "基底クラスがGameObjectであるクラスを<>で指定してください");
         auto obj = std::make_unique<T>();
         T* ptr = obj.get();
         ptr->SetLocalPosition(position);

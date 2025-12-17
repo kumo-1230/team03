@@ -106,7 +106,7 @@ bool BoxCollider::CheckRigidbodyCollision(
             this, static_cast<const BoxCollider*>(other), out_correction);
         break;
     case ColliderType::kAabb:
-        has_collision = CollisionDetection::CheckBoxVsAabbRigidbody(
+        has_collision = CollisionDetection::CheckBoxVsAABBRigidbody(
             this, static_cast<const AABBCollider*>(other), out_correction);
         break;
     case ColliderType::kCapsule:

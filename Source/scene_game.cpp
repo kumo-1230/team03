@@ -26,7 +26,6 @@
 
 SceneGame::SceneGame()
 {
-	int i = 0;
 }
 
 // 初期化

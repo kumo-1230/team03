@@ -104,7 +104,7 @@ namespace CollisionDetection {
         return distance < sphere->GetRadius();
     }
 
-    bool CheckSphereVsAabbRigidbody(
+    bool CheckSphereVsAABBRigidbody(
         const SphereCollider* sphere,
         const AABBCollider* aabb,
         DirectX::XMFLOAT3& out_correction) {
@@ -329,7 +329,7 @@ namespace CollisionDetection {
             (min_a.z <= max_b.z && max_a.z >= min_b.z);
     }
 
-    bool CheckAabbVsAabbRigidbody(
+    bool CheckAabbVsAABBRigidbody(
         const AABBCollider* aabb_a,
         const AABBCollider* aabb_b,
         DirectX::XMFLOAT3& out_correction) {
@@ -493,7 +493,7 @@ namespace CollisionDetection {
         return true;
     }
 
-    bool CheckBoxVsAabbRigidbody(
+    bool CheckBoxVsAABBRigidbody(
         const BoxCollider* box,
         const AABBCollider* aabb,
         DirectX::XMFLOAT3& out_correction) {

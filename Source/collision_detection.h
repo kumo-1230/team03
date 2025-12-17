@@ -41,7 +41,7 @@ bool CheckSphereVsAabbSimple(
     const SphereCollider* sphere,
     const AABBCollider* aabb);
 
-bool CheckSphereVsAabbRigidbody(
+bool CheckSphereVsAABBRigidbody(
     const SphereCollider* sphere,
     const AABBCollider* aabb,
     DirectX::XMFLOAT3& out_correction);
@@ -72,7 +72,7 @@ bool CheckBoxVsAabbSimple(
     const BoxCollider* box,
     const AABBCollider* aabb);
 
-bool CheckBoxVsAabbRigidbody(
+bool CheckBoxVsAABBRigidbody(
     const BoxCollider* box,
     const AABBCollider* aabb,
     DirectX::XMFLOAT3& out_correction);
@@ -92,7 +92,7 @@ bool CheckAabbVsAabbSimple(
     const AABBCollider* aabb_a,
     const AABBCollider* aabb_b);
 
-bool CheckAabbVsAabbRigidbody(
+bool CheckAabbVsAABBRigidbody(
     const AABBCollider* aabb_a,
     const AABBCollider* aabb_b,
     DirectX::XMFLOAT3& out_correction);
