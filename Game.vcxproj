@@ -254,6 +254,7 @@
     <ClCompile Include="Source\System\Sprite.cpp" />
     <ClCompile Include="Source\star.cpp" />
     <ClCompile Include="Source\ui_element.cpp" />
+    <ClCompile Include="Source\world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Basic.hlsli" />

@@ -494,6 +494,9 @@
     <ClCompile Include="Source\collision_detection.cpp">
       <Filter>Source\KLib\GameObject\Collider</Filter>
     </ClCompile>
+    <ClCompile Include="Source\world.cpp">
+      <Filter>Source\KLib\GameObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Sprite.hlsli">
