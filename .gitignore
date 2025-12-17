@@ -25,9 +25,9 @@
 # *.jpeg
 # *.psd
 # *.tga
-*.fbx
+#*.fbx
 *.fbm
-*.mdl
+#*.mdl
 *.cso
 *.cod
 
@@ -46,12 +46,12 @@ mono_crash.*
 #[Rr]elease/
 #[Rr]eleases/
 #x64/
-x86/
+#x86/
 [Ww][Ii][Nn]32/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
 bld/
-[Bb]in/
+#[Bb]in/
 [Oo]bj/
 [Oo]ut/
 [Ll]og/
@@ -75,8 +75,8 @@ TestResult.xml
 nunit-*.xml
 
 # Build Results of an ATL Project
-[Dd]ebugPS/
-[Rr]eleasePS/
+#[Dd]ebugPS/
+#[Rr]eleasePS/
 dlldata.c
 
 # Benchmark Results

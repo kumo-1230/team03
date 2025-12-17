@@ -1,0 +1,1 @@
+C:\Users\mega\Documents\GitHub\gameprogrammingIII\ゲームプログラミングⅢ_B\ゲームプログラミングⅢ(学生配布)\External\DirectXTex\Bin\Desktop_2022\x64\Debug\DirectXTex.lib
