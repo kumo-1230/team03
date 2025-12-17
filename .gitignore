@@ -31,7 +31,7 @@
 *.cso
 *.cod
 
-*.ttf
+#*.ttf
 tools/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
@@ -41,11 +41,11 @@ tools/
 mono_crash.*
 
 # Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
+#[Dd]ebug/
+#[Dd]ebugPublic/
+#[Rr]elease/
+#[Rr]eleases/
+#x64/
 x86/
 [Ww][Ii][Nn]32/
 [Aa][Rr][Mm]/
@@ -388,6 +388,3 @@ FodyWeavers.xsd
 
 *.DDS
 *.dds
-*.hdr
-
-Data/SkyMapSprite/

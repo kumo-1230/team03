@@ -1,0 +1,50 @@
+#pragma once
+
+#include "camera_controller.h"
+#include "Scene.h"
+#include "Camera.h"
+#include <memory>
+#include <vector>
+#include "sky_map.h"
+#include "Lerp.h"
+#include "math.h"
+#include "System/AudioSource.h"
+#include "PBRShader.h"
+#include <game_object.h>
+#include "player.h"
+
+// ゲームシーン
+class SceneGame : public Scene
+{
+private:
+	bool H = false;//デバッグ
+
+	Player* player_ = nullptr;
+	CameraController* camera_controller_ = nullptr;
+	std::unique_ptr<sky_map> sky_map_ = nullptr;
+	GameObject* obj_ = nullptr;
+	AudioSource* bgm_ = nullptr;
+	float game_limit_ = 200.0f;
+	LightManager light_manager_;
+
+public:
+	SceneGame();
+	~SceneGame() override {}
+
+	// 初期化
+	void Initialize() override;
+
+	// 終了化
+	void Finalize() override;
+
+	// 更新処理
+	void Update(float elapsedTime) override;
+
+	// 描画処理
+	void Render() override;
+
+	// GUI描画
+	void DrawGUI() override;
+
+
+};
