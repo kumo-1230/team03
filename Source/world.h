@@ -30,23 +30,12 @@ public:
         const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
         const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
 
-    //GameObject* CreateObject(
-    //    const DirectX::XMFLOAT3& pos = { 0.0f, 0.0f, 0.0f },
-    //    const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
-    //    const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
-
     template<typename T>
     T* CreateObject(
         const char* model_filepath = nullptr,
         const DirectX::XMFLOAT3& pos = { 0.0f, 0.0f, 0.0f },
         const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
         const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
-
-    //template<typename T>
-    //T* CreateObject(
-    //    const DirectX::XMFLOAT3& pos = { 0.0f, 0.0f, 0.0f },
-    //    const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
-    //    const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
 
     /**
      * @brief デフォルトのゲームオブジェクトを作成
@@ -182,19 +171,6 @@ private:
     DirectX::XMFLOAT3 gravity_; ///< 重力ベクトル
 };
 
-//GameObject* World::CreateObject(
-//    const DirectX::XMFLOAT3& pos,
-//    const DirectX::XMFLOAT3& rotation,
-//    const DirectX::XMFLOAT3& scale) {
-//    auto obj = std::make_unique<GameObject>();
-//    GameObject* ptr = obj.get();
-//    ptr->SetLocalPosition(pos);
-//    ptr->SetAngleVector(rotation);
-//    ptr->SetScaleVector(scale);
-//    game_objects_.emplace_back(std::move(obj));
-//    return ptr;
-//}
-
 template<typename T>
 T* World::CreateObject(
     const char* model_filepath,
@@ -212,20 +188,5 @@ T* World::CreateObject(
     game_objects_.emplace_back(std::move(obj));
     return ptr;
 }
-
-//template<typename T>
-//T* World::CreateObject(const DirectX::XMFLOAT3& pos,
-//    const DirectX::XMFLOAT3& rotation,
-//    const DirectX::XMFLOAT3& scale) {
-//    static_assert(std::is_base_of<GameObject, T>::value,
-//        "基底クラスがGameObjectであるクラスを<>で指定してください");
-//    auto obj = std::make_unique<T>();
-//    T* ptr = obj.get();
-//    ptr->SetLocalPosition(pos);
-//	ptr->SetAngleVector(rotation);
-//	ptr->SetScaleVector(scale);
-//    game_objects_.emplace_back(std::move(obj));
-//    return ptr;
-//}
 
 #endif  // WORLD_H_
