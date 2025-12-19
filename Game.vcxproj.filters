@@ -19,9 +19,6 @@
     <Filter Include="Source\System">
       <UniqueIdentifier>{cc7d1c06-8431-4003-b8ba-2b9358b84daa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\scene">
-      <UniqueIdentifier>{45b92078-2aeb-4085-a76f-f21974292414}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Character">
       <UniqueIdentifier>{d76f0f1e-e9ef-47d4-9de9-ec9b7faa234b}</UniqueIdentifier>
     </Filter>
@@ -42,9 +39,6 @@
     </Filter>
     <Filter Include="Source\MySystem\Collision">
       <UniqueIdentifier>{9bc5efcc-daeb-47ed-babf-10d8c0a882b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\scene\main/frame">
-      <UniqueIdentifier>{2a6c3d4b-49c5-45b7-b0f0-974f75cc7003}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\MySystem\Cursor">
       <UniqueIdentifier>{11fa53de-0a9f-429f-9d15-c774596c80e3}</UniqueIdentifier>
@@ -69,6 +63,12 @@
     </Filter>
     <Filter Include="Source\KLib\Cursor">
       <UniqueIdentifier>{66385c20-d227-4da5-b038-524338201055}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scene">
+      <UniqueIdentifier>{45b92078-2aeb-4085-a76f-f21974292414}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scene\main/frame">
+      <UniqueIdentifier>{2a6c3d4b-49c5-45b7-b0f0-974f75cc7003}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -166,19 +166,19 @@
       <Filter>Source\KLib\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\scene_game.h">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\scene_loading.h">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\scene_manager.h">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\scene_title.h">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\scene.h">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\Character.h">
       <Filter>Source\Character</Filter>
@@ -196,7 +196,7 @@
       <Filter>Source\Effect</Filter>
     </ClInclude>
     <ClInclude Include="Source\Framework.h">
-      <Filter>Source\scene\main/frame</Filter>
+      <Filter>Source\Scene\main/frame</Filter>
     </ClInclude>
     <ClInclude Include="Source\common.h">
       <Filter>Source\MySystem</Filter>
@@ -235,7 +235,7 @@
       <Filter>Source\MySystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\pause.h">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\CursorManager.h">
       <Filter>Source\MySystem\Cursor</Filter>
@@ -399,19 +399,19 @@
       <Filter>Source\KLib\UI</Filter>
     </ClCompile>
     <ClCompile Include="Source\scene_game.cpp">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\scene_loading.cpp">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\scene_manager.cpp">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\scene_title.cpp">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\scene.cpp">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\Character.cpp">
       <Filter>Source\Character</Filter>
@@ -429,10 +429,10 @@
       <Filter>Source\Effect</Filter>
     </ClCompile>
     <ClCompile Include="Source\Framework.cpp">
-      <Filter>Source\scene\main/frame</Filter>
+      <Filter>Source\Scene\main/frame</Filter>
     </ClCompile>
     <ClCompile Include="Source\Main.cpp">
-      <Filter>Source\scene\main/frame</Filter>
+      <Filter>Source\Scene\main/frame</Filter>
     </ClCompile>
     <ClCompile Include="Source\mathUtils.cpp">
       <Filter>Source\MySystem</Filter>
@@ -453,7 +453,7 @@
       <Filter>Source\System</Filter>
     </ClCompile>
     <ClCompile Include="Source\pause.cpp">
-      <Filter>Source\scene</Filter>
+      <Filter>Source\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\Dialog.cpp">
       <Filter>Source\MySystem</Filter>

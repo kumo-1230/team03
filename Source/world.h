@@ -25,7 +25,7 @@ public:
     static World& Instance();
 
     GameObject* CreateObject(
-        char* model_filepath = nullptr,
+        const char* model_filepath = nullptr,
         const DirectX::XMFLOAT3& pos = { 0.0f, 0.0f, 0.0f },
         const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
         const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
