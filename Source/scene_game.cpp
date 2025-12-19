@@ -55,18 +55,19 @@ void SceneGame::Initialize()
 
 	sky_map_ = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
 
-	world.CreateObject("Data/Model/Temporary_wall.glb", { 9, 0, 2 })->SetScale({ 0.1f, 0.1f, 0.1f });
+	world.CreateObject("Data/Model/Temporary_wall.glb", { 9, 0, 2 });
 
 	// 車オブジェクト
 	obj_ = world.CreateObject<Vault>("Data/Model/mech_drone/mech_drone.glb");
-	//obj_->AddAABBCollider({ 3.0f, 1.3f, 1.8f });
 	obj_->AddAABBCollider(6, 2, 3.5f);
-	//obj_->AddAABBCollider(100, 0.1f, 100)->SetOffset({ 0, 0, 0 });
 	obj_->AddRigidbody();
 
 	// ロボットオブジェクト
-	world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 2 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f })
-		->SetParent(obj_);
+	{
+		auto obj = world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 2 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f });
+		obj->SetParent(obj_);
+		obj->AddSphereCollider(1.0f)->SetOffset({ 0, 0.1f, 0 });
+	}
 
 	//world.CreateObject("Data/Model/mech_drone/mech_drone.glb", {0, -1, 0});
 	//world.CreateObject()->SetModel("Data/Model/mech_drone/mech_drone.glb"); しても同じ

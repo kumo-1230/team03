@@ -1,7 +1,7 @@
 #include "sphere_collider.h"
 #include "box_collider.h"
 #include "aabb_collider.h"
-#include "capsule_collider.h"
+#include "cylinder_collider.h"
 #include "game_object.h"
 #include "collision_detection.h"
 
@@ -21,13 +21,13 @@ bool SphereCollider::CheckCollision(const Collider* other, GameObject*& out_othe
         has_collision = CollisionDetection::CheckSphereVsBoxSimple(
             this, static_cast<const BoxCollider*>(other));
         break;
-    case ColliderType::kAabb:
-        has_collision = CollisionDetection::CheckSphereVsAabbSimple(
-            this, static_cast<const AabbCollider*>(other));
+    case ColliderType::kAABB:
+        has_collision = CollisionDetection::CheckSphereVsAABBSimple(
+            this, static_cast<const AABBCollider*>(other));
         break;
-    case ColliderType::kCapsule:
+    case ColliderType::kCylinder:
         has_collision = CollisionDetection::CheckSphereVsCylinderSimple(
-            this, static_cast<const CapsuleCollider*>(other));
+            this, static_cast<const CylinderCollider*>(other));
         break;
     }
 
@@ -58,13 +58,13 @@ bool SphereCollider::CheckRigidbodyCollision(
         has_collision = CollisionDetection::CheckSphereVsBoxRigidbody(
             this, static_cast<const BoxCollider*>(other), out_correction);
         break;
-    case ColliderType::kAabb:
-        has_collision = CollisionDetection::CheckSphereVsAabbRigidbody(
-            this, static_cast<const AabbCollider*>(other), out_correction);
+    case ColliderType::kAABB:
+        has_collision = CollisionDetection::CheckSphereVsAABBRigidbody(
+            this, static_cast<const AABBCollider*>(other), out_correction);
         break;
-    case ColliderType::kCapsule:
+    case ColliderType::kCylinder:
         has_collision = CollisionDetection::CheckSphereVsCylinderRigidbody(
-            this, static_cast<const CapsuleCollider*>(other), out_correction);
+            this, static_cast<const CylinderCollider*>(other), out_correction);
         break;
     }
 

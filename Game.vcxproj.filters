@@ -324,6 +324,9 @@
     <ClInclude Include="Source\custom_cursor.h">
       <Filter>Source\KLib\Cursor</Filter>
     </ClInclude>
+    <ClInclude Include="Source\sphere_collider.h">
+      <Filter>Source\KLib\GameObject\Collider</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui-docking\imgui.cpp">
@@ -508,6 +511,9 @@
     </ClCompile>
     <ClCompile Include="Source\custom_cursor.cpp">
       <Filter>Source\KLib\Cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\sphere_collider.cpp">
+      <Filter>Source\KLib\GameObject\Collider</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

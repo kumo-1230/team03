@@ -136,6 +136,7 @@
     <ClInclude Include="Source\player.h" />
     <ClInclude Include="Source\render_layer.h" />
     <ClInclude Include="Source\rigidbody.h" />
+    <ClInclude Include="Source\sphere_collider.h" />
     <ClInclude Include="Source\System\GLTFImporter.h" />
     <ClInclude Include="Source\System\Light.h" />
     <ClInclude Include="Source\system_cursor.h" />
@@ -212,6 +213,7 @@
     <ClCompile Include="Source\input_manager.cpp" />
     <ClCompile Include="Source\PBRShader.cpp" />
     <ClCompile Include="Source\rigidbody.cpp" />
+    <ClCompile Include="Source\sphere_collider.cpp" />
     <ClCompile Include="Source\System\GLTFImporter.cpp" />
     <ClCompile Include="Source\system_cursor.cpp" />
     <ClCompile Include="Source\ui_button.cpp">
