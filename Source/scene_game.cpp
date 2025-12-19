@@ -64,9 +64,9 @@ void SceneGame::Initialize()
 
 	// ロボットオブジェクト
 	{
-		auto obj = world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 0, 0, 2 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f });
+		auto obj = world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 3, 0, 6 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f });
 		obj->SetParent(obj_);
-		obj->AddSphereCollider(1.0f)->SetOffset({ 0, 0.1f, 0 });
+		obj->AddSphereCollider(1.4f)->SetOffset({ 0, 1.1f, 0 });
 	}
 
 	//world.CreateObject("Data/Model/mech_drone/mech_drone.glb", {0, -1, 0});
