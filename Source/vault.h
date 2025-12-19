@@ -6,9 +6,9 @@
 
 class Vault : public GameObject {
 public:
-	Vault(const char* model) : GameObject(model) {
+	//Vault(const char* model) : GameObject() {
 
-	}
+	//}
 
 	void Update(float elapsed_time) override 
 	{

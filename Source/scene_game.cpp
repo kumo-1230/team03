@@ -54,6 +54,8 @@ void SceneGame::Initialize()
 
 	sky_map_ = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
 
+	world.CreateObject("Data/Model/Temporary_wall.glb", { 2, 0, 2 }, {0.1f, 0.1f, 0.1f});
+
 	// 車オブジェクト
 	obj_ = world.CreateObject<Vault>("Data/Model/mech_drone/mech_drone.glb");
 	//obj_->AddAABBCollider({ 3.0f, 1.3f, 1.8f });

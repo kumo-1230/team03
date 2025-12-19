@@ -14,25 +14,6 @@ GameObject* World::CreateObject() {
     return ptr;
 }
 
-GameObject* World::CreateObject(const char* model_path, const DirectX::XMFLOAT3& position) {
-    auto obj = std::make_unique<GameObject>();
-    GameObject* ptr = obj.get();
-    ptr->SetModel(model_path);
-    ptr->SetLocalPosition(position);
-    game_objects_.emplace_back(std::move(obj));
-    return ptr;
-}
-
-GameObject* World::CreateObject(const char* model_path, float x, float y, float z) {
-    return CreateObject(model_path, DirectX::XMFLOAT3(x, y, z));
-}
-
-GameObject* World::CreateObject(const char* model_path, DirectX::FXMVECTOR position) {
-    DirectX::XMFLOAT3 pos;
-    DirectX::XMStoreFloat3(&pos, position);
-    return CreateObject(model_path, pos);
-}
-
 void World::Update(float elapsed_time) {
     ApplyPhysics(elapsed_time);
 
@@ -53,6 +34,7 @@ void World::Render(const RenderContext& rc, ModelRenderer* model_renderer) {
             obj->Render(rc, model_renderer);
         }
     }
+
     if (model_renderer) {
         model_renderer->Render(rc);
     }

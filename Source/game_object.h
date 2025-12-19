@@ -42,58 +42,17 @@ enum class HierarchyType {
 class GameObject {
 public:
     /// @brief デフォルトコンストラクタ
-    GameObject() = default;
-
-    /**
-     * @brief モデルパスを指定して構築
-     * @param model_filepath モデルファイルのパス
-     */
-    explicit GameObject(const char* model_filepath) {
-        if (model_filepath) SetModel(model_filepath);
-    }
-
-    /**
-     * @brief モデルパスと位置を指定して構築
-     * @param model_filepath モデルファイルのパス
-     * @param pos 初期位置
-     */
-    GameObject(const char* model_filepath, const DirectX::XMFLOAT3& pos) {
-        if (model_filepath) SetModel(model_filepath);
-        SetLocalPosition(pos);
-    }
-
-    /**
-     * @brief モデルパスと位置（float x3）を指定して構築
-     * @param model_filepath モデルファイルのパス
-     * @param x X座標
-     * @param y Y座標
-     * @param z Z座標
-     */
-    GameObject(const char* model_filepath, float x, float y, float z) {
-        if (model_filepath) SetModel(model_filepath);
-        SetLocalPosition(x, y, z);
-    }
-
-    /**
-     * @brief モデルパスと位置（XMVECTOR）を指定して構築
-     * @param model_filepath モデルファイルのパス
-     * @param pos 初期位置（XMVECTOR）
-     */
-    GameObject(const char* model_filepath, DirectX::FXMVECTOR pos) {
-        if (model_filepath) SetModel(model_filepath);
-        SetLocalPosition(pos);
-    }
-
-    /**
-     * @brief モデルパス、位置、回転を指定して構築
-     * @param model_filepath モデルファイルのパス
-     * @param pos 初期位置
-     * @param rotation 初期回転（ラジアン）
-     */
-    GameObject(const char* model_filepath, const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rotation) {
-        if (model_filepath) SetModel(model_filepath);
-        SetLocalPosition(pos);
-        angle_ = rotation;
+    GameObject()
+        : position_({ 0.0f, 0.0f, 0.0f }),
+        angle_({ 0.0f, 0.0f, 0.0f }),
+        scale_({ 1.0f, 1.0f, 1.0f }),
+        velocity_({ 0.0f, 0.0f, 0.0f }),
+        rigidbody_(nullptr),
+        parent_(nullptr),
+        hierarchy_type_(HierarchyType::kNone),
+        active_(true),
+        elapsed_time_(0.0f)
+    {
         UpdateTransform();
     }
 
@@ -104,7 +63,10 @@ public:
      * @param rotation 初期回転（ラジアン）
      * @param scale 初期スケール
      */
-    GameObject(const char* model_filepath, const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale) {
+    GameObject(const char* model_filepath,
+        const DirectX::XMFLOAT3& pos = {0.0f, 0.0f, 0.0f }, 
+        const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
+        const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f }) {
         if (model_filepath) SetModel(model_filepath);
         SetLocalPosition(pos);
         angle_ = rotation;
@@ -113,45 +75,20 @@ public:
     }
 
     /**
-     * @brief モデルパスと位置・回転（float x3）を指定して構築
-     * @param model_filepath モデルファイルのパス
-     * @param px X座標
-     * @param py Y座標
-     * @param pz Z座標
-     * @param rx X軸回転（ラジアン）
-     * @param ry Y軸回転（ラジアン）
-     * @param rz Z軸回転（ラジアン）
+     * @brief 位置、回転、スケールを指定して構築
+     * @param pos 初期位置
+     * @param rotation 初期回転（ラジアン）
+     * @param scale 初期スケール
      */
-    GameObject(const char* model_filepath, float px, float py, float pz, float rx, float ry, float rz) {
-        if (model_filepath) SetModel(model_filepath);
-        SetLocalPosition(px, py, pz);
-        angle_ = { rx, ry, rz };
-        UpdateTransform();
-    }
-
-    /**
-     * @brief モデルパスと位置・回転・スケール（float x3）を指定して構築
-     * @param model_filepath モデルファイルのパス
-     * @param px X座標
-     * @param py Y座標
-     * @param pz Z座標
-     * @param rx X軸回転（ラジアン）
-     * @param ry Y軸回転（ラジアン）
-     * @param rz Z軸回転（ラジアン）
-     * @param sx Xスケール
-     * @param sy Yスケール
-     * @param sz Zスケール
-     */
-    GameObject(const char* model_filepath,
-        float px, float py, float pz,
-        float rx, float ry, float rz,
-        float sx, float sy, float sz) {
-        if (model_filepath) SetModel(model_filepath);
-        SetLocalPosition(px, py, pz);
-        angle_ = { rx, ry, rz };
-        scale_ = { sx, sy, sz };
-        UpdateTransform();
-    }
+    //GameObject(
+    //    const DirectX::XMFLOAT3& pos,
+    //    const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
+    //    const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f }) {
+    //    SetLocalPosition(pos);
+    //    angle_ = rotation;
+    //    scale_ = scale;
+    //    UpdateTransform();
+    //}
 
     /// @brief デストラクタ
     virtual ~GameObject();

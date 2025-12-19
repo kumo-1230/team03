@@ -24,117 +24,35 @@ public:
      */
     static World& Instance();
 
-    /**
-     * @brief カスタム型のゲームオブジェクトを作成
-     * @tparam T GameObjectを継承したクラス型
-     * @tparam Args コンストラクタ引数の型
-     * @param args コンストラクタに渡す引数
-     * @return T* 作成されたオブジェクトへのポインタ
-     */
-    template<typename T, typename... Args>
-    T* CreateObject(Args&&... args);
+    GameObject* CreateObject(
+        char* model_filepath = nullptr,
+        const DirectX::XMFLOAT3& pos = { 0.0f, 0.0f, 0.0f },
+        const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
+        const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
 
-    /**
-     * @brief 基本的なゲームオブジェクトを作成（可変長引数版）
-     * @tparam Args コンストラクタ引数の型
-     * @param args コンストラクタに渡す引数
-     * @return GameObject* 作成されたオブジェクトへのポインタ
-     */
-    template<typename... Args>
-    GameObject* CreateObject(Args&&... args);
+    //GameObject* CreateObject(
+    //    const DirectX::XMFLOAT3& pos = { 0.0f, 0.0f, 0.0f },
+    //    const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
+    //    const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
+
+    template<typename T>
+    T* CreateObject(
+        const char* model_filepath = nullptr,
+        const DirectX::XMFLOAT3& pos = { 0.0f, 0.0f, 0.0f },
+        const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
+        const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
+
+    //template<typename T>
+    //T* CreateObject(
+    //    const DirectX::XMFLOAT3& pos = { 0.0f, 0.0f, 0.0f },
+    //    const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
+    //    const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
 
     /**
      * @brief デフォルトのゲームオブジェクトを作成
      * @return GameObject* 作成されたオブジェクトへのポインタ
      */
     GameObject* CreateObject();
-
-    /**
-     * @brief モデルパスと初期位置を指定してゲームオブジェクトを作成
-     * @param model_path モデルファイルのパス
-     * @param position 初期位置
-     * @return GameObject* 作成されたオブジェクトへのポインタ
-     */
-    GameObject* CreateObject(const char* model_path, const DirectX::XMFLOAT3& position);
-
-    /**
-     * @brief モデルパスと初期位置(x,y,z)を指定してゲームオブジェクトを作成
-     * @param model_path モデルファイルのパス
-     * @param x X座標
-     * @param y Y座標
-     * @param z Z座標
-     * @return GameObject* 作成されたオブジェクトへのポインタ
-     */
-    GameObject* CreateObject(const char* model_path, float x, float y, float z);
-
-    /**
-     * @brief モデルパスと初期位置(XMVECTOR)を指定してゲームオブジェクトを作成
-     * @param model_path モデルファイルのパス
-     * @param position 初期位置ベクトル
-     * @return GameObject* 作成されたオブジェクトへのポインタ
-     */
-    GameObject* CreateObject(const char* model_path, DirectX::FXMVECTOR position);
-
-    /**
-     * @brief カスタム型と初期位置を指定してゲームオブジェクトを作成
-     * @tparam T GameObjectを継承したクラス型
-     * @param position 初期位置
-     * @return T* 作成されたオブジェクトへのポインタ
-     */
-    template<typename T>
-    T* CreateObject(const DirectX::XMFLOAT3& position);
-
-    /**
-     * @brief カスタム型と初期位置(x,y,z)を指定してゲームオブジェクトを作成
-     * @tparam T GameObjectを継承したクラス型
-     * @param x X座標
-     * @param y Y座標
-     * @param z Z座標
-     * @return T* 作成されたオブジェクトへのポインタ
-     */
-    template<typename T>
-    T* CreateObject(float x, float y, float z);
-
-    /**
-     * @brief カスタム型と初期位置(XMVECTOR)を指定してゲームオブジェクトを作成
-     * @tparam T GameObjectを継承したクラス型
-     * @param position 初期位置ベクトル
-     * @return T* 作成されたオブジェクトへのポインタ
-     */
-    template<typename T>
-    T* CreateObject(DirectX::FXMVECTOR position);
-
-    /**
-     * @brief カスタム型、モデルパス、初期位置を指定してゲームオブジェクトを作成
-     * @tparam T GameObjectを継承したクラス型
-     * @param model_path モデルファイルのパス
-     * @param position 初期位置
-     * @return T* 作成されたオブジェクトへのポインタ
-     */
-    template<typename T>
-    T* CreateObject(const char* model_path, const DirectX::XMFLOAT3& position);
-
-    /**
-     * @brief カスタム型、モデルパス、初期位置(x,y,z)を指定してゲームオブジェクトを作成
-     * @tparam T GameObjectを継承したクラス型
-     * @param model_path モデルファイルのパス
-     * @param x X座標
-     * @param y Y座標
-     * @param z Z座標
-     * @return T* 作成されたオブジェクトへのポインタ
-     */
-    template<typename T>
-    T* CreateObject(const char* model_path, float x, float y, float z);
-
-    /**
-     * @brief カスタム型、モデルパス、初期位置(XMVECTOR)を指定してゲームオブジェクトを作成
-     * @tparam T GameObjectを継承したクラス型
-     * @param model_path モデルファイルのパス
-     * @param position 初期位置ベクトル
-     * @return T* 作成されたオブジェクトへのポインタ
-     */
-    template<typename T>
-    T* CreateObject(const char* model_path, DirectX::FXMVECTOR position);
 
     /**
      * @brief ワールドの更新処理
@@ -264,70 +182,62 @@ private:
     DirectX::XMFLOAT3 gravity_; ///< 重力ベクトル
 };
 
-// テンプレート関数の実装
-template<typename T, typename... Args>
-T* World::CreateObject(Args&&... args) {
-    static_assert(std::is_base_of<GameObject, T>::value,
-        "基底クラスがGameObjectであるクラスを<>で指定してください");
-    auto obj = std::make_unique<T>(std::forward<Args>(args)...);
-    T* ptr = obj.get();
-    game_objects_.emplace_back(std::move(obj));
-    return ptr;
-}
 
-template<typename... Args>
-GameObject* World::CreateObject(Args&&... args) {
-    auto obj = std::make_unique<GameObject>(std::forward<Args>(args)...);
+GameObject* World::CreateObject(
+    const char* model_filepath,
+    const DirectX::XMFLOAT3& pos,
+    const DirectX::XMFLOAT3& rotation,
+    const DirectX::XMFLOAT3& scale) {
+    auto obj = std::make_unique<GameObject>(model_filepath, pos, rotation, scale);
     GameObject* ptr = obj.get();
     game_objects_.emplace_back(std::move(obj));
     return ptr;
 }
 
+//GameObject* World::CreateObject(
+//    const DirectX::XMFLOAT3& pos,
+//    const DirectX::XMFLOAT3& rotation,
+//    const DirectX::XMFLOAT3& scale) {
+//    auto obj = std::make_unique<GameObject>();
+//    GameObject* ptr = obj.get();
+//    ptr->SetLocalPosition(pos);
+//    ptr->SetAngle(rotation);
+//    ptr->SetScale(scale);
+//    game_objects_.emplace_back(std::move(obj));
+//    return ptr;
+//}
+
 template<typename T>
-T* World::CreateObject(const DirectX::XMFLOAT3& position) {
+T* World::CreateObject(
+    const char* model_filepath,
+    const DirectX::XMFLOAT3& pos,
+    const DirectX::XMFLOAT3& rotation,
+    const DirectX::XMFLOAT3& scale) {
     static_assert(std::is_base_of<GameObject, T>::value,
         "基底クラスがGameObjectであるクラスを<>で指定してください");
     auto obj = std::make_unique<T>();
     T* ptr = obj.get();
-    ptr->SetLocalPosition(position);
+	if (model_filepath) ptr->SetModel(model_filepath);
+    ptr->SetLocalPosition(pos);
+    ptr->SetAngle(rotation);
+    ptr->SetScale(scale);
     game_objects_.emplace_back(std::move(obj));
     return ptr;
 }
 
-template<typename T>
-T* World::CreateObject(float x, float y, float z) {
-    return CreateObject<T>(DirectX::XMFLOAT3(x, y, z));
-}
-
-template<typename T>
-T* World::CreateObject(DirectX::FXMVECTOR position) {
-    DirectX::XMFLOAT3 pos;
-    DirectX::XMStoreFloat3(&pos, position);
-    return CreateObject<T>(pos);
-}
-
-template<typename T>
-T* World::CreateObject(const char* model_path, const DirectX::XMFLOAT3& position) {
-    static_assert(std::is_base_of<GameObject, T>::value,
-        "基底クラスがGameObjectであるオブジェクトを<>で指定してください");
-    auto obj = std::make_unique<T>();
-    T* ptr = obj.get();
-    ptr->SetModel(model_path);
-    ptr->SetLocalPosition(position);
-    game_objects_.emplace_back(std::move(obj));
-    return ptr;
-}
-
-template<typename T>
-T* World::CreateObject(const char* model_path, float x, float y, float z) {
-    return CreateObject<T>(model_path, DirectX::XMFLOAT3(x, y, z));
-}
-
-template<typename T>
-T* World::CreateObject(const char* model_path, DirectX::FXMVECTOR position) {
-    DirectX::XMFLOAT3 pos;
-    DirectX::XMStoreFloat3(&pos, position);
-    return CreateObject<T>(model_path, pos);
-}
+//template<typename T>
+//T* World::CreateObject(const DirectX::XMFLOAT3& pos,
+//    const DirectX::XMFLOAT3& rotation,
+//    const DirectX::XMFLOAT3& scale) {
+//    static_assert(std::is_base_of<GameObject, T>::value,
+//        "基底クラスがGameObjectであるクラスを<>で指定してください");
+//    auto obj = std::make_unique<T>();
+//    T* ptr = obj.get();
+//    ptr->SetLocalPosition(pos);
+//	ptr->SetAngle(rotation);
+//	ptr->SetScale(scale);
+//    game_objects_.emplace_back(std::move(obj));
+//    return ptr;
+//}
 
 #endif  // WORLD_H_
