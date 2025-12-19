@@ -390,3 +390,4 @@ FodyWeavers.xsd
 *.dds
 *.exe
 *.exp
+bin/x64/Debug/Game.pdb

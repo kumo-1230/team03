@@ -1,5 +1,5 @@
-#ifndef CAPSULE_COLLIDER_H_
-#define CAPSULE_COLLIDER_H_
+#ifndef CYLINDER_COLLIDER_H_
+#define CYLINDER_COLLIDER_H_
 
 #include "collider.h"
 
@@ -31,4 +31,4 @@ private:
     float height_;
 };
 
-#endif  // CAPSULE_COLLIDER_H_
+#endif  // CYLINDER_COLLIDER_H_
