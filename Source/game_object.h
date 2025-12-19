@@ -15,7 +15,7 @@
 #include "collider.h"
 #include "box_collider.h"
 #include "sphere_collider.h"
-#include "capsule_collider.h"
+#include "cylinder_collider.h"
 #include "aabb_collider.h"
 
  // 前方宣言
@@ -666,13 +666,13 @@ public:
     }
 
     /**
-     * @brief Capsule コライダーを追加
+     * @brief Cylinder コライダーを追加
      * @param radius カプセルの半径
      * @param height カプセルの高さ
-     * @return 追加された CapsuleCollider
+     * @return 追加された CylinderCollider
      */
-    CapsuleCollider* AddCapsuleCollider(float radius = 0.5f, float height = 2.0f) {
-        CapsuleCollider* collider = new CapsuleCollider(radius, height);
+    CylinderCollider* AddCylinderCollider(float radius = 0.5f, float height = 2.0f) {
+        CylinderCollider* collider = new CylinderCollider(radius, height);
         collider->SetOwner(this);
         colliders_.push_back(collider);
         return collider;

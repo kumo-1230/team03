@@ -8,7 +8,7 @@ class GameObject;
 enum class ColliderType {
     kSphere,
     kBox,
-    kCapsule,
+    kCylinder,
     kAABB
 };
 

@@ -40,7 +40,8 @@ void SceneGame::Initialize()
 	// プレイヤー初期化
 	player_ = world.CreateObject<Player>();// CreateObjectの引数はmodelパスだが、引数なしだとモデルなしになる。FPSなのでモデルなし
 	player_->SetPosition(2, 0, 0);
-	player_->AddAABBCollider(1, 1, 1);
+	//player_->AddAABBCollider(1, 1, 1);
+	player_->AddCylinderCollider(0.5f, 1.0f);
 	player_->AddRigidbody();
 
 	// カメラ初期化

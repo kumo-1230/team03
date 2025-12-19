@@ -312,7 +312,7 @@
     <ClInclude Include="Source\box_collider.h">
       <Filter>Source\KLib\GameObject\Collider</Filter>
     </ClInclude>
-    <ClInclude Include="Source\capsule_collider.h">
+    <ClInclude Include="Source\cylinder_collider.h">
       <Filter>Source\KLib\GameObject\Collider</Filter>
     </ClInclude>
     <ClInclude Include="Source\collision_detection.h">
@@ -494,7 +494,7 @@
     <ClCompile Include="Source\box_collider.cpp">
       <Filter>Source\KLib\GameObject\Collider</Filter>
     </ClCompile>
-    <ClCompile Include="Source\capsule_collider.cpp">
+    <ClCompile Include="Source\cylinder_collider.cpp">
       <Filter>Source\KLib\GameObject\Collider</Filter>
     </ClCompile>
     <ClCompile Include="Source\collision_detection.cpp">

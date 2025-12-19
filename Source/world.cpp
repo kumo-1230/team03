@@ -1,4 +1,8 @@
 #include "world.h"
+#include "game_object.h"
+#include "rigidbody.h"
+#include "collider.h"
+#include "System/ModelRenderer.h"
 
 World& World::Instance() {
     static World instance;
@@ -120,7 +124,7 @@ void World::DrawDebugPrimitives(ShapeRenderer* shape_renderer) {
                 shape_renderer->DrawBox(position, { 0.0f, 0.0f, 0.0f }, size, color);
                 break;
 
-            case ColliderType::kCapsule:
+            case ColliderType::kCylinder:
                 shape_renderer->DrawCapsule(transform, size.x, size.y, color);
                 break;
             }

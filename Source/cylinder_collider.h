@@ -4,12 +4,12 @@
 #include "collider.h"
 
 // ============================================================================
-// Capsule Collider (Cylinder implementation)
+// Cylinder Collider (Cylinder implementation)
 // ============================================================================
-class CapsuleCollider : public Collider {
+class CylinderCollider : public Collider {
 public:
-    CapsuleCollider(float radius = 0.5f, float height = 2.0f) 
-        : Collider(ColliderType::kCapsule), radius_(radius), height_(height) {}
+    CylinderCollider(float radius = 0.5f, float height = 2.0f) 
+        : Collider(ColliderType::kCylinder), radius_(radius), height_(height) {}
 
     bool CheckCollision(const Collider* other, GameObject*& out_other) const override;
     bool CheckRigidbodyCollision(const Collider* other, 

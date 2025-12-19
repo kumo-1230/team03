@@ -2,7 +2,7 @@
 #include "sphere_collider.h"
 #include "box_collider.h"
 #include "aabb_collider.h"
-#include "capsule_collider.h"
+#include "cylinder_collider.h"
 #include "game_object.h"
 #include <algorithm>
 #include <vector>
@@ -256,12 +256,12 @@ namespace CollisionDetection {
     }
 
     // ============================================================================
-    // Sphere vs Cylinder (Capsule)
+    // Sphere vs Cylinder (Cylinder)
     // ============================================================================
 
     bool CheckSphereVsCylinderSimple(
         const SphereCollider* sphere,
-        const CapsuleCollider* cylinder) {
+        const CylinderCollider* cylinder) {
         DirectX::XMFLOAT3 sphere_center = sphere->GetWorldCenter();
         DirectX::XMFLOAT3 cylinder_start, cylinder_end;
         cylinder->GetCylinderSegment(cylinder_start, cylinder_end);
@@ -281,7 +281,7 @@ namespace CollisionDetection {
 
     bool CheckSphereVsCylinderRigidbody(
         const SphereCollider* sphere,
-        const CapsuleCollider* cylinder,
+        const CylinderCollider* cylinder,
         DirectX::XMFLOAT3& out_correction) {
         DirectX::XMFLOAT3 sphere_center = sphere->GetWorldCenter();
         DirectX::XMFLOAT3 cylinder_start, cylinder_end;
@@ -827,7 +827,7 @@ namespace CollisionDetection {
 
     bool CheckBoxVsCylinderSimple(
         const BoxCollider* box,
-        const CapsuleCollider* cylinder) {
+        const CylinderCollider* cylinder) {
         // Get cylinder segment
         DirectX::XMFLOAT3 cylinder_start, cylinder_end;
         cylinder->GetCylinderSegment(cylinder_start, cylinder_end);
@@ -884,7 +884,7 @@ namespace CollisionDetection {
 
     bool CheckBoxVsCylinderRigidbody(
         const BoxCollider* box,
-        const CapsuleCollider* cylinder,
+        const CylinderCollider* cylinder,
         DirectX::XMFLOAT3& out_correction) {
         // Simplified approximation using closest point approach
         DirectX::XMFLOAT3 cylinder_start, cylinder_end;
@@ -936,7 +936,7 @@ namespace CollisionDetection {
 
     bool CheckAABBVsCylinderSimple(
         const AABBCollider* aabb,
-        const CapsuleCollider* cylinder) {
+        const CylinderCollider* cylinder) {
         // Get cylinder segment
         DirectX::XMFLOAT3 cylinder_start, cylinder_end;
         cylinder->GetCylinderSegment(cylinder_start, cylinder_end);
@@ -979,7 +979,7 @@ namespace CollisionDetection {
 
     bool CheckAABBVsCylinderRigidbody(
         const AABBCollider* aabb,
-        const CapsuleCollider* cylinder,
+        const CylinderCollider* cylinder,
         DirectX::XMFLOAT3& out_correction) {
         DirectX::XMFLOAT3 cylinder_start, cylinder_end;
         cylinder->GetCylinderSegment(cylinder_start, cylinder_end);
@@ -1035,8 +1035,8 @@ namespace CollisionDetection {
     // ============================================================================
 
     bool CheckCylinderVsCylinderSimple(
-        const CapsuleCollider* cylinder_a,
-        const CapsuleCollider* cylinder_b) {
+        const CylinderCollider* cylinder_a,
+        const CylinderCollider* cylinder_b) {
         DirectX::XMFLOAT3 a_start, a_end, b_start, b_end;
         cylinder_a->GetCylinderSegment(a_start, a_end);
         cylinder_b->GetCylinderSegment(b_start, b_end);
@@ -1058,8 +1058,8 @@ namespace CollisionDetection {
     }
 
     bool CheckCylinderVsCylinderRigidbody(
-        const CapsuleCollider* cylinder_a,
-        const CapsuleCollider* cylinder_b,
+        const CylinderCollider* cylinder_a,
+        const CylinderCollider* cylinder_b,
         DirectX::XMFLOAT3& out_correction) {
         DirectX::XMFLOAT3 a_start, a_end, b_start, b_end;
         cylinder_a->GetCylinderSegment(a_start, a_end);

@@ -5,10 +5,11 @@
 #include <memory>
 #include <algorithm>
 #include <DirectXMath.h>
-#include "game_object.h"
-#include "collider.h"
-#include "rigidbody.h"
-#include "System/ModelRenderer.h"
+
+class GameObject;
+class ModelRenderer;
+class ShapeRenderer;
+struct RenderContext;
 
 /**
  * @class World
@@ -36,12 +37,6 @@ public:
         const DirectX::XMFLOAT3& pos = { 0.0f, 0.0f, 0.0f },
         const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
         const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f });
-
-    /**
-     * @brief デフォルトのゲームオブジェクトを作成
-     * @return GameObject* 作成されたオブジェクトへのポインタ
-     */
-    GameObject* CreateObject();
 
     /**
      * @brief ワールドの更新処理

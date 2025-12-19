@@ -7,7 +7,7 @@
 class SphereCollider;
 class BoxCollider;
 class AABBCollider;
-class CapsuleCollider;
+class CylinderCollider;
 
 // ============================================================================
 // Collision Detection Helper Functions
@@ -46,14 +46,14 @@ bool CheckSphereVsAABBRigidbody(
     const AABBCollider* aabb,
     DirectX::XMFLOAT3& out_correction);
 
-// Sphere vs Cylinder (Capsule)
+// Sphere vs Cylinder (Cylinder)
 bool CheckSphereVsCylinderSimple(
     const SphereCollider* sphere,
-    const CapsuleCollider* cylinder);
+    const CylinderCollider* cylinder);
 
 bool CheckSphereVsCylinderRigidbody(
     const SphereCollider* sphere,
-    const CapsuleCollider* cylinder,
+    const CylinderCollider* cylinder,
     DirectX::XMFLOAT3& out_correction);
 
 
@@ -77,14 +77,14 @@ bool CheckBoxVsAABBRigidbody(
     const AABBCollider* aabb,
     DirectX::XMFLOAT3& out_correction);
 
-// Box (OBB) vs Cylinder (Capsule)
+// Box (OBB) vs Cylinder (Cylinder)
 bool CheckBoxVsCylinderSimple(
     const BoxCollider* box,
-    const CapsuleCollider* cylinder);
+    const CylinderCollider* cylinder);
 
 bool CheckBoxVsCylinderRigidbody(
     const BoxCollider* box,
-    const CapsuleCollider* cylinder,
+    const CylinderCollider* cylinder,
     DirectX::XMFLOAT3& out_correction);
 
 // AABB vs AABB
@@ -97,24 +97,24 @@ bool CheckAABBVsAABBRigidbody(
     const AABBCollider* aabb_b,
     DirectX::XMFLOAT3& out_correction);
 
-// AABB vs Cylinder (Capsule)
+// AABB vs Cylinder (Cylinder)
 bool CheckAABBVsCylinderSimple(
     const AABBCollider* aabb,
-    const CapsuleCollider* cylinder);
+    const CylinderCollider* cylinder);
 
 bool CheckAABBVsCylinderRigidbody(
     const AABBCollider* aabb,
-    const CapsuleCollider* cylinder,
+    const CylinderCollider* cylinder,
     DirectX::XMFLOAT3& out_correction);
 
-// Cylinder (Capsule) vs Cylinder (Capsule)
+// Cylinder (Cylinder) vs Cylinder (Cylinder)
 bool CheckCylinderVsCylinderSimple(
-    const CapsuleCollider* cylinder_a,
-    const CapsuleCollider* cylinder_b);
+    const CylinderCollider* cylinder_a,
+    const CylinderCollider* cylinder_b);
 
 bool CheckCylinderVsCylinderRigidbody(
-    const CapsuleCollider* cylinder_a,
-    const CapsuleCollider* cylinder_b,
+    const CylinderCollider* cylinder_a,
+    const CylinderCollider* cylinder_b,
     DirectX::XMFLOAT3& out_correction);
 
 }  // namespace CollisionDetection

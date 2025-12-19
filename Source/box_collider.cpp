@@ -1,7 +1,7 @@
 #include "box_collider.h"
 #include "sphere_collider.h"
 #include "aabb_collider.h"
-#include "capsule_collider.h"
+#include "cylinder_collider.h"
 #include "game_object.h"
 #include "collision_detection.h"
 
@@ -67,9 +67,9 @@ bool BoxCollider::CheckCollision(const Collider* other, GameObject*& out_other) 
         has_collision = CollisionDetection::CheckBoxVsAABBSimple(
             this, static_cast<const AABBCollider*>(other));
         break;
-    case ColliderType::kCapsule:
+    case ColliderType::kCylinder:
         has_collision = CollisionDetection::CheckBoxVsCylinderSimple(
-            this, static_cast<const CapsuleCollider*>(other));
+            this, static_cast<const CylinderCollider*>(other));
         break;
     }
 
@@ -109,9 +109,9 @@ bool BoxCollider::CheckRigidbodyCollision(
         has_collision = CollisionDetection::CheckBoxVsAABBRigidbody(
             this, static_cast<const AABBCollider*>(other), out_correction);
         break;
-    case ColliderType::kCapsule:
+    case ColliderType::kCylinder:
         has_collision = CollisionDetection::CheckBoxVsCylinderRigidbody(
-            this, static_cast<const CapsuleCollider*>(other), out_correction);
+            this, static_cast<const CylinderCollider*>(other), out_correction);
         break;
     }
 

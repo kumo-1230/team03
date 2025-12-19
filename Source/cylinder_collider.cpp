@@ -1,11 +1,11 @@
-#include "capsule_collider.h"
+#include "cylinder_collider.h"
 #include "sphere_collider.h"
 #include "box_collider.h"
 #include "aabb_collider.h"
 #include "game_object.h"
 #include "collision_detection.h"
 
-void CapsuleCollider::GetCylinderSegment(DirectX::XMFLOAT3& start, DirectX::XMFLOAT3& end) const {
+void CylinderCollider::GetCylinderSegment(DirectX::XMFLOAT3& start, DirectX::XMFLOAT3& end) const {
     float half_height = height_ * 0.5f;
 
     if (!owner_) {
@@ -27,7 +27,7 @@ void CapsuleCollider::GetCylinderSegment(DirectX::XMFLOAT3& start, DirectX::XMFL
     DirectX::XMStoreFloat3(&end, end_vec);
 }
 
-bool CapsuleCollider::CheckCollision(const Collider* other, GameObject*& out_other) const {
+bool CylinderCollider::CheckCollision(const Collider* other, GameObject*& out_other) const {
     if (!other || !other->IsEnabled() || !IsEnabled()) {
         return false;
     }
@@ -47,9 +47,9 @@ bool CapsuleCollider::CheckCollision(const Collider* other, GameObject*& out_oth
         has_collision = CollisionDetection::CheckAABBVsCylinderSimple(
             static_cast<const AABBCollider*>(other), this);
         break;
-    case ColliderType::kCapsule:
+    case ColliderType::kCylinder:
         has_collision = CollisionDetection::CheckCylinderVsCylinderSimple(
-            this, static_cast<const CapsuleCollider*>(other));
+            this, static_cast<const CylinderCollider*>(other));
         break;
     }
 
@@ -60,7 +60,7 @@ bool CapsuleCollider::CheckCollision(const Collider* other, GameObject*& out_oth
     return has_collision;
 }
 
-bool CapsuleCollider::CheckRigidbodyCollision(
+bool CylinderCollider::CheckRigidbodyCollision(
     const Collider* other, 
     DirectX::XMFLOAT3& out_correction, 
     GameObject*& out_other) const {
@@ -99,9 +99,9 @@ bool CapsuleCollider::CheckRigidbodyCollision(
             out_correction.z = -out_correction.z;
         }
         break;
-    case ColliderType::kCapsule:
+    case ColliderType::kCylinder:
         has_collision = CollisionDetection::CheckCylinderVsCylinderRigidbody(
-            this, static_cast<const CapsuleCollider*>(other), out_correction);
+            this, static_cast<const CylinderCollider*>(other), out_correction);
         break;
     }
 
@@ -112,7 +112,7 @@ bool CapsuleCollider::CheckRigidbodyCollision(
     return has_collision;
 }
 
-void CapsuleCollider::GetDebugDrawInfo(
+void CylinderCollider::GetDebugDrawInfo(
     DirectX::XMFLOAT4X4& transform,
     DirectX::XMFLOAT3& size) const {
 

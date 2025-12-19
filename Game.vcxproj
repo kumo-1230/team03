@@ -123,7 +123,7 @@
     <ClInclude Include="Source\box_collider.h" />
     <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\camera_controller.h" />
-    <ClInclude Include="Source\capsule_collider.h" />
+    <ClInclude Include="Source\cylinder_collider.h" />
     <ClInclude Include="Source\collider.h" />
     <ClInclude Include="Source\collision_detection.h" />
     <ClInclude Include="Source\custom_cursor.h" />
@@ -204,7 +204,7 @@
     <ClCompile Include="Source\aabb_collider.cpp" />
     <ClCompile Include="Source\box_collider.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
-    <ClCompile Include="Source\capsule_collider.cpp" />
+    <ClCompile Include="Source\cylinder_collider.cpp" />
     <ClCompile Include="Source\collider.cpp" />
     <ClCompile Include="Source\collision_detection.cpp" />
     <ClCompile Include="Source\custom_cursor.cpp" />
