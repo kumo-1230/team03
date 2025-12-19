@@ -1439,7 +1439,7 @@ struct ImGuiContext
     bool                    NavInitRequestFromMove;
     ImGuiID                 NavInitResultId;                    // Init request result (first item of the window, or one for which SetItemDefaultFocus() was called)
     ImRect                  NavInitResultRectRel;               // Init request result rectangle (relative to parent window)
-    bool                    NavMoveRequest;                     // Move request for this frame
+    bool                    NavMoveRequest;                     // MoveVector request for this frame
     ImGuiNavMoveFlags       NavMoveRequestFlags;
     ImGuiNavForward         NavMoveRequestForward;              // None / ForwardQueued / ForwardActive (this is used to navigate sibling parent menus from a child menu)
     ImGuiKeyModFlags        NavMoveRequestKeyMods;

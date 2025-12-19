@@ -182,18 +182,6 @@ private:
     DirectX::XMFLOAT3 gravity_; ///< 重力ベクトル
 };
 
-
-GameObject* World::CreateObject(
-    const char* model_filepath,
-    const DirectX::XMFLOAT3& pos,
-    const DirectX::XMFLOAT3& rotation,
-    const DirectX::XMFLOAT3& scale) {
-    auto obj = std::make_unique<GameObject>(model_filepath, pos, rotation, scale);
-    GameObject* ptr = obj.get();
-    game_objects_.emplace_back(std::move(obj));
-    return ptr;
-}
-
 //GameObject* World::CreateObject(
 //    const DirectX::XMFLOAT3& pos,
 //    const DirectX::XMFLOAT3& rotation,
@@ -201,8 +189,8 @@ GameObject* World::CreateObject(
 //    auto obj = std::make_unique<GameObject>();
 //    GameObject* ptr = obj.get();
 //    ptr->SetLocalPosition(pos);
-//    ptr->SetAngle(rotation);
-//    ptr->SetScale(scale);
+//    ptr->SetAngleVector(rotation);
+//    ptr->SetScaleVector(scale);
 //    game_objects_.emplace_back(std::move(obj));
 //    return ptr;
 //}
@@ -234,8 +222,8 @@ T* World::CreateObject(
 //    auto obj = std::make_unique<T>();
 //    T* ptr = obj.get();
 //    ptr->SetLocalPosition(pos);
-//	ptr->SetAngle(rotation);
-//	ptr->SetScale(scale);
+//	ptr->SetAngleVector(rotation);
+//	ptr->SetScaleVector(scale);
 //    game_objects_.emplace_back(std::move(obj));
 //    return ptr;
 //}

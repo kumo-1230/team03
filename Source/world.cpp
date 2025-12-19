@@ -7,8 +7,12 @@ World& World::Instance() {
 
 World::World() : gravity_(0.0f, -9.8f, 0.0f) {}
 
-GameObject* World::CreateObject() {
-    auto obj = std::make_unique<GameObject>();
+GameObject* World::CreateObject(
+    const char* model_filepath,
+    const DirectX::XMFLOAT3& pos,
+    const DirectX::XMFLOAT3& rotation,
+    const DirectX::XMFLOAT3& scale) {
+    auto obj = std::make_unique<GameObject>(model_filepath, pos, rotation, scale);
     GameObject* ptr = obj.get();
     game_objects_.emplace_back(std::move(obj));
     return ptr;
@@ -252,7 +256,7 @@ void World::DetectCollisions() {
             DirectX::XMVECTOR current_pos = obj_a->GetWorldPositionVector();
             DirectX::XMVECTOR correction_vec = DirectX::XMLoadFloat3(&total_correction);
             DirectX::XMVECTOR new_pos = DirectX::XMVectorAdd(current_pos, correction_vec);
-            obj_a->SetWorldPosition(new_pos);
+            obj_a->SetWorldPositionVector(new_pos);
 
             if (collision_count > 0) {
                 const float inv_count = 1.0f / static_cast<float>(collision_count);
@@ -300,7 +304,7 @@ void World::DetectCollisions() {
                             velocity_vec = DirectX::XMVectorZero();
                         }
 
-                        obj_a->SetVelocity(velocity_vec);
+                        obj_a->SetVelocityVector(velocity_vec);
                         rb_a->ClampVelocity();
                     }
                 }

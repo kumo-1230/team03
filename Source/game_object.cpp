@@ -177,20 +177,20 @@ void GameObject::SetLocalPosition(float x, float y, float z) {
     UpdateTransform();
 }
 
-void GameObject::SetLocalPosition(DirectX::FXMVECTOR v) {
+void GameObject::SetLocalPositionVector(DirectX::FXMVECTOR v) {
     DirectX::XMStoreFloat3(&position_, v);
     UpdateTransform();
 }
 
 void GameObject::SetWorldPosition(const DirectX::XMFLOAT3& world_pos) {
-    SetWorldPosition(DirectX::XMLoadFloat3(&world_pos));
+    SetWorldPositionVector(DirectX::XMLoadFloat3(&world_pos));
 }
 
 void GameObject::SetWorldPosition(float x, float y, float z) {
-    SetWorldPosition(DirectX::XMVectorSet(x, y, z, 1.0f));
+    SetWorldPositionVector(DirectX::XMVectorSet(x, y, z, 1.0f));
 }
 
-void GameObject::SetWorldPosition(DirectX::FXMVECTOR v) {
+void GameObject::SetWorldPositionVector(DirectX::FXMVECTOR v) {
     if (parent_ && hierarchy_type_ != HierarchyType::kNone) {
         DirectX::XMMATRIX parent_world_inv = DirectX::XMMatrixInverse(
             nullptr, parent_->GetWorldTransformMatrix());
@@ -204,7 +204,7 @@ void GameObject::SetWorldPosition(DirectX::FXMVECTOR v) {
     UpdateTransform();
 }
 
-void GameObject::SetAngle(DirectX::FXMVECTOR v) {
+void GameObject::SetAngleVector(DirectX::FXMVECTOR v) {
     DirectX::XMStoreFloat3(&angle_, v);
     UpdateTransform();
 }
@@ -240,24 +240,24 @@ DirectX::XMFLOAT3 GameObject::GetAngleDegree() const {
         DirectX::XMConvertToDegrees(angle_.z) };
 }
 
-void GameObject::SetScale(DirectX::FXMVECTOR v) {
+void GameObject::SetScaleVector(DirectX::FXMVECTOR v) {
     DirectX::XMStoreFloat3(&scale_, v);
     UpdateTransform();
 }
 
-void GameObject::SetVelocity(DirectX::FXMVECTOR v) {
+void GameObject::SetVelocityVector(DirectX::FXMVECTOR v) {
     DirectX::XMStoreFloat3(&velocity_, v);
 }
 
 void GameObject::AddVelocity(const DirectX::XMFLOAT3& vel) {
-    AddVelocity(DirectX::XMLoadFloat3(&vel));
+    AddVelocityVector(DirectX::XMLoadFloat3(&vel));
 }
 
 void GameObject::AddVelocity(float x, float y, float z) {
-    AddVelocity(DirectX::XMVectorSet(x, y, z, 0.0f));
+    AddVelocityVector(DirectX::XMVectorSet(x, y, z, 0.0f));
 }
 
-void GameObject::AddVelocity(DirectX::FXMVECTOR v) {
+void GameObject::AddVelocityVector(DirectX::FXMVECTOR v) {
     DirectX::XMVECTOR current = DirectX::XMLoadFloat3(&velocity_);
     DirectX::XMVECTOR result = DirectX::XMVectorAdd(current, v);
     DirectX::XMStoreFloat3(&velocity_, result);
@@ -360,14 +360,14 @@ DirectX::XMFLOAT3 GameObject::GetUpFloat3() const {
 }
 
 void GameObject::Move(const DirectX::XMFLOAT3& offset) {
-    Move(DirectX::XMLoadFloat3(&offset));
+    MoveVector(DirectX::XMLoadFloat3(&offset));
 }
 
 void GameObject::Move(float x, float y, float z) {
-    Move(DirectX::XMVectorSet(x, y, z, 0.0f));
+    MoveVector(DirectX::XMVectorSet(x, y, z, 0.0f));
 }
 
-void GameObject::Move(DirectX::FXMVECTOR v) {
+void GameObject::MoveVector(DirectX::FXMVECTOR v) {
     DirectX::XMVECTOR current = DirectX::XMLoadFloat3(&position_);
     DirectX::XMVECTOR result = DirectX::XMVectorAdd(current, v);
     DirectX::XMStoreFloat3(&position_, result);
@@ -377,19 +377,19 @@ void GameObject::Move(DirectX::FXMVECTOR v) {
 void GameObject::MoveForward(float distance) {
     DirectX::XMVECTOR forward = GetForwardVector();
     DirectX::XMVECTOR offset = DirectX::XMVectorScale(forward, distance);
-    Move(offset);
+    MoveVector(offset);
 }
 
 void GameObject::MoveRight(float distance) {
     DirectX::XMVECTOR right = GetRightVector();
     DirectX::XMVECTOR offset = DirectX::XMVectorScale(right, distance);
-    Move(offset);
+    MoveVector(offset);
 }
 
 void GameObject::MoveUp(float distance) {
     DirectX::XMVECTOR up = GetUpVector();
     DirectX::XMVECTOR offset = DirectX::XMVectorScale(up, distance);
-    Move(offset);
+    MoveVector(offset);
 }
 
 void GameObject::Rotate(const DirectX::XMFLOAT3& delta) {
@@ -411,10 +411,10 @@ void GameObject::RotateDegree(float x, float y, float z) {
 }
 
 void GameObject::LookAt(const DirectX::XMFLOAT3& target) {
-    LookAt(DirectX::XMLoadFloat3(&target));
+    LookAtVector(DirectX::XMLoadFloat3(&target));
 }
 
-void GameObject::LookAt(DirectX::FXMVECTOR target) {
+void GameObject::LookAtVector(DirectX::FXMVECTOR target) {
     DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(&position_);
     DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(target, pos);
 
@@ -481,14 +481,6 @@ void GameObject::SetTransform(const DirectX::XMFLOAT4X4& transform) {
         DirectX::XMFLOAT4X4 world_transform = GetWorldTransformFloat4X4();
         model_->UpdateTransform(world_transform);
     }
-}
-
-void GameObject::ApplyImpulse(const DirectX::XMFLOAT3& impulse) {
-    AddVelocity(impulse);
-}
-
-void GameObject::ApplyImpulse(DirectX::FXMVECTOR impulse) {
-    AddVelocity(impulse);
 }
 
 void GameObject::StopMovement() {

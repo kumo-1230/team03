@@ -290,7 +290,7 @@ namespace DirectX
                 }
             }
 
-            // Move endpoints
+            // MoveVector endpoints
             if (d2X > 0.0f)
                 fX -= dX / d2X;
 

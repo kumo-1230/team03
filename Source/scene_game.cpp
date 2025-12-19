@@ -54,7 +54,7 @@ void SceneGame::Initialize()
 
 	sky_map_ = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
 
-	world.CreateObject("Data/Model/Temporary_wall.glb", { 2, 0, 2 }, {0.1f, 0.1f, 0.1f});
+	world.CreateObject("Data/Model/Temporary_wall.glb", { 9, 0, 2 })->SetScale({ 0.1f, 0.1f, 0.1f });
 
 	// 車オブジェクト
 	obj_ = world.CreateObject<Vault>("Data/Model/mech_drone/mech_drone.glb");

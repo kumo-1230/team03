@@ -283,7 +283,7 @@ namespace
                 dY.b += fD * Diff.b;
             }
 
-            // Move endpoints
+            // MoveVector endpoints
             if (d2X > 0.0f)
             {
                 const float f = -1.0f / d2X;

@@ -1777,7 +1777,7 @@ struct ImGuiWindowClass
     ImGuiDockNodeFlags  DockNodeFlagsOverrideSet;   // [EXPERIMENTAL] Dock node flags to set when a window of this class is hosted by a dock node (it doesn't have to be selected!)
     ImGuiDockNodeFlags  DockNodeFlagsOverrideClear; // [EXPERIMENTAL]
     bool                DockingAlwaysTabBar;        // Set to true to enforce single floating windows of this class always having their own docking node (equivalent of setting the global io.ConfigDockingAlwaysTabBar)
-    bool                DockingAllowUnclassed;      // Set to true to allow windows of this class to be docked/merged with an unclassed window. // FIXME-DOCK: Move to DockNodeFlags override?
+    bool                DockingAllowUnclassed;      // Set to true to allow windows of this class to be docked/merged with an unclassed window. // FIXME-DOCK: MoveVector to DockNodeFlags override?
 
     ImGuiWindowClass() { ClassId = 0; ParentViewportId = 0; ViewportFlagsOverrideSet = ViewportFlagsOverrideClear = 0x00; DockNodeFlagsOverrideSet = DockNodeFlagsOverrideClear = 0x00; DockingAlwaysTabBar = false; DockingAllowUnclassed = true; }
 };
@@ -2636,7 +2636,7 @@ struct ImGuiPlatformIO
     ImVec2  (*Platform_GetWindowPos)(ImGuiViewport* vp);                    // N . . . .  //
     void    (*Platform_SetWindowSize)(ImGuiViewport* vp, ImVec2 size);      // . . U . .  // Set platform window client area size (ignoring OS decorations such as OS title bar etc.)
     ImVec2  (*Platform_GetWindowSize)(ImGuiViewport* vp);                   // N . . . .  // Get platform window client area size
-    void    (*Platform_SetWindowFocus)(ImGuiViewport* vp);                  // N . . . .  // Move window to front and set input focus
+    void    (*Platform_SetWindowFocus)(ImGuiViewport* vp);                  // N . . . .  // MoveVector window to front and set input focus
     bool    (*Platform_GetWindowFocus)(ImGuiViewport* vp);                  // . . U . .  //
     bool    (*Platform_GetWindowMinimized)(ImGuiViewport* vp);              // N . . . .  // Get platform window minimized state. When minimized, we generally won't attempt to get/set size and contents will be culled more easily
     void    (*Platform_SetWindowTitle)(ImGuiViewport* vp, const char* str); // . . U . .  // Set platform window title (given an UTF-8 string)

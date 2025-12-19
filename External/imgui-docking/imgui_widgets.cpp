@@ -2633,7 +2633,7 @@ TYPE ImGui::ScaleValueFromRatioT(ImGuiDataType data_type, float t, TYPE v_min, T
     return result;
 }
 
-// FIXME: Move more of the code into SliderBehavior()
+// FIXME: MoveVector more of the code into SliderBehavior()
 template<typename TYPE, typename SIGNEDTYPE, typename FLOATTYPE>
 bool ImGui::SliderBehaviorT(const ImRect& bb, ImGuiID id, ImGuiDataType data_type, TYPE* v, const TYPE v_min, const TYPE v_max, const char* format, ImGuiSliderFlags flags, ImRect* out_grab_bb)
 {
@@ -3522,7 +3522,7 @@ static void    STB_TEXTEDIT_LAYOUTROW(StbTexteditRow* r, STB_TEXTEDIT_STRING* ob
 static bool is_separator(unsigned int c)                                        { return ImCharIsBlankW(c) || c==',' || c==';' || c=='(' || c==')' || c=='{' || c=='}' || c=='[' || c==']' || c=='|'; }
 static int  is_word_boundary_from_right(STB_TEXTEDIT_STRING* obj, int idx)      { return idx > 0 ? (is_separator(obj->TextW[idx - 1]) && !is_separator(obj->TextW[idx]) ) : 1; }
 static int  STB_TEXTEDIT_MOVEWORDLEFT_IMPL(STB_TEXTEDIT_STRING* obj, int idx)   { idx--; while (idx >= 0 && !is_word_boundary_from_right(obj, idx)) idx--; return idx < 0 ? 0 : idx; }
-#ifdef __APPLE__    // FIXME: Move setting to IO structure
+#ifdef __APPLE__    // FIXME: MoveVector setting to IO structure
 static int  is_word_boundary_from_left(STB_TEXTEDIT_STRING* obj, int idx)       { return idx > 0 ? (!is_separator(obj->TextW[idx - 1]) && is_separator(obj->TextW[idx]) ) : 1; }
 static int  STB_TEXTEDIT_MOVEWORDRIGHT_IMPL(STB_TEXTEDIT_STRING* obj, int idx)  { idx++; int len = obj->CurLenW; while (idx < len && !is_word_boundary_from_left(obj, idx)) idx++; return idx > len ? len : idx; }
 #else
@@ -7750,7 +7750,7 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
     const bool single_floating_window_node = node && node->IsFloatingNode() && (node->Windows.Size == 1);
     if (held && single_floating_window_node && IsMouseDragging(0, 0.0f))
     {
-        // Move
+        // MoveVector
         StartMouseMovingWindow(docked_window);
     }
     else if (held && !tab_appearing && IsMouseDragging(0))

@@ -6787,7 +6787,7 @@ void ImGui::FocusWindow(ImGuiWindow* window)
     // Close popups if any
     ClosePopupsOverWindow(window, false);
 
-    // Move the root window to the top of the pile
+    // MoveVector the root window to the top of the pile
     IM_ASSERT(window == NULL || window->RootWindow != NULL);
     ImGuiWindow* focus_front_window = window ? window->RootWindowDockStop : NULL;
     ImGuiWindow* display_front_window = window ? window->RootWindow : NULL;
@@ -9144,7 +9144,7 @@ static void ImGui::NavProcessItem(ImGuiWindow* window, const ImRect& nav_bb, con
         }
     }
 
-    // Process Move Request (scoring for navigation)
+    // Process MoveVector Request (scoring for navigation)
     // FIXME-NAV: Consider policy for double scoring (scoring from NavScoringRectScreen + scoring from a rect wrapped according to current wrapping policy)
     if ((g.NavId != id || (g.NavMoveRequestFlags & ImGuiNavMoveFlags_AllowCurrentNavId)) && !(item_flags & (ImGuiItemFlags_Disabled | ImGuiItemFlags_NoNav)))
     {
@@ -9950,7 +9950,7 @@ static void ImGui::NavUpdateWindowing()
         if (IsMousePosValid(&g.IO.MousePos) == IsMousePosValid(&g.IO.MousePosPrev))
             apply_toggle_layer = true;
 
-    // Move window
+    // MoveVector window
     if (g.NavWindowingTarget && !(g.NavWindowingTarget->Flags & ImGuiWindowFlags_NoMove))
     {
         ImVec2 move_delta;
@@ -9996,7 +9996,7 @@ static void ImGui::NavUpdateWindowing()
     // Apply menu/layer toggle
     if (apply_toggle_layer && g.NavWindow)
     {
-        // Move to parent menu if necessary
+        // MoveVector to parent menu if necessary
         ImGuiWindow* new_nav_window = g.NavWindow;
         while (new_nav_window->ParentWindow
             && (new_nav_window->DC.NavLayerActiveMask & (1 << ImGuiNavLayer_Menu)) == 0
@@ -11033,7 +11033,7 @@ static bool ImGui::UpdateTryMergeWindowIntoHostViewport(ImGuiWindow* window, ImG
                 return false;
     }
 
-    // Move to the existing viewport, Move child/hosted windows as well (FIXME-OPT: iterate child)
+    // MoveVector to the existing viewport, MoveVector child/hosted windows as well (FIXME-OPT: iterate child)
     ImGuiViewportP* old_viewport = window->Viewport;
     if (window->ViewportOwned)
         for (int n = 0; n < g.Windows.Size; n++)
@@ -13297,7 +13297,7 @@ static void ImGui::DockNodeUpdateTabBar(ImGuiDockNode* node, ImGuiWindow* host_w
         return;
     }
 
-    // Move ourselves to the Menu layer (so we can be accessed by tapping Alt) + undo SkipItems flag in order to draw over the title bar even if the window is collapsed
+    // MoveVector ourselves to the Menu layer (so we can be accessed by tapping Alt) + undo SkipItems flag in order to draw over the title bar even if the window is collapsed
     bool backup_skip_item = host_window->SkipItems;
     if (!node->IsDockSpace())
     {
@@ -14769,7 +14769,7 @@ void ImGui::DockBuilderCopyDockSpace(ImGuiID src_dockspace_id, ImGuiID dst_docks
         else
         {
             // Floating windows gets their settings transferred (regardless of whether the new window already exist or not)
-            // When this is leading to a Copy and not a Move, we would get two overlapping floating windows. Could we possibly dock them together?
+            // When this is leading to a Copy and not a MoveVector, we would get two overlapping floating windows. Could we possibly dock them together?
             IMGUI_DEBUG_LOG_DOCKING("Remap window settings '%s' -> '%s'\n", src_window_name, dst_window_name);
             DockBuilderCopyWindowSettings(src_window_name, dst_window_name);
         }

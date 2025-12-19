@@ -177,7 +177,7 @@ public:
      * @brief ローカル座標を設定
      * @param v 座標ベクトル
      */
-    void SetLocalPosition(DirectX::FXMVECTOR v);
+    void SetLocalPositionVector(DirectX::FXMVECTOR v);
 
     /**
      * @brief 座標を設定（SetLocalPositionのエイリアス）
@@ -197,7 +197,7 @@ public:
      * @brief 座標を設定（SetLocalPositionのエイリアス）
      * @param v 座標ベクトル
      */
-    void SetPosition(DirectX::FXMVECTOR v) { SetLocalPosition(v); }
+    void SetPositionVector(DirectX::FXMVECTOR v) { SetLocalPositionVector(v); }
 
     /**
      * @brief ローカル座標を取得
@@ -223,7 +223,7 @@ public:
      * @brief ワールド座標を設定
      * @param v 座標ベクトル
      */
-    void SetWorldPosition(DirectX::FXMVECTOR v);
+    void SetWorldPositionVector(DirectX::FXMVECTOR v);
 
     /**
      * @brief ワールド座標を取得
@@ -235,7 +235,7 @@ public:
      * @brief 回転を設定（ラジアン）
      * @param v 回転ベクトル（X, Y, Z軸周りの回転角）
      */
-    void SetAngle(DirectX::FXMVECTOR v);
+    void SetAngleVector(DirectX::FXMVECTOR v);
 
     /**
      * @brief 回転を設定（ラジアン）
@@ -281,7 +281,7 @@ public:
      * @brief スケールを設定
      * @param v スケールベクトル
      */
-    void SetScale(DirectX::FXMVECTOR v);
+    void SetScaleVector(DirectX::FXMVECTOR v);
 
     /**
      * @brief スケールを設定
@@ -325,7 +325,7 @@ public:
      * @brief オブジェクトを移動
      * @param v 移動量ベクトル
      */
-    void Move(DirectX::FXMVECTOR v);
+    void MoveVector(DirectX::FXMVECTOR v);
 
     /**
      * @brief 前方に移動
@@ -377,7 +377,7 @@ public:
      * @brief 指定した位置を向く
      * @param target ターゲット位置（XMVECTOR）
      */
-    void LookAt(DirectX::FXMVECTOR target);
+    void LookAtVector(DirectX::FXMVECTOR target);
 
     // ========================================
     // 方向ベクトル
@@ -427,7 +427,7 @@ public:
      * @brief 速度を設定
      * @param v 速度ベクトル
      */
-    void SetVelocity(DirectX::FXMVECTOR v);
+    void SetVelocityVector(DirectX::FXMVECTOR v);
 
     /**
      * @brief 速度を設定
@@ -467,19 +467,7 @@ public:
      * @brief 速度を加算
      * @param v 加算する速度ベクトル
      */
-    void AddVelocity(DirectX::FXMVECTOR v);
-
-    /**
-     * @brief 瞬間的な力を加える
-     * @param impulse 力のベクトル
-     */
-    void ApplyImpulse(const DirectX::XMFLOAT3& impulse);
-
-    /**
-     * @brief 瞬間的な力を加える
-     * @param impulse 力のベクトル
-     */
-    void ApplyImpulse(DirectX::FXMVECTOR impulse);
+    void AddVelocityVector(DirectX::FXMVECTOR v);
 
     /**
      * @brief 移動を停止（速度を0にする）
