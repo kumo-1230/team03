@@ -21,6 +21,7 @@ UiPanel::UiPanel(const char* background_file_name)
         DirectX::XMFLOAT2{ 1.0f, 1.0f },
         RenderLayer::kBackGround,
         true);
+	has_background_ = true;
 }
 
 UiPanel::~UiPanel() {}
@@ -142,9 +143,17 @@ void UiPanel::Render(ID3D11DeviceContext* dc, int background_mode,
     }
 }
 
-void UiPanel::ChangeSpritesColor(const DirectX::XMFLOAT4& color) {
+void UiPanel::ChangeColor(const DirectX::XMFLOAT4& color) {
+    if (background_element_) {
+        background_element_->SetColor(color);
+    }
+
     for (auto& sprite : sprites_) {
         sprite->SetColor(color);
+    }
+
+    for (auto& button : buttons_) {
+        button->SetColor(color);
     }
 }
 
@@ -182,5 +191,19 @@ void UiPanel::SetBackgroundSize(const DirectX::XMFLOAT2& size) {
     background_size_ = size;
     if (background_element_) {
         background_element_->SetSize(size);
+    }
+}
+
+void UiPanel::SetAlphaMultiplier(float alpha) {
+    if (background_element_) {
+        background_element_->SetAlphaMultiplier(alpha);
+	}
+
+    for (auto& sprite : sprites_) {
+        sprite->SetAlphaMultiplier(alpha);
+    }
+
+    for (auto& button : buttons_) {
+        button->SetAlphaMultiplier(alpha);
     }
 }

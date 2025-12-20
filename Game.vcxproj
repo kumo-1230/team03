@@ -180,7 +180,6 @@
     <ClInclude Include="Source\System\Misc.h" />
     <ClInclude Include="Source\System\Model.h" />
     <ClInclude Include="Source\System\ModelRenderer.h" />
-    <ClInclude Include="Source\System\ModelResource.h" />
     <ClInclude Include="Source\System\Mouse.h" />
     <ClInclude Include="Source\System\PrimitiveRenderer.h" />
     <ClInclude Include="Source\System\RenderContext.h" />
@@ -250,7 +249,6 @@
     <ClCompile Include="Source\System\LambertShader.cpp" />
     <ClCompile Include="Source\System\Model.cpp" />
     <ClCompile Include="Source\System\ModelRenderer.cpp" />
-    <ClCompile Include="Source\System\ModelResource.cpp" />
     <ClCompile Include="Source\System\Mouse.cpp" />
     <ClCompile Include="Source\System\PrimitiveRenderer.cpp" />
     <ClCompile Include="Source\System\RenderState.cpp" />

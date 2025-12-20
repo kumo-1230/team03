@@ -138,9 +138,6 @@
     <ClInclude Include="Source\System\ModelRenderer.h">
       <Filter>Source\System</Filter>
     </ClInclude>
-    <ClInclude Include="Source\System\ModelResource.h">
-      <Filter>Source\System</Filter>
-    </ClInclude>
     <ClInclude Include="Source\System\Mouse.h">
       <Filter>Source\System</Filter>
     </ClInclude>
@@ -378,9 +375,6 @@
       <Filter>Source\System</Filter>
     </ClCompile>
     <ClCompile Include="Source\System\Model.cpp">
-      <Filter>Source\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\System\ModelResource.cpp">
       <Filter>Source\System</Filter>
     </ClCompile>
     <ClCompile Include="Source\System\Mouse.cpp">

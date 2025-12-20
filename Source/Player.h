@@ -9,16 +9,17 @@ class CameraController;
 
 class Player : public GameObject {
 public:
-    Player(const char* model_filepath = nullptr,
-        const DirectX::XMFLOAT3& pos = { 0.0f, 0.0f, 0.0f })
-        : GameObject(model_filepath, pos),
-        move_speed_(5.0f),
-        camera_controller_(nullptr) {
-    }
-
     virtual ~Player() = default;
 
     void Update(float elapsed_time) override {
+        if (target_) {
+            if (GetDistanceTo(target_) < 5.0f) {
+                Log(u8"‹——£‚ª5ˆÈ“à");
+            }
+            else {
+				Log(u8"‹——£‚ª5‚æ‚è‘å‚«‚¢");
+            }
+        }
         HandleInput(elapsed_time);
         RenderDebugInfo();
     }
@@ -26,6 +27,10 @@ public:
     void SetCameraController(CameraController* camera) {
         camera_controller_ = camera;
     }
+
+    void SetTargetObject(GameObject* target) {
+        target_ = target;
+	}
 
     CameraController* GetCameraController() const {
         return camera_controller_;
@@ -141,6 +146,7 @@ private:
 
     float move_speed_;
     CameraController* camera_controller_;
+	GameObject* target_;
 };
 
 #endif

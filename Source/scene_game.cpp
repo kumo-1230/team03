@@ -42,7 +42,8 @@ void SceneGame::Initialize()
 	player_->SetPosition(2, 0, 0);
 	//player_->AddAABBCollider(1, 1, 1);
 	player_->AddCylinderCollider(0.5f, 1.0f);
-	player_->AddRigidbody();
+	//player_->AddRigidbody();
+
 
 	// カメラ初期化
 	{
@@ -50,23 +51,28 @@ void SceneGame::Initialize()
 		camera_controller_->SetMode(CameraMode::kFirstPerson); // カメラの設定
 		camera_controller_->SetTarget(player_); // カメラがプレイヤーを追従する
 
-		player_->SetCameraController(camera_controller_); // プレイヤーが視点によaって移動方向を決めるのでSetが必要
+		player_->SetCameraController(camera_controller_); // プレイヤーが視点によって移動方向を決めるのでSetが必要
 	}
 
 	sky_map_ = std::make_unique<sky_map>(dv, L"Data/SkyMapSprite/game_background3.hdr");
 
 	world.CreateObject("Data/Model/Temporary_wall.glb", { 9, 0, 2 });
+	world.CreateObject("Data/Model/Temporary_wall.glb", { 19, 0, 2 });
+	world.CreateObject("Data/Model/Temporary_wall.glb", { 9, 0, 20 });
 
 	// 車オブジェクト
 	obj_ = world.CreateObject<Vault>("Data/Model/mech_drone/mech_drone.glb");
 	obj_->AddAABBCollider(6, 2, 3.5f);
-	obj_->AddRigidbody();
+	obj_->SetScale({ 0.5f, 0.5f, 0.5f });
+	//obj_->AddRigidbody();
+	//player_->SetTargetObject(obj_);
 
 	// ロボットオブジェクト
 	{
-		auto obj = world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", DirectX::XMFLOAT3{ 3, 0, 6 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f });
-		obj->SetParent(obj_);
+		auto obj = world.CreateObject("Data/Model/mech_drone/mech_drone2.glb", 
+			DirectX::XMFLOAT3{ 3, 0, 6 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 10.0f, 10.0f, 10.0f });
 		obj->AddSphereCollider(1.4f)->SetOffset({ 0, 1.1f, 0 });
+		obj->SetParent(obj_);
 	}
 
 	//world.CreateObject("Data/Model/mech_drone/mech_drone.glb", {0, -1, 0});
@@ -112,8 +118,8 @@ void SceneGame::Initialize()
 
 		PointLight mapLight;
 		mapLight.position = { 0, 1, 0 };
-		mapLight.range = 12.0f;
-		mapLight.color = { 0.0f, 0.0f, 1.0f };
+		mapLight.range = 6.0f;
+		mapLight.color = { 0.0f, 1.0f, 1.0f };
 		mapLight.intensity = 8.0f;
 		mapLight.priority = 10;
 		light_manager_.AddPointLight(mapLight);
@@ -124,7 +130,7 @@ void SceneGame::Initialize()
 
 		light_manager_.SetPlayerSpotLight(
 			playerPos, spotDirection,
-			20.0f, 25.0f, 40.0f,
+			20.0f, 15.0f, 20.0f,
 			{ 1.0f, 0.95f, 0.85f }, 8.0f
 		);
 	}
@@ -299,7 +305,6 @@ void SceneGame::Render()
 		dc->OMSetDepthStencilState(rs->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
 		dc->OMSetBlendState(rs->GetBlendState(BlendState::Transparency), blendFactor, 0xffffffff);
 		Pause::Instance().Render(dc);
-
 	}
 }
 

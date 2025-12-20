@@ -60,14 +60,14 @@ public:
         bool freeze_effects = false);
 
     // パネル全体のフェードイン/アウト
-    void FadeIn(float duration = 0.5f, EaseType ease = EaseType::EaseOutCubic);
+    void FadeIn(float duration = 0.5f, EaseType ease = EaseType::EaseInOutQuart);
     void FadeOut(float duration = 0.5f, EaseType ease = EaseType::EaseInCubic);
 
     // イベント取得
     std::vector<UiEvent> GetPendingEvents();
 
     // スプライトの色変更
-    void ChangeSpritesColor(const DirectX::XMFLOAT4& color);
+    void ChangeColor(const DirectX::XMFLOAT4& color);
 
     // 背景サイズ設定
     void SetBackgroundSize(const DirectX::XMFLOAT2& size);
@@ -78,6 +78,9 @@ public:
 
     // 背景色設定
     void SetBackgroundColor(const DirectX::XMFLOAT4& color) { background_color_ = color; }
+
+    // パネル内全スプライト/ボタンのalphaを設定
+    void SetAlphaMultiplier(float alpha);
 
 protected:
     void HandleInput();
@@ -93,8 +96,8 @@ protected:
     UiButton* hovered_button_ = nullptr;
     UiButton* pressed_button_ = nullptr;
 
-    bool has_background_;
-    DirectX::XMFLOAT2 background_size_;
+    bool has_background_ = false;
+    DirectX::XMFLOAT2 background_size_ = { 0, 0 };
     DirectX::XMFLOAT4 background_color_ = { 1.0f, 1.0f, 1.0f, 1.0f };
     bool is_active_ = true;
 };

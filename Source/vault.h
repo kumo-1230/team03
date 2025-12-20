@@ -13,7 +13,7 @@ public:
 	void Update(float elapsed_time) override 
 	{
 		if (InputManager::Instance().IsKeyDown('G')) {
-			auto * tw = TweenManager::Instance().AddTween<Float3Tween>(
+			auto* tw = TweenManager::Instance().AddTween<Float3Tween>(
 				&position_, // lerp対象変数のポインタ
 				position_, // 開始値
 				DirectX::XMFLOAT3{ position_.x + 1.0f, position_.y + 0.0f, position_.z + 2.0f }, // 終了値

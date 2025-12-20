@@ -84,9 +84,6 @@ void Framework::Update(float elapsedTime)
 	TweenManager::Instance().Update(elapsedTime);
 
 	// インプット更新処理
-	//Input::Instance().Update();
-
-	//KeyInput::Instance().Update();
 
 	InputManager::Instance().Update();
 

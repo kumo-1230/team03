@@ -53,6 +53,7 @@ void SceneTitle::Initialize() {
         },
         RenderLayer::kButton
     );
+    startButton->SetRenderLayer(RenderLayer::kDefault);
 
     // ホバー時のコールバック設定
     startButton->SetOnHoverCallback([this]() {
@@ -91,7 +92,8 @@ void SceneTitle::Initialize() {
         });
 
     // パネルをフェードイン
-    titleStartMenu->FadeIn(2.0f);
+    titleStartMenu->SetActive(true);
+    titleStartMenu->FadeIn(1.0f);
 
     // オーディオ読み込み
     clickSE = Audio::Instance().LoadAudioSource("Data/Sound/title/SE_title_click.wav");
@@ -107,7 +109,6 @@ void SceneTitle::Initialize() {
     onStartSE->SetVolume(20);
     clickSE->SetVolume(20);
 
-    titleStartMenu->SetActive(true);
 
     // カメラ設定
     //camera = std::make_unique<CameraController>();
@@ -183,22 +184,22 @@ void SceneTitle::Update(float elapsedTime) {
     titleStartMenu->Update();
 
     // イベント処理
-    auto events = titleStartMenu->GetPendingEvents();
-    for (const auto& event : events) {
-        switch (event.type) {
-        case UiEventType::Click:
-            // クリックイベントの処理（コールバックで既に処理されている）
-            break;
-        case UiEventType::HoverBegin:
-            // ホバー開始時の追加処理（必要なら）
-            break;
-        case UiEventType::HoverEnd:
-            // ホバー終了時の追加処理
-            break;
-        default:
-            break;
-        }
-    }
+    //auto events = titleStartMenu->GetPendingEvents();
+    //for (const auto& event : events) {
+    //    switch (event.type) {
+    //    case UiEventType::Click:
+    //        // クリックイベントの処理（コールバックで既に処理されている）
+    //        break;
+    //    case UiEventType::HoverBegin:
+    //        // ホバー開始時の追加処理（必要なら）
+    //        break;
+    //    case UiEventType::HoverEnd:
+    //        // ホバー終了時の追加処理
+    //        break;
+    //    default:
+    //        break;
+    //    }
+    //}
 }
 
 void SceneTitle::Render() {

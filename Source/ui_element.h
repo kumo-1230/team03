@@ -214,7 +214,7 @@ protected:
     int render_layer_;
 
     /** 有効フラグ */
-    bool is_valid_;
+    bool is_valid_;//
 
     /** サイズ調整用オフセット */
     DirectX::XMFLOAT2 size_offset_ = { 0.0f, 0.0f };

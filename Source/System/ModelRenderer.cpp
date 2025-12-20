@@ -121,10 +121,10 @@ void ModelRenderer::Draw(ShaderId shaderId, std::shared_ptr<Model> model)
 
             PBRShader* pbrShader = static_cast<PBRShader*>(shaders[static_cast<int>(ShaderId::PBR)].get());
             pbrShader->SetMaterialBufferSRV(srv);
-            OutputDebugStringA("Material SRV set to PBRShader\n");
         }
     }
 }
+
 void ModelRenderer::Render(const RenderContext& rc)
 {
     ID3D11DeviceContext* dc = rc.deviceContext;
